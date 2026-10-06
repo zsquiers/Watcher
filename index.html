@@ -468,19 +468,22 @@ function nightDraw(){if(!satMap||!satReady)return;var s=sunPos(Date.now()),sd=Ma
   if(src)src.updateImage({url:url,coordinates:NIGHT_BOX});
   else{satMap.addSource("night",{type:"image",url:url,coordinates:NIGHT_BOX});
     satMap.addLayer({id:"night",type:"raster",source:"night",layout:{visibility:NIGHT?"visible":"none"},paint:{"raster-fade-duration":0,"raster-opacity":["interpolate",["linear"],["zoom"],3.5,1,6.5,0]}},"ref");}
-  satMap.setLight(sunLight(new Date()));}
+  satMap.setLight(satLight());}
+/* with Day and night off, light the atmosphere evenly from the viewer's side (MapLibre's default) instead of the real sun */
+function satLight(){return NIGHT?sunLight(new Date()):{anchor:"viewport",position:[1.15,210,30],color:"#FFFFFF",intensity:0.4}}
 function nightInit(){nightDraw();nightLightsLoad(0);clearInterval(nightTimer);nightTimer=setInterval(nightDraw,5*60*1000);}
 function setNight(on){NIGHT=on;document.getElementById("sun").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-night",on?"on":"off")}catch(e){}
   if(on&&!SAT){setSat(true);return;}
-  if(satMap&&satMap.getLayer("night"))satMap.setLayoutProperty("night","visibility",on?"visible":"none");}
+  if(satMap&&satMap.getLayer("night"))satMap.setLayoutProperty("night","visibility",on?"visible":"none");
+  if(satMap&&satReady)satMap.setLight(satLight());gQueue();}
 function satInit(){
   function esri(path,att){return {type:"raster",tiles:[ESRI+path+"/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:19,attribution:att}}
   satMap=new maplibregl.Map({container:"sat",center:[gLon,gLat],zoom:kToZ(k),maxPitch:85,attributionControl:{compact:true},
     style:{version:8,projection:{type:"globe"},
       sky:{"sky-color":["interpolate",["linear"],["zoom"],5,"#040812",9,"#4F86C6"],"horizon-color":["interpolate",["linear"],["zoom"],5,"#1B2B45",9,"#CFE0F0"],
         "fog-color":["interpolate",["linear"],["zoom"],5,"#0B1629",9,"#C3D5E6"],"sky-horizon-blend":0.6,"horizon-fog-blend":["interpolate",["linear"],["zoom"],5,0.7,9,0.45],
-        "fog-ground-blend":["interpolate",["linear"],["zoom"],5,0.9,9,0.55],"atmosphere-blend":1},
-      light:sunLight(new Date()),
+        "fog-ground-blend":["interpolate",["linear"],["zoom"],5,0.9,9,0.55],"atmosphere-blend":["interpolate",["linear"],["zoom"],0,0.55,5,0.55,8,1]},
+      light:satLight(),
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img"},{id:"ref",type:"raster",source:"ref"}]}});
