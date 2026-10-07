@@ -627,6 +627,11 @@ function slerp(a,b,t){var la1=a[1]*DEG,lo1=a[0]*DEG,la2=b[1]*DEG,lo2=b[0]*DEG;
   var A=[Math.cos(la1)*Math.cos(lo1),Math.cos(la1)*Math.sin(lo1),Math.sin(la1)],B=[Math.cos(la2)*Math.cos(lo2),Math.cos(la2)*Math.sin(lo2),Math.sin(la2)];
   var d=Math.acos(Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2]));if(d<1e-9)return a;var sa=Math.sin((1-t)*d)/Math.sin(d),sb=Math.sin(t*d)/Math.sin(d);
   var x=sa*A[0]+sb*B[0],y=sa*A[1]+sb*B[1],zz=sa*A[2]+sb*B[2];return [Math.atan2(y,x)/DEG,Math.atan2(zz,Math.hypot(x,y))/DEG]}
+/* for a pin with a drawn zone (the Bridgewater and Bermuda triangles), zoom so the whole shape fills a good part of the screen */
+function zoneFit(id){var z=(MAP.zones||[]).find(function(z){return z[0]===id});if(!z)return null;var c=z[1],la=c.map(function(p){return p[1]}),lo=c.map(function(p){return p[0]});
+  var lat=(Math.min.apply(null,la)+Math.max.apply(null,la))/2,lon=(Math.min.apply(null,lo)+Math.max.apply(null,lo))/2,
+    d=Math.max(Math.max.apply(null,la)-Math.min.apply(null,la),(Math.max.apply(null,lo)-Math.min.apply(null,lo))*Math.cos(lat*DEG));
+  return {lat:lat,lon:lon,k:Math.min(KMAX,Math.max(KMIN,0.45/(0.42*DEG*d)))}}
 function gDrawZones(path){var c=gx;zoneRings().forEach(function(z){c.beginPath();path({type:"Polygon",coordinates:[z.ring]});
   c.fillStyle="rgba(255,122,69,.13)";c.fill();c.setLineDash([6,4]);c.strokeStyle="rgba(255,122,69,.95)";c.lineWidth=1.6;c.stroke();c.setLineDash([]);});}
 function satZones(){if(!satMap||satMap.getSource("zones"))return;
@@ -859,8 +864,8 @@ function homeTL(){var r=vp.getBoundingClientRect();if(!r.width){fit();return;}va
 function focusAt(x,y,minK){var r=vp.getBoundingClientRect();var wide=r.width>640;
   var cx=wide?(r.width-Math.min(380,r.width))/2:r.width/2,cy=wide?r.height/2:r.height*0.2;
   if(k<minK)k=minK;tx=cx-x*k;ty=cy-y*k;apply();}
-function focusItem(id){if(mode==="timeline"){var t=tlPos[id];if(!t&&TLById[id]){TLF[TLById[id].kind]=true;tlFilter();t=tlPos[id];}if(t)focusAt(t.cx,t.cy,1.3);return;}if(mode==="tree"){var p=pos[id];if(p)focusAt(p.x+W/2,p.y+40,1.1);}else{var q=pinAll().find(function(x){return x.id===id});if(q&&q.lat!=null&&SAT&&satMap){var r=vp.getBoundingClientRect(),wide=r.width>640;satMap.flyTo({center:[q.lon,q.lat],zoom:Math.max(satMap.getZoom(),kToZ(12)),padding:wide?{top:0,bottom:0,left:0,right:Math.min(380,r.width)}:{top:0,left:0,right:0,bottom:Math.round(r.height*0.6)},duration:RM?0:1600});}
-  else if(q&&q.lat!=null){var r=vp.getBoundingClientRect(),wide=r.width>640;gFly(q.lat,q.lon,Math.max(k,12),wide?(r.width-Math.min(380,r.width))/2:r.width/2,wide?r.height/2:r.height*0.2);}}}
+function focusItem(id){if(mode==="timeline"){var t=tlPos[id];if(!t&&TLById[id]){TLF[TLById[id].kind]=true;tlFilter();t=tlPos[id];}if(t)focusAt(t.cx,t.cy,1.3);return;}if(mode==="tree"){var p=pos[id];if(p)focusAt(p.x+W/2,p.y+40,1.1);}else{var q=pinAll().find(function(x){return x.id===id});if(q&&q.lat!=null&&SAT&&satMap){var r=vp.getBoundingClientRect(),wide=r.width>640;var zf=zoneFit(q.id);satMap.flyTo({center:zf?[zf.lon,zf.lat]:[q.lon,q.lat],zoom:zf?kToZ(zf.k):Math.max(satMap.getZoom(),kToZ(12)),padding:wide?{top:0,bottom:0,left:0,right:Math.min(380,r.width)}:{top:0,left:0,right:0,bottom:Math.round(r.height*0.6)},duration:RM?0:1600});}
+  else if(q&&q.lat!=null){var r=vp.getBoundingClientRect(),wide=r.width>640;var zf=zoneFit(q.id);gFly(zf?zf.lat:q.lat,zf?zf.lon:q.lon,zf?zf.k:Math.max(k,12),wide?(r.width-Math.min(380,r.width))/2:r.width/2,wide?r.height/2:r.height*0.2);}}}
 
 var blinking=false,blinkNext=null;
 function blink(fn){var R=document.documentElement,dot=document.getElementById("blink");if(RM||!dot){fn();return;}
