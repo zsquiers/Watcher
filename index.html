@@ -873,7 +873,8 @@ function blink(fn){var R=document.documentElement,dot=document.getElementById("b
     /* on: the dot stretches back into a line, then the picture opens */
     requestAnimationFrame(function(){dot.classList.remove("on");step("crt-line",".06s",60,function(){step("",".12s",120,function(){
       R.classList.remove("crt");R.style.removeProperty("--crt-t");blinking=false;if(blinkNext){var n=blinkNext;blinkNext=null;blink(n);}});});});});});}
-function switchTo(m){if(m===mode)return;blink(function(){setMode(m);if(m==="map")globeIn();})}
+/* the Org chart button always opens on AARO and its branch, even when you're already on the Org chart */
+function switchTo(m){if(m===mode){if(m==="tree")homeTree();return;}blink(function(){setMode(m);if(m==="map")globeIn();if(m==="tree")homeTree();})}
 /* entering the map: swoop in from deep space to where you left off */
 function globeIn(){if(RM)return;var D=1500,W8=120,ease=function(t){return 1-Math.pow(1-t,3)};
   if(SAT&&satMap&&satReady){var c=satMap.getCenter(),z=satMap.getZoom();satMap.jumpTo({center:[c.lng+35,c.lat],zoom:Math.min(z,2)-1.6});
