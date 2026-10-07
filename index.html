@@ -847,6 +847,9 @@ function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCent
 function treeFitK(){var r=vp.getBoundingClientRect();return Math.max(0.15,Math.min(r.width/bounds.w,r.height/bounds.h,1.2))}
 function zoomAt(f,cx,cy){if(mode==="map"&&SAT&&satMap){satMap.zoomTo(satMap.getZoom()+Math.log2(f),{duration:RM?0:250});return;}if(mode==="map"){cancelAnimationFrame(gAnim);gZoom(f,cx,cy);return;}var nk=Math.min(mode==="map"?40:3,Math.max(mode==="tree"?treeFitK():0.15,k*f));f=nk/k;tx=cx-(cx-tx)*f;ty=cy-(cy-ty)*f;k=nk;apply();}
 function center(){var r=vp.getBoundingClientRect();return [r.width/2,r.height/2]}
+/* the org chart opens zoomed in on AARO and its Pentagon branch rather than the whole chart (Fit still shows everything) */
+function homeTree(){var p=pos.aaro,r=vp.getBoundingClientRect();if(!p||!r.width){fit();return;}
+  k=Math.max(treeFitK(),r.width<640?0.75:1);tx=r.width*(r.width<640?0.5:0.36)-(p.x+W/2)*k;ty=r.height*0.52-(p.y+40)*k;apply();}
 function focusAt(x,y,minK){var r=vp.getBoundingClientRect();var wide=r.width>640;
   var cx=wide?(r.width-Math.min(380,r.width))/2:r.width/2,cy=wide?r.height/2:r.height*0.2;
   if(k<minK)k=minK;tx=cx-x*k;ty=cy-y*k;apply();}
@@ -875,7 +878,7 @@ function setMode(m){if(m===mode)return;cancelAnimationFrame(gAnim);views[mode]={
   mode=m;["tree","map","timeline"].forEach(function(x){document.body.classList.toggle("mode-"+x,m===x)});
   document.getElementById("mt").setAttribute("aria-pressed",m==="tree");document.getElementById("mm").setAttribute("aria-pressed",m==="map");document.getElementById("ml").setAttribute("aria-pressed",m==="timeline");
   hint.textContent=HINTS[m];document.getElementById("vt").textContent=SUBS[m];if(m==="map"&&!SAT&&satWanted())setTimeout(function(){setSat(true)},0);document.getElementById("addpin").textContent="Add a pin";render();
-  if(views[m]){tx=views[m].tx;ty=views[m].ty;k=views[m].k;if(m==="map"){gLon=views[m].lon;gLat=views[m].lat;gox=views[m].ox;goy=views[m].oy;}apply();}else fit();}
+  if(views[m]){tx=views[m].tx;ty=views[m].ty;k=views[m].k;if(m==="map"){gLon=views[m].lon;gLat=views[m].lat;gox=views[m].ox;goy=views[m].oy;}apply();}else if(m==="tree")homeTree();else fit();}
 document.getElementById("mt").onclick=function(){switchTo("tree")};
 document.getElementById("mm").onclick=function(){switchTo("map")};
 document.getElementById("ml").onclick=function(){switchTo("timeline")};
@@ -1182,7 +1185,7 @@ function save(okText){
 }
 
 vp.addEventListener("scroll",function(){if(vp.scrollLeft||vp.scrollTop){vp.scrollLeft=0;vp.scrollTop=0;}});buildTL();layoutTL();sInit();document.body.classList.add("mode-tree");hint.textContent=HINTS.tree;
-renderTree();requestAnimationFrame(function(){fit();var m=null;try{m=sessionStorage.getItem("uap-mode")}catch(e){}if(m==="map"||m==="timeline")setMode(m);});
+renderTree();requestAnimationFrame(function(){homeTree();var m=null;try{m=sessionStorage.getItem("uap-mode")}catch(e){}if(m==="map"||m==="timeline")setMode(m);});
 window.addEventListener("resize",function(){gSize();if(mode==="map")apply();else if(!panel.classList.contains("open"))fit();});
 })();
 </script>
