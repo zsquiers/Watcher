@@ -447,9 +447,15 @@ function satLib(){if(window.maplibregl)return Promise.resolve();if(satLoad)retur
 function kToZ(kk){return Math.log2(2*Math.PI*Math.min(gW,gH)*0.42*kk/512)}
 function zToK(z){return 512*Math.pow(2,z)/(2*Math.PI)/(Math.min(gW,gH)*0.42)}
 /* the sun: where it is overhead right now (a standard low-precision solar formula, good to a fraction of a degree) */
+/* the Moon: a standard low-precision formula (good to about a degree) for its place in the sky and its phase */
+function moonPos(t){var d=t/864e5-10957.5,R=DEG,L=218.316+13.176396*d,M=(134.963+13.064993*d)*R,F=(93.272+13.22935*d)*R,
+    lam=(L+6.289*Math.sin(M))*R,bet=5.128*Math.sin(F)*R,e=23.439*R,
+    ra=Math.atan2(Math.sin(lam)*Math.cos(e)-Math.tan(bet)*Math.sin(e),Math.cos(lam)),dec=Math.asin(Math.sin(bet)*Math.cos(e)+Math.cos(bet)*Math.sin(e)*Math.sin(lam)),
+    sl=sunPos(t).elon,el=((lam/R-sl)%360+360)%360;
+  return {ra:ra/R,dec:dec/R,lit:(1-Math.cos(el*R))/2,waxing:el<180}}
 function sunPos(t){var d=t/864e5-10957.5,R=DEG,g=(357.529+0.98560028*d)*R,q=280.459+0.98564736*d,L=(q+1.915*Math.sin(g)+0.02*Math.sin(2*g))*R,e=(23.439-3.6e-7*d)*R;
   var ra=Math.atan2(Math.cos(e)*Math.sin(L),Math.cos(L))/R,dec=Math.asin(Math.sin(e)*Math.sin(L))/R,gmst=(18.697374558+24.06570982441908*d)%24;
-  return {lat:dec,lon:((ra-gmst*15)%360+540)%360-180}}
+  return {lat:dec,lon:((ra-gmst*15)%360+540)%360-180,ra:ra,dec:dec,elon:L/R}}
 /* MapLibre lights the atmosphere (and 3D buildings) from its "light"; anchored to the map, this points it at the real sun */
 function sunLight(t){var s=sunPos(+t),ph=s.lat*DEG,la=s.lon*DEG,x=-Math.sin(la)*Math.cos(ph),y=-Math.sin(ph),z=-Math.cos(la)*Math.cos(ph);
   return {anchor:"map",position:[1.5,Math.atan2(y,x)/DEG-90,Math.acos(z)/DEG],color:"#FFF8EE",intensity:0.35}}
@@ -622,6 +628,21 @@ function drawSky(c,lon,lat){var S=skyData(),a0=(lon+gmst()+180)*DEG,d0=-lat*DEG,
     c.beginPath();c.arc(X,Y,rad,0,6.2832);c.fill();
     if(m<1.6){c.globalAlpha=0.18;c.beginPath();c.arc(X,Y,rad*2.6,0,6.2832);c.fill();}}
   c.globalAlpha=1;
+  // the Sun and the Moon in their real places; like the stars, they only show where Earth isn't blocking them
+  var now=Date.now(),sp=sunPos(now),mp=moonPos(now);function sky(ra,dec){return [ra*DEG,Math.sin(dec*DEG),Math.cos(dec*DEG)]}
+  if(P(sky(sp.ra,sp.dec),-0.1)){var g=c.createRadialGradient(X,Y,0,X,Y,90);g.addColorStop(0,"rgba(255,250,235,1)");g.addColorStop(0.08,"rgba(255,244,214,.95)");
+    g.addColorStop(0.2,"rgba(255,226,170,.35)");g.addColorStop(0.5,"rgba(255,210,150,.08)");g.addColorStop(1,"rgba(255,210,150,0)");c.fillStyle=g;c.fillRect(X-90,Y-90,180,180);
+    c.fillStyle="#FFFDF5";c.beginPath();c.arc(X,Y,8,0,6.2832);c.fill();}
+  var mv=sky(mp.ra,mp.dec);if(P(mv,0)){var mx=X,my=Y,r=11,
+      /* which way the lit side faces: a point a little way from the Moon toward the Sun */
+      sv=sky(sp.ra,sp.dec),u=[mv[2]*Math.cos(mv[0]),mv[2]*Math.sin(mv[0]),mv[1]],w=[sv[2]*Math.cos(sv[0]),sv[2]*Math.sin(sv[0]),sv[1]],
+      q=[u[0]+(w[0]-u[0])*0.02,u[1]+(w[1]-u[1])*0.02,u[2]+(w[2]-u[2])*0.02],qn=Math.hypot(q[0],q[1],q[2]),ang=0;
+    if(P([Math.atan2(q[1],q[0]),q[2]/qn,Math.hypot(q[0],q[1])/qn],-1))ang=Math.atan2(Y-my,X-mx);
+    c.save();c.translate(mx,my);c.rotate(ang);
+    var mg=c.createRadialGradient(0,0,r,0,0,r*3);mg.addColorStop(0,"rgba(220,228,245,"+(0.18*mp.lit).toFixed(3)+")");mg.addColorStop(1,"rgba(220,228,245,0)");c.fillStyle=mg;c.beginPath();c.arc(0,0,r*3,0,6.2832);c.fill();
+    c.fillStyle="#262B36";c.beginPath();c.arc(0,0,r,0,6.2832);c.fill();
+    var k=mp.lit,rx=r*Math.abs(1-2*k);c.fillStyle="#EEF0EA";c.beginPath();c.arc(0,0,r,-Math.PI/2,Math.PI/2,false);
+    if(k>=0.5)c.ellipse(0,0,rx,r,0,Math.PI/2,Math.PI*1.5,false);else c.ellipse(0,0,rx,r,0,Math.PI/2,-Math.PI/2,true);c.fill();c.restore();}
   // constellation names
   c.font="italic 600 11px "+SERIF;c.textAlign="center";c.textBaseline="middle";if("letterSpacing" in c)c.letterSpacing="2px";c.fillStyle="rgba(165,185,230,.42)";
   for(i=0;i<S.names.length;i++){var n=S.names[i];if(P(n,0.2))c.fillText(n[3],X,Y);}
