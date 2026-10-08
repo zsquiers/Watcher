@@ -340,7 +340,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button>'+
-'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="sun" class="terr" aria-pressed="true" title="Shade the side of the Earth where it is night right now">Day and night</button><button id="addpin">Add a pin</button></span></div></header>'+
+'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="blink" aria-hidden="true"></div><div id="vp"><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><div id="sat"></div><button id="compass" title="Face north" aria-label="Face north"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
@@ -458,7 +458,7 @@ function sunLight(t){var s=sunPos(+t),ph=s.lat*DEG,la=s.lon*DEG,x=-Math.sin(la)*
 var NIGHT=true,NW=2048,nightLights=null,nightTimer=0,NIGHT_BOX=[[-180,85.0511],[180,85.0511],[180,-85.0511],[-180,-85.0511]];
 var BM_URLS=["https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_Black_Marble/default/2016-01-01/GoogleMapsCompatible_Level8/",
   "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_CityLights_2012/default/2012-01-01/GoogleMapsCompatible_Level8/"];
-function nightWanted(){try{return localStorage.getItem("watcher-night")!=="off"}catch(e){return true}}
+
 function nightLightsLoad(i){if(i>=BM_URLS.length)return;var Z=3,N=8,T=NW/N,cv=document.createElement("canvas"),left=N*N,bad=false;cv.width=cv.height=NW;var cx=cv.getContext("2d");
   for(var y=0;y<N;y++)for(var x=0;x<N;x++)(function(x,y){var im=new Image();im.crossOrigin="anonymous";
     im.onload=function(){cx.drawImage(im,x*T,y*T,T,T);done()};im.onerror=function(){bad=true;done()};im.src=BM_URLS[i]+Z+"/"+y+"/"+x+(i?".jpg":".png");})(x,y);
@@ -480,7 +480,8 @@ function nightDraw(){if(!satMap||!satReady)return;var s=sunPos(Date.now()),sd=Ma
 /* with Day and night off, light the atmosphere evenly from the viewer's side (MapLibre's default) instead of the real sun */
 function satLight(){return NIGHT?sunLight(new Date()):{anchor:"viewport",position:[1.15,210,30],color:"#FFFFFF",intensity:0.4}}
 function nightInit(){nightDraw();nightLightsLoad(0);clearInterval(nightTimer);nightTimer=setInterval(nightDraw,5*60*1000);}
-function setNight(on){NIGHT=on;document.getElementById("sun").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-night",on?"on":"off")}catch(e){}
+/* day and night is always on; the old toggle is gone */
+function setNight(on){NIGHT=on;
   if(on&&!SAT){setSat(true);return;}
   if(satMap&&satMap.getLayer("night"))satMap.setLayoutProperty("night","visibility",on?"visible":"none");
   if(satMap&&satReady)satMap.setLight(satLight());gQueue();}
@@ -915,7 +916,7 @@ document.getElementById("mm").onclick=function(){switchTo("map")};
 document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
   if(b.dataset.k)filt[b.dataset.k]=!filt[b.dataset.k];else MAPKEYS.forEach(function(r){filt[r[0]]=b.dataset.all==="1"});mapFilter();});mapKeySync();
-document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo({bearing:0,duration:RM?0:700})};document.getElementById("stMap").onclick=function(){setSat(false)};document.getElementById("terr").onclick=function(){setTerrain(!TERR)};document.getElementById("sun").onclick=function(){setNight(!NIGHT)};NIGHT=nightWanted();document.getElementById("sun").setAttribute("aria-pressed",NIGHT);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
+document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo({bearing:0,duration:RM?0:700})};document.getElementById("stMap").onclick=function(){setSat(false)};document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
