@@ -861,6 +861,9 @@ function homeTree(){var p=pos.aaro,r=vp.getBoundingClientRect();if(!p||!r.width)
 /* the timeline opens on the modern era of UAP offices, from AATIP and AAWSAP to AARO, with "Now" near the right edge */
 function homeTL(){var r=vp.getBoundingClientRect();if(!r.width){fit();return;}var yrs=r.width<640?11:22;
   k=Math.max(0.6,Math.min(1.6,r.width/(yrs*YW)));tx=r.width-Math.min(110,r.width*0.08)-yx(NOWY)*k;ty=95-70*k;apply();}
+/* the map opens on North America, where most of the pins are, close enough that the US fills the view */
+function homeMap(){cancelAnimationFrame(gAnim);gLon=-93;gLat=36;k=1.9;gox=0;goy=0;
+  if(SAT&&satMap)satMap.jumpTo({center:[gLon,gLat],zoom:kToZ(k),bearing:0,pitch:satMap.getPitch()});apply();}
 function focusAt(x,y,minK){var r=vp.getBoundingClientRect();var wide=r.width>640;
   var cx=wide?(r.width-Math.min(380,r.width))/2:r.width/2,cy=wide?r.height/2:r.height*0.2;
   if(k<minK)k=minK;tx=cx-x*k;ty=cy-y*k;apply();}
@@ -884,13 +887,13 @@ function switchTo(m){if(m===mode){if(m==="tree")homeTree();return;}blink(functio
 function globeIn(){if(RM)return;var D=1500,W8=120,ease=function(t){return 1-Math.pow(1-t,3)};
   if(SAT&&satMap&&satReady){var c=satMap.getCenter(),z=satMap.getZoom();satMap.jumpTo({center:[c.lng+35,c.lat],zoom:Math.min(z,2)-1.6});
     setTimeout(function(){satMap.easeTo({center:c,zoom:z,duration:D,easing:ease})},W8);return;}
-  if(SAT)return;cancelAnimationFrame(gAnim);var k1=k,l1=gLon,k0=Math.min(k1,1)*0.35;k=k0;gLon=gWrap(l1+35);gQueue();
+  if(SAT||satWanted())return;cancelAnimationFrame(gAnim);var k1=k,l1=gLon,k0=Math.min(k1,1)*0.35;k=k0;gLon=gWrap(l1+35);gQueue();
   setTimeout(function(){var t0=performance.now();(function step(now){var t=Math.min(1,(now-t0)/D),u=ease(t);k=Math.exp(Math.log(k0)+(Math.log(k1)-Math.log(k0))*u);gLon=gWrap(l1+35*(1-u));gQueue();if(t<1)gAnim=requestAnimationFrame(step);})(t0);},W8);}
 function setMode(m){if(m===mode)return;cancelAnimationFrame(gAnim);views[mode]={tx:tx,ty:ty,k:k,lon:gLon,lat:gLat,ox:gox,oy:goy};closePanel(true);placing=false;vp.classList.remove("placing");
   mode=m;["tree","map","timeline"].forEach(function(x){document.body.classList.toggle("mode-"+x,m===x)});
   document.getElementById("mt").setAttribute("aria-pressed",m==="tree");document.getElementById("mm").setAttribute("aria-pressed",m==="map");document.getElementById("ml").setAttribute("aria-pressed",m==="timeline");
   hint.textContent=HINTS[m];document.getElementById("vt").textContent=SUBS[m];if(m==="map"&&!SAT&&satWanted())setTimeout(function(){setSat(true)},0);document.getElementById("addpin").textContent="Add a pin";render();
-  if(views[m]){tx=views[m].tx;ty=views[m].ty;k=views[m].k;if(m==="map"){gLon=views[m].lon;gLat=views[m].lat;gox=views[m].ox;goy=views[m].oy;}apply();}else if(m==="tree")homeTree();else if(m==="timeline")homeTL();else fit();}
+  if(views[m]){tx=views[m].tx;ty=views[m].ty;k=views[m].k;if(m==="map"){gLon=views[m].lon;gLat=views[m].lat;gox=views[m].ox;goy=views[m].oy;}apply();}else if(m==="tree")homeTree();else if(m==="timeline")homeTL();else if(m==="map")homeMap();else fit();}
 document.getElementById("mt").onclick=function(){switchTo("tree")};
 document.getElementById("mm").onclick=function(){switchTo("map")};
 document.getElementById("ml").onclick=function(){switchTo("timeline")};
