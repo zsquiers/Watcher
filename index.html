@@ -663,6 +663,18 @@ function skyData(){if(SKY)return SKY;var d=MAP.sky||{stars:[],lines:[],names:[]}
     names:d.names.filter(function(n){return n[3]<=2}).map(function(n){var p=pt([n[1],n[2]]);p.push(n[0].toUpperCase());return p})};
   return SKY}
 function gmst(){var jd=Date.now()/86400000+2440587.5;return ((280.46061837+360.98564736629*(jd-2451545))%360+360)%360}
+/* the Sun as a camera sees it in space: a white-hot core, a golden halo, and fine rays of uneven length; drawn once and reused */
+var SUNSPR=null;
+function sunSprite(){if(SUNSPR)return SUNSPR;var S=240,h=S/2,cv=document.createElement("canvas");cv.width=cv.height=S;var c=cv.getContext("2d"),i,g;
+  g=c.createRadialGradient(h,h,0,h,h,h);g.addColorStop(0,"rgba(255,232,180,.75)");g.addColorStop(0.16,"rgba(255,206,130,.42)");g.addColorStop(0.42,"rgba(235,160,80,.12)");g.addColorStop(1,"rgba(240,170,90,0)");
+  c.fillStyle=g;c.fillRect(0,0,S,S);
+  c.globalCompositeOperation="lighter";if("filter" in c)c.filter="blur(1.2px)";var seed=7;function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647}
+  for(i=0;i<56;i++){var a=i/56*Math.PI*2+rnd()*0.09,L=h*(0.38+rnd()*0.55)*(i%2?0.75:1),w=0.7+rnd()*1.6,gr=c.createLinearGradient(h,h,h+Math.cos(a)*L,h+Math.sin(a)*L);
+    gr.addColorStop(0,"rgba(255,246,220,.75)");gr.addColorStop(0.35,"rgba(255,215,150,.32)");gr.addColorStop(1,"rgba(255,190,110,0)");
+    c.strokeStyle=gr;c.lineWidth=w;c.beginPath();c.moveTo(h,h);c.lineTo(h+Math.cos(a)*L,h+Math.sin(a)*L);c.stroke();}
+  if("filter" in c)c.filter="none";g=c.createRadialGradient(h,h,0,h,h,26);g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(0.4,"rgba(255,252,240,1)");g.addColorStop(0.7,"rgba(255,232,180,.6)");g.addColorStop(1,"rgba(255,220,160,0)");
+  c.fillStyle=g;c.beginPath();c.arc(h,h,26,0,6.2832);c.fill();
+  SUNSPR=cv;return cv}
 function drawSky(c,lon,lat){var S=skyData(),a0=(lon+gmst()+180)*DEG,d0=-lat*DEG,sd0=Math.sin(d0),cd0=Math.cos(d0),sc=Math.max(gW,gH)/2/0.83,cx=gW/2,cy=gH/2,X=0,Y=0;
   c.fillStyle="#040812";c.fillRect(0,0,gW,gH);
   function P(p,lim){var da=p[0]-a0,cda=Math.cos(da),cosc=sd0*p[1]+cd0*p[2]*cda;if(cosc<lim)return false;var kk=2/(1+Math.max(cosc,-0.85));
@@ -680,9 +692,7 @@ function drawSky(c,lon,lat){var S=skyData(),a0=(lon+gmst()+180)*DEG,d0=-lat*DEG,
   c.globalAlpha=1;
   // the Sun and the Moon in their real places; like the stars, they only show where Earth isn't blocking them
   var now=Date.now(),sp=sunPos(now),mp=moonPos(now);function sky(ra,dec){return [ra*DEG,Math.sin(dec*DEG),Math.cos(dec*DEG)]}
-  if(P(sky(sp.ra,sp.dec),-0.1)){var g=c.createRadialGradient(X,Y,0,X,Y,90);g.addColorStop(0,"rgba(255,250,235,1)");g.addColorStop(0.08,"rgba(255,244,214,.95)");
-    g.addColorStop(0.2,"rgba(255,226,170,.35)");g.addColorStop(0.5,"rgba(255,210,150,.08)");g.addColorStop(1,"rgba(255,210,150,0)");c.fillStyle=g;c.fillRect(X-90,Y-90,180,180);
-    c.fillStyle="#FFFDF5";c.beginPath();c.arc(X,Y,8,0,6.2832);c.fill();}
+  if(P(sky(sp.ra,sp.dec),-0.1)){var SP=sunSprite();c.drawImage(SP,X-SP.width/2,Y-SP.height/2);}
   var mv=sky(mp.ra,mp.dec);if(P(mv,0)){var mx=X,my=Y,r=11,
       /* which way the lit side faces: a point a little way from the Moon toward the Sun */
       sv=sky(sp.ra,sp.dec),u=[mv[2]*Math.cos(mv[0]),mv[2]*Math.sin(mv[0]),mv[1]],w=[sv[2]*Math.cos(sv[0]),sv[2]*Math.sin(sv[0]),sv[1]],
