@@ -121,6 +121,7 @@ body:not(.mode-tree) .treeonly,body:not(.mode-map) .maponly,body:not(.mode-timel
 #mapw{position:absolute;inset:0;overflow:hidden}
 #globe{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
 #sat{position:absolute;inset:0;display:none;background:transparent}
+#haze{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}body.sat.mode-map #haze{display:block}
 #cloud[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
 #terr[aria-pressed="true"],#sun[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
 body.sat #sat{display:block}
@@ -365,7 +366,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button>'+
 '<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show yesterday\'s clouds from NASA satellites">Clouds</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="blink" aria-hidden="true"></div><div id="vp"><div id="world"><svg id="edges"></svg></div>'+
-'<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><div id="sat"></div><button id="compass" title="Face north" aria-label="Face north"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
+'<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Face north" aria-label="Face north"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
 '<div class="legend treeonly"><span><i class="sw a"></i>Active UAP office</span><span><i class="sw c"></i>Closed program</span><span><i class="sw s"></i>Secret project</span><span><i class="sw"></i>Parent body</span><span id="lgl" hidden><i class="sw l"></i>Succeeded by</span></div>'+
 '<div class="legend maponly mapkey fkey" role="group" aria-label="Show or hide on the map">'+MAPKEYS.map(function(r){var n=r[0]==="mine"?"":MAP.pins.filter(function(p){return pinKey(p)===r[0]}).length;return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+(n!==""?'<span class="kn">'+n+'</span>':'')+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
@@ -507,7 +508,10 @@ function nightDraw(){if(!satMap||!satReady)return;var s=sunPos(Date.now()),sd=Ma
     satMap.addLayer({id:"night",type:"raster",source:"night",layout:{visibility:NIGHT?"visible":"none"},paint:{"raster-fade-duration":0,"raster-opacity":["interpolate",["linear"],["zoom"],3.5,1,6.5,0]}},"ref");}
   satMap.setLight(satLight());}
 /* with Day and night off, light the atmosphere evenly from the viewer's side (MapLibre's default) instead of the real sun */
-function satLight(){return NIGHT?sunLight(new Date()):{anchor:"viewport",position:[1.15,210,30],color:"#FFFFFF",intensity:0.4}}
+/* zoomed out, the real sun lights the atmosphere; closer in, a light from behind the viewer gives the clean blue-white
+   horizon and haze seen from orbit, instead of a sunset tint whenever the sun is low */
+var satLightMode="";function satLightSync(){if(!satMap||!satReady)return;var m=satMap.getZoom()<5.5?"sun":"view";if(m!==satLightMode){satLightMode=m;satMap.setLight(satLight());}}
+function satLight(){if(satMap&&satMap.getZoom()>=5.5)return {anchor:"viewport",position:[1.15,180,10],color:"#DDE9FF",intensity:0.4};return NIGHT?sunLight(new Date()):{anchor:"viewport",position:[1.15,210,30],color:"#FFFFFF",intensity:0.4}}
 /* clouds: yesterday's full-Earth satellite picture from NASA (VIIRS true color via GIBS), turned into a white cloud
    layer by keeping only the bright, colorless pixels; it fades out as you zoom in so it never hides the ground */
 var CLOUDS=false,cloudDate="",cloudBusy=false;
@@ -551,14 +555,18 @@ function satInit(){
   function esri(path,att){return {type:"raster",tiles:[ESRI+path+"/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:19,attribution:att}}
   satMap=new maplibregl.Map({container:"sat",center:[gLon,gLat],zoom:kToZ(k),maxPitch:85,attributionControl:{compact:true},
     style:{version:8,projection:{type:"globe"},
-      sky:{"sky-color":["interpolate",["linear"],["zoom"],5,"#040812",9,"#4F86C6"],"horizon-color":["interpolate",["linear"],["zoom"],5,"#1B2B45",9,"#CFE0F0"],
-        "fog-color":["interpolate",["linear"],["zoom"],5,"#0B1629",9,"#C3D5E6"],"sky-horizon-blend":0.6,"horizon-fog-blend":["interpolate",["linear"],["zoom"],5,0.7,9,0.45],
-        "fog-ground-blend":["interpolate",["linear"],["zoom"],5,0.9,9,0.55],"atmosphere-blend":["interpolate",["linear"],["zoom"],0,0.38,5,0.38,8,1]},
+      sky:{"sky-color":["interpolate",["linear"],["zoom"],10,"#000207",13,"#4F86C6"],
+        "horizon-color":["interpolate",["linear"],["zoom"],4,"#1B2B45",6,"#8DB3EE",10,"#A9C7F2",13,"#CFE0F0"],
+        "fog-color":["interpolate",["linear"],["zoom"],4,"#0B1629",6,"#7C9FDA",10,"#8EAEDF",13,"#C3D5E6"],
+        "sky-horizon-blend":["interpolate",["linear"],["zoom"],4,0.05,6.5,0.2,10,0.22,13,0.6],
+        "horizon-fog-blend":["interpolate",["linear"],["zoom"],5,0.2,10,0.3,13,0.45],
+        "fog-ground-blend":["interpolate",["linear"],["zoom"],5,0.3,10,0.45,13,0.55],
+        "atmosphere-blend":["interpolate",["linear"],["zoom"],0,0.38,4.5,0.38,6.5,0]},
       light:satLight(),
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
-  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);
+  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
    built the first time someone zooms in far enough to see them */
@@ -681,6 +689,21 @@ function sunSprite(){if(SUNSPR)return SUNSPR;var S=240,h=S/2,cv=document.createE
   if("filter" in c)c.filter="none";g=c.createRadialGradient(h,h,0,h,h,26);g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(0.4,"rgba(255,252,240,1)");g.addColorStop(0.7,"rgba(255,232,180,.6)");g.addColorStop(1,"rgba(255,220,160,0)");
   c.fillStyle=g;c.beginPath();c.arc(h,h,26,0,6.2832);c.fill();
   SUNSPR=cv;return cv}
+/* close to the ground, a thin blue band of sky along the horizon and a soft haze over the distant ground, like the view
+   from orbit; the horizon line comes from MapLibre, which snaps any point in the sky to the edge of the Earth */
+function satHaze(day){var hc=document.getElementById("haze");if(!hc||!satMap)return;var z=satMap.getZoom(),f=Math.min(1,Math.max(0,(z-5)/1.5))*Math.min(1,Math.max(0,(satMap.getPitch()-30)/20));
+  if(hc.width!==Math.round(gW*gDpr)||hc.height!==Math.round(gH*gDpr)){hc.width=Math.round(gW*gDpr);hc.height=Math.round(gH*gDpr);}
+  var c=hc.getContext("2d");c.setTransform(gDpr,0,0,gDpr,0,0);c.clearRect(0,0,gW,gH);if(f<=0.01)return;
+  var pts=[],n=24,i;for(i=0;i<=n;i++){var x=gW*i/n,p=satMap.project(satMap.unproject([x,0]));if(!isFinite(p.y))return;pts.push([x,p.y]);}
+  var top=Math.min.apply(null,pts.map(function(q){return q[1]})),bot=Math.max.apply(null,pts.map(function(q){return q[1]}));if(top<=2||top>=gH-4)return;
+  var b=0.35+0.65*Math.max(0.15,day),A=f*b;
+  function edge(dy){c.moveTo(pts[0][0],pts[0][1]+dy);for(var j=1;j<pts.length;j++)c.lineTo(pts[j][0],pts[j][1]+dy);}
+  /* sky glow above the horizon */
+  var gs=c.createLinearGradient(0,top-70,0,bot);gs.addColorStop(0,"rgba(40,90,190,0)");gs.addColorStop(0.55,"rgba(70,125,220,"+(0.5*A).toFixed(3)+")");gs.addColorStop(0.85,"rgba(150,190,245,"+(0.85*A).toFixed(3)+")");gs.addColorStop(1,"rgba(205,225,255,"+(0.95*A).toFixed(3)+")");
+  c.beginPath();c.moveTo(0,top-70);c.lineTo(gW,top-70);c.lineTo(gW,pts[n][1]);for(i=n;i>=0;i--)c.lineTo(pts[i][0],pts[i][1]);c.closePath();c.fillStyle=gs;c.fill();
+  /* bright rim and haze over the far ground */
+  var gh=c.createLinearGradient(0,top,0,bot+gH*0.45);gh.addColorStop(0,"rgba(190,214,250,"+(0.75*A).toFixed(3)+")");gh.addColorStop(0.18,"rgba(150,185,240,"+(0.45*A).toFixed(3)+")");gh.addColorStop(1,"rgba(120,160,230,0)");
+  c.beginPath();edge(0);c.lineTo(gW,gH);c.lineTo(0,gH);c.closePath();c.fillStyle=gh;c.fill();}
 function drawSky(c,lon,lat){var S=skyData(),a0=(lon+gmst()+180)*DEG,d0=-lat*DEG,sd0=Math.sin(d0),cd0=Math.cos(d0),sc=Math.max(gW,gH)/2/0.83,cx=gW/2,cy=gH/2,X=0,Y=0;
   c.fillStyle="#040812";c.fillRect(0,0,gW,gH);
   function P(p,lim){var da=p[0]-a0,cda=Math.cos(da),cosc=sd0*p[1]+cd0*p[2]*cda;if(cosc<lim)return false;var kk=2/(1+Math.max(cosc,-0.85));
@@ -737,8 +760,8 @@ function gDraw(){gQueued=false;if(mode!=="map"||!gW)return;
   if(SAT){if(satMap){var sc0=satMap.getCenter();gx.setTransform(gDpr,0,0,gDpr,0,0);drawSky(gx,sc0.lng,sc0.lat);
     /* close to the ground in daylight, the stars give way to a blue sky (they stay out at night) */
     var sp=sunPos(Date.now()),el=Math.sin(sc0.lat*DEG)*Math.sin(sp.lat*DEG)+Math.cos(sc0.lat*DEG)*Math.cos(sp.lat*DEG)*Math.cos((sc0.lng-sp.lon)*DEG),
-      day=Math.min(1,Math.max(0,(el+0.1)/0.2)),near=Math.min(1,Math.max(0,(satMap.getZoom()-5.5)/2));
-    if(NIGHT===false)day=1;if(day*near>0){gx.fillStyle="rgba(96,146,206,"+(day*near).toFixed(3)+")";gx.fillRect(0,0,gW,gH);}}satPins();return;}var d=gData(),c=gx;
+      day=Math.min(1,Math.max(0,(el+0.1)/0.2)),near=Math.min(1,Math.max(0,(satMap.getZoom()-10.5)/2));
+    if(NIGHT===false)day=1;if(day*near>0){gx.fillStyle="rgba(96,146,206,"+(day*near).toFixed(3)+")";gx.fillRect(0,0,gW,gH);}satHaze(day);}satPins();return;}var d=gData(),c=gx;
   c.setTransform(gDpr,0,0,gDpr,0,0);
   gSetProj();drawSky(c,gLon,gLat);var path=GEO.path(gProj,c),big=gR>Math.hypot(gW,gH),hi=k>=2.5,TAU=Math.PI*2;
   if(!big){var ag=c.createRadialGradient(gcx,gcy,gR*0.97,gcx,gcy,gR*1.2);ag.addColorStop(0,"rgba(140,185,255,.45)");ag.addColorStop(0.3,"rgba(95,140,230,.16)");ag.addColorStop(1,"rgba(60,100,200,0)");
