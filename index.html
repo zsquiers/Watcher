@@ -521,8 +521,8 @@ function cloudsWanted(){try{return localStorage.getItem("watcher-clouds")!=="off
    cloud stays wispy and see-through while ocean, land, and desert drop out */
 var cloudSrc=null;
 function cloudPixels(d){for(var i=0;i<d.length;i+=4){var r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=(r*0.3+g*0.59+b*0.11)/255,sat=mx?(mx-mn)/mx:0;
-    var a=Math.max(0,Math.min(1,(lum-0.2)/0.6)),w=Math.max(0,Math.min(1,(0.42-sat)/0.26));a=Math.pow(a,1.15)*w;
-    var t=Math.round(255*(0.8+0.2*Math.min(1,lum*1.15)));d[i]=t;d[i+1]=t;d[i+2]=Math.min(255,t+4);d[i+3]=Math.round(Math.min(1,a*1.1)*255);}}
+    var a=Math.max(0,Math.min(1,(lum-0.24)/0.66)),w=Math.max(0,Math.min(1,(0.42-sat)/0.26));a=Math.pow(a,1.6)*w;
+    var t=Math.round(255*(0.8+0.2*Math.min(1,lum*1.15)));d[i]=t;d[i+1]=t;d[i+2]=Math.min(255,t+4);d[i+3]=Math.round(Math.min(1,a)*215);}}
 function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)\/(\d+)/);
   return fetch(cloudSrc+m[1]+"/"+m[2]+"/"+m[3]+".jpg",{signal:abort&&abort.signal}).then(function(r){if(!r.ok)throw new Error("tile "+r.status);return r.blob()})
     .then(function(b){return createImageBitmap(b)}).then(function(im){var cv=document.createElement("canvas");cv.width=im.width;cv.height=im.height;var cx=cv.getContext("2d");cx.drawImage(im,0,0);
@@ -537,7 +537,7 @@ function cloudsLoad(tries){if(cloudBusy)return;cloudBusy=true;tries=tries||0;if(
     if(!window.__cloudProto){maplibregl.addProtocol("clouds",cloudTile);window.__cloudProto=true;}
     if(!satMap.getSource("clouds")){satMap.addSource("clouds",{type:"raster",tiles:["clouds://{z}/{y}/{x}"],tileSize:256,maxzoom:7});
       satMap.addLayer({id:"clouds",type:"raster",source:"clouds",layout:{visibility:CLOUDS?"visible":"none"},
-        paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,1,7.5,0]}},satMap.getLayer("night")?"night":"ref");}
+        paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,0.85,7.5,0]}},satMap.getLayer("night")?"night":"ref");}
     var d0=new Date(day+"T12:00:00Z");document.getElementById("cloud").title="Clouds from NASA satellites (VIIRS imagery via NASA GIBS), "+d0.toLocaleDateString(undefined,{month:"long",day:"numeric",timeZone:"UTC"})+". They fade out as you zoom in.";};
   im.src=base+"0/0/0.jpg";}
 function setClouds(on){CLOUDS=on;document.getElementById("cloud").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-clouds",on?"on":"off")}catch(e){}
