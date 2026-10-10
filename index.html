@@ -129,7 +129,7 @@ body:not(.mode-tree) .treeonly,body:not(.mode-map) .maponly,body:not(.mode-timel
 body.sat #sat{display:block}
 body.sat.mode-map .hint{bottom:40px}
 #sat .maplibregl-ctrl-attrib{font-size:11px}
-#compass{position:absolute;top:12px;right:12px;width:52px;height:52px;padding:0;border-radius:50%;border:1px solid rgba(239,230,210,.35);background:rgba(12,17,28,.85);display:none;z-index:2;cursor:pointer}
+#compass{position:absolute;top:12px;right:12px;width:60px;height:60px;padding:0;border-radius:50%;border:1px solid rgba(239,230,210,.35);background:rgba(12,17,28,.85);display:none;z-index:2;cursor:pointer}
 body.sat #compass{display:block}
 #compass svg{width:100%;height:100%;display:block}
 #compass:hover{border-color:var(--amber)}
@@ -369,7 +369,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button>'+
 '<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show yesterday\'s clouds from NASA satellites">Clouds</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="blink" aria-hidden="true"></div><div id="vp"><div id="world"><svg id="edges"></svg></div>'+
-'<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Face north" aria-label="Face north"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
+'<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
 '<div class="legend treeonly"><span><i class="sw a"></i>Active UAP office</span><span><i class="sw c"></i>Closed program</span><span><i class="sw s"></i>Secret project</span><span><i class="sw"></i>Parent body</span><span id="lgl" hidden><i class="sw l"></i>Succeeded by</span></div>'+
 '<div class="legend maponly mapkey fkey" role="group" aria-label="Show or hide on the map">'+MAPKEYS.map(function(r){var n=r[0]==="mine"?"":MAP.pins.filter(function(p){return pinKey(p)===r[0]}).length;return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+(n!==""?'<span class="kn">'+n+'</span>':'')+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
@@ -628,17 +628,12 @@ var PYR=[["Khufu",29.97917,31.13417,0,"#D8C397",["slope",230.3,230.3,138.5]],
   ["Monks Mound",38.66028,-90.06222,0,"#7E9455",["tiers",[[291,236,0,12],[240,192,12,20],[170,150,20,28],[62,52,28,30.5]]]]];
 function pyrFC(){var F=[];
   PYR.forEach(function(P){var lat=P[1],lon=P[2],th=P[3]*DEG,ct=Math.cos(th),st=Math.sin(th),my=1/111320,mx=1/(111320*Math.cos(lat*DEG)),pr=P[5],slabs=[];
-    /* each layer is split into four wedges, one per face, tinted as if lit by a low afternoon sun from the
-       southwest, so the faces read clearly whatever the real time of day */
-    var base=[1,3,5].map(function(i){return parseInt(P[4].substr(i,2),16)});
-    function tint(f){return "rgb("+base.map(function(v){return Math.min(255,Math.round(v*f))}).join(",")+")"}
-    function face(a){var s2=Math.sin(a+th),c2=Math.cos(a+th),l=0.5-0.5*(c2*0.766+s2*0.643);return 0.66+0.44*l}
-    var shades=[0,Math.PI/2,Math.PI,-Math.PI/2].map(function(a){return tint(face(a))});
+    /* each layer is one square around the same center, so on hilly terrain every layer sits at the same ground height */
     function pt(x0,y0){var x=x0*ct+y0*st,y=-x0*st+y0*ct;return [lon+x*mx,lat+y*my]}
-    function sq(w,d,z0,z1){var hw=w/2,hd=d/2,C=pt(0,0),corners=[[-hw,hd],[hw,hd],[hw,-hd],[-hw,-hd]];
-      for(var q=0;q<4;q++)slabs.push({type:"Feature",properties:{b:z0,h:z1,c:shades[q]},geometry:{type:"Polygon",coordinates:[[C,pt(corners[q][0],corners[q][1]),pt(corners[(q+1)%4][0],corners[(q+1)%4][1]),C]]}});}
-    if(pr[0]==="slope"){var N=36;for(var i=0;i<N;i++){var f=(i+0.5)/N;sq(pr[1]*(1-f),pr[2]*(1-f),pr[3]*i/N,pr[3]*(i+1)/N);}}
-    else if(pr[0]==="bent"){var pts=pr[2],top=pts[pts.length-1][0],M=36;
+    function sq(w,d,z0,z1){var hw=w/2,hd=d/2;
+      slabs.push({type:"Feature",properties:{b:z0,h:z1,c:P[4]},geometry:{type:"Polygon",coordinates:[[pt(-hw,hd),pt(hw,hd),pt(hw,-hd),pt(-hw,-hd),pt(-hw,hd)]]}});}
+    if(pr[0]==="slope"){var N=70;for(var i=0;i<N;i++){var f=(i+0.5)/N;sq(pr[1]*(1-f),pr[2]*(1-f),pr[3]*i/N,pr[3]*(i+1)/N);}}
+    else if(pr[0]==="bent"){var pts=pr[2],top=pts[pts.length-1][0],M=70;
       for(var j=0;j<M;j++){var z=(j+0.5)/M*top,k2=0;while(pts[k2+1][0]<z)k2++;var a=pts[k2],b2=pts[k2+1],hw=a[1]+(b2[1]-a[1])*(z-a[0])/(b2[0]-a[0]);sq(hw*2,hw*2,top*j/M,top*(j+1)/M);}}
     else pr[1].forEach(function(t){sq(t[0],t[1],t[2],t[3])});
     F=F.concat(slabs);});
@@ -658,7 +653,7 @@ function setTerrain(on){TERR=on;document.getElementById("terr").setAttribute("ar
         paint:{"fill-extrusion-color":"#DCD6C8","fill-extrusion-height":["coalesce",["get","render_height"],8],"fill-extrusion-base":["coalesce",["get","render_min_height"],0],
           "fill-extrusion-opacity":["interpolate",["linear"],["zoom"],14,0,15,0.92],"fill-extrusion-vertical-gradient":true},
         /* leave out OpenStreetMap's flat-topped boxes where a pyramid model stands */
-        filter:[">",["distance",{type:"MultiPoint",coordinates:PYR.map(function(P){return [P[2],P[1]]})}],40]},"ref");
+        filter:["all"].concat(PYR.map(function(P){var pr=P[5],w=pr[0]==="slope"?Math.max(pr[1],pr[2]):pr[0]==="bent"?pr[1]:Math.max(pr[1][0][0],pr[1][0][1]);return [">",["distance",{type:"Point",coordinates:[P[2],P[1]]}],w*0.75+15]}))},"ref");
       satMap.addSource("pyr",{type:"geojson",data:pyrFC()});
       satMap.addLayer({id:"pyr",type:"fill-extrusion",source:"pyr",minzoom:12,paint:{"fill-extrusion-color":["get","c"],"fill-extrusion-base":["get","b"],"fill-extrusion-height":["get","h"],
         "fill-extrusion-opacity":["interpolate",["linear"],["zoom"],12,0,13,1],"fill-extrusion-vertical-gradient":false}},"ref");
@@ -1029,7 +1024,8 @@ document.getElementById("mm").onclick=function(){switchTo("map")};
 document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
   if(b.dataset.k)filt[b.dataset.k]=!filt[b.dataset.k];else MAPKEYS.forEach(function(r){filt[r[0]]=b.dataset.all==="1"});mapFilter();});mapKeySync();
-document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo({bearing:0,duration:RM?0:700})};document.getElementById("stMap").onclick=function(){setSat(false)};document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
+/* compass: turn back to north; outside 3D terrain it also levels the view, so the whole Earth sits upright again */
+document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setSat(false)};document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
