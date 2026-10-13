@@ -553,17 +553,34 @@ var cloudSrc=null;
 function cloudPixels(d){for(var i=0;i<d.length;i+=4){var r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=(r*0.3+g*0.59+b*0.11)/255,sat=mx?(mx-mn)/mx:0;
     var a=Math.max(0,Math.min(1,(lum-0.24)/0.66)),w=Math.max(0,Math.min(1,(0.42-sat)/0.26));a=Math.pow(a,1.6)*w;
     var t=Math.round(255*(0.8+0.2*Math.min(1,lum*1.15)));d[i]=t;d[i+1]=t;d[i+2]=Math.min(255,t+4);d[i+3]=Math.round(Math.min(1,a)*215);}}
-function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)\/(\d+)/);
-  return fetch(cloudSrc+m[1]+"/"+m[2]+"/"+m[3]+".jpg",{signal:abort&&abort.signal}).then(function(r){if(!r.ok)throw new Error("tile "+r.status);return r.blob()})
-    .then(function(b){return createImageBitmap(b)}).then(function(im){var cv=document.createElement("canvas");cv.width=im.width;cv.height=im.height;var cx=cv.getContext("2d");cx.drawImage(im,0,0);
-      var img=cx.getImageData(0,0,cv.width,cv.height);cloudPixels(img.data);cx.putImageData(img,0,0);
-      return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){res({data:ab})})},"image/png")})})}
+/* NASA posts a day's imagery in pieces as each satellite pass is processed, and leaves black where it has no data yet
+   (or between passes near the equator), so each tile is patched from the other satellite and the day before */
+var cloudSrcs=[];
+function cloudFetch(u,abort){return fetch(u,{signal:abort&&abort.signal}).then(function(r){if(!r.ok)throw new Error("tile "+r.status);return r.blob()})
+  .then(function(b){return createImageBitmap(b)})}
+function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)\/(\d+)/),path=m[1]+"/"+m[2]+"/"+m[3]+".jpg",cv=document.createElement("canvas"),cx,img,i=0;
+  function gaps(d){var n=0;for(var k=0;k<d.length;k+=4)if(d[k]+d[k+1]+d[k+2]<=12)n++;return n/(d.length/4)}
+  function next(){if(i>=cloudSrcs.length||i>=6)return Promise.resolve();
+    return cloudFetch(cloudSrcs[i++]+path,abort).then(function(im){
+      if(!cx){cv.width=im.width;cv.height=im.height;cx=cv.getContext("2d",{willReadFrequently:true});cx.drawImage(im,0,0);img=cx.getImageData(0,0,cv.width,cv.height);}
+      else{var t=document.createElement("canvas");t.width=cv.width;t.height=cv.height;var tc=t.getContext("2d");tc.drawImage(im,0,0,t.width,t.height);
+        /* the gap mask is widened by 2px so the blurry edge of a satellite pass doesn't leave a dark seam */
+        var o=tc.getImageData(0,0,t.width,t.height).data,d=img.data,W=cv.width,H=cv.height,g=new Uint8Array(W*H),x,y,dx,dy;
+        for(var k=0;k<W*H;k++)if(d[k*4]+d[k*4+1]+d[k*4+2]<=12)g[k]=1;
+        for(y=0;y<H;y++)for(x=0;x<W;x++){var hit=g[y*W+x];for(dy=-2;dy<=2&&!hit;dy++)for(dx=-2;dx<=2&&!hit;dx++){var yy=y+dy,xx=x+dx;if(yy>=0&&yy<H&&xx>=0&&xx<W&&g[yy*W+xx])hit=1;}
+          var q=(y*W+x)*4;if(hit&&o[q]+o[q+1]+o[q+2]>12){d[q]=o[q];d[q+1]=o[q+1];d[q+2]=o[q+2];}}}
+      if(gaps(img.data)>0.01)return next();},function(e){if(e&&e.name==="AbortError")throw e;return next();});}
+  return next().then(function(){if(!cx)throw new Error("no cloud imagery");cloudPixels(img.data);cx.putImageData(img,0,0);
+    return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){res({data:ab})})},"image/png")})})}
 function cloudsLoad(tries){if(cloudBusy)return;cloudBusy=true;tries=tries||0;if(tries>=6){cloudBusy=false;hint.textContent="Couldn't load cloud imagery from NASA right now.";return;}
   /* find the newest day and satellite that NASA has finished, by trying one tile */
   var day=new Date(Date.now()-(1+Math.floor(tries/3))*864e5).toISOString().slice(0,10),lay=CLOUD_LAYERS[tries%3],
     base="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/"+lay+"/default/"+day+"/GoogleMapsCompatible_Level9/",im=new Image();
   im.crossOrigin="anonymous";im.onerror=function(){cloudBusy=false;cloudsLoad(tries+1)};
-  im.onload=function(){cloudSrc=base;cloudDate=day;cloudBusy=false;if(!satMap)return;
+  im.onload=function(){cloudSrc=base;cloudDate=day;cloudSrcs=[];
+    for(var k=0;k<3;k++){var dd=new Date(new Date(day+"T12:00:00Z").getTime()-k*864e5).toISOString().slice(0,10);
+      CLOUD_LAYERS.slice(0,2).forEach(function(l){cloudSrcs.push("https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/"+l+"/default/"+dd+"/GoogleMapsCompatible_Level9/")});}
+    cloudSrcs=[base].concat(cloudSrcs.filter(function(x){return x!==base}));cloudBusy=false;if(!satMap)return;
     if(!window.__cloudProto){maplibregl.addProtocol("clouds",cloudTile);window.__cloudProto=true;}
     if(!satMap.getSource("clouds")){satMap.addSource("clouds",{type:"raster",tiles:["clouds://{z}/{y}/{x}"],tileSize:256,maxzoom:7});
       satMap.addLayer({id:"clouds",type:"raster",source:"clouds",layout:{visibility:CLOUDS?"visible":"none"},
