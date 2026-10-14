@@ -496,14 +496,18 @@ var LB=null,DETJ=null,gBoxes=[],gVB=null;
    fetched in the background after the page appears, and the town-level detail only once you zoom in that far.
    A saved single-file copy carries them inline instead, and then nothing is fetched */
 var GEO_OK=!!MAP.world50,geoP=null,detP=null,GEOTXT=null,DETTXT=null;
+/* where the data files live: next to the page normally; when the page is viewed through htmlpreview.github.io, fetch
+   them straight from the same GitHub branch instead */
+function dataURL(f){var m=location.hostname==="htmlpreview.github.io"&&decodeURIComponent(location.search.slice(1)).match(/github\.com\/([^\/]+)\/([^\/]+)\/blob\/(.+)\/[^\/]*$/);
+  return m?"https://raw.githubusercontent.com/"+m[1]+"/"+m[2]+"/"+m[3]+"/data/"+f:"data/"+f}
 function loadGeo(){if(GEO_OK)return Promise.resolve();
-  if(!geoP)geoP=fetch("data/geo.json").then(function(r){if(!r.ok)throw new Error("geo "+r.status);return r.text()})
+  if(!geoP)geoP=fetch(dataURL("geo.json")).then(function(r){if(!r.ok)throw new Error("geo "+r.status);return r.text()})
     .then(function(t){GEOTXT=t;var g=JSON.parse(t);Object.keys(g).forEach(function(x){MAP[x]=g[x]});GEO_OK=true;})
     .catch(function(e){geoP=null;throw e});
   return geoP;}
 function loadDet(){if(DETJ)return Promise.resolve();var el=document.getElementById("mapdetail");
   if(el){try{DETJ=JSON.parse(el.textContent)}catch(e){DETJ={}}return Promise.resolve();}
-  if(!detP)detP=fetch("data/detail.json").then(function(r){if(!r.ok)throw new Error("detail "+r.status);return r.text()})
+  if(!detP)detP=fetch(dataURL("detail.json")).then(function(r){if(!r.ok)throw new Error("detail "+r.status);return r.text()})
     .then(function(t){DETTXT=t;DETJ=JSON.parse(t);TOWNS=null;SUBS2=null;if(LB)LB.forEach(function(b){if(b[0]==="t")b[1]=null});
       if(satMap&&satMap.getSource("towns"))satMap.getSource("towns").setData(satLinesFC());if(mode==="map")gQueue();})
     .catch(function(e){detP=null;throw e});
