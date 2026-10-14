@@ -237,7 +237,35 @@ header>.tb{min-height:36px}
 .conn .cw{font-size:12.5px;color:var(--ink2)}
 @media (max-width:640px){.srch{order:1;flex:1 1 100%}header>.tb{order:2;min-height:0}}
 
-#mm.loading{cursor:progress;opacity:.75}</style>
+#mm.loading{cursor:progress;opacity:.75}
+/* welcome: the front door, with the three views and a few stories to start from */
+#welcome{position:fixed;inset:0;z-index:50;display:flex;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));background:rgba(232,236,239,.86);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);overflow-y:auto;opacity:1;transition:opacity .22s ease}
+#welcome[hidden]{display:none}#welcome.out{opacity:0;pointer-events:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #welcome{background:rgba(13,22,32,.86)}}
+:root[data-theme="dark"] #welcome{background:rgba(13,22,32,.86)}
+.wc{position:relative;width:100%;max-width:880px;margin:auto;background:var(--panel);border:1px solid var(--hair);border-radius:14px;box-shadow:0 24px 64px rgba(10,20,35,.18);padding:30px 30px 22px}
+.wc .brand{color:var(--ink);width:max-content;max-width:100%}.wc .brand .lgm{height:46px;max-width:100%}
+.wlede{font-size:18px;line-height:1.45;color:var(--ink);margin:14px 0 4px;max-width:640px}
+.wnote{font-size:13.5px;color:var(--ink2);margin:0 0 22px}
+.wx{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:8px;border:1px solid transparent;background:none;color:var(--ink2);font-size:22px;line-height:1;cursor:pointer}
+.wx:hover{border-color:var(--hair);color:var(--ink)}
+.went{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 24px}
+.went button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:16px 16px 14px;border:1px solid var(--hair);border-radius:11px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+.went button:hover{border-color:var(--focus);transform:translateY(-2px);box-shadow:0 8px 22px rgba(10,20,35,.10)}
+.went svg{width:34px;height:34px;color:var(--amber);margin-bottom:2px}
+.went b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:22px;line-height:1.1}
+.went span{font-size:14px;color:var(--ink2);line-height:1.4}
+.went em{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-top:auto;padding-top:6px}
+.wh{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:0 0 8px}
+.wfeat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px;margin:0;padding:0;list-style:none}
+.wfeat button{display:block;width:100%;text-align:left;padding:10px 10px 10px 12px;border:0;border-left:3px solid var(--hair);border-radius:0 8px 8px 0;background:none;color:var(--ink);font:inherit;cursor:pointer}
+.wfeat button:hover{background:var(--card);border-left-color:var(--amber)}
+.wfeat small{display:block;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--amber)}
+.wfeat b{display:block;font-weight:500;font-size:16px;line-height:1.3}
+.wfeat span{display:block;font-size:14px;color:var(--ink2);line-height:1.4}
+.brand.wopen{cursor:pointer}
+@media (max-width:640px){.wc{padding:22px 18px 16px}.wc .brand .lgm{height:36px}.wlede{font-size:16.5px}.went,.wfeat{grid-template-columns:1fr}.went button{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:12px;padding:12px 14px}.went svg{width:28px;height:28px;margin:0}.went span{flex-basis:100%}.went em{margin-top:0;padding-top:0;margin-left:auto}}
+@media (prefers-reduced-motion:reduce){#welcome,.went button{transition:none}}</style>
 </head>
 <body>
 <script id="state" type="application/json">{"rev":0,"notes":{},"custom":[],"pins":[]}</script>
@@ -404,7 +432,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button>'+
-'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show yesterday\'s clouds from NASA satellites">Clouds</button><button id="addpin">Add a pin</button></span></div></header>'+
+'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="blink" aria-hidden="true"></div><div id="vp"><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
@@ -1466,6 +1494,44 @@ vp.addEventListener("scroll",function(){if(vp.scrollLeft||vp.scrollTop){vp.scrol
 renderTree();requestAnimationFrame(function(){homeTree();var m=null;try{m=sessionStorage.getItem("uap-mode")}catch(e){}if(m==="map"||m==="timeline")setMode(m);});
 /* fetch the map's outlines quietly once the page is up, so the Map is usually ready before it's clicked */
 window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(function(){})},800)});
+
+/* welcome: shown once per visit (and whenever the logo is clicked); each door opens its view */
+(function(){var nTree=BASE.length,nPins=MAP.pins.length,nTL=TLM.length+TLE.length+TLBK.length,
+  ico={tree:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="12" y="3" width="10" height="7" rx="1.5"/><rect x="3" y="24" width="10" height="7" rx="1.5"/><rect x="21" y="24" width="10" height="7" rx="1.5"/><path d="M17 10v7M8 24v-7h18v7"/></svg>',
+    map:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="17" cy="17" r="13.5"/><path d="M3.5 17h27M17 3.5c-4.5 4-6 8.6-6 13.5s1.5 9.5 6 13.5M17 3.5c4.5 4 6 8.6 6 13.5s-1.5 9.5-6 13.5"/></svg>',
+    timeline:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 22h28"/><circle cx="8" cy="22" r="2.6" fill="currentColor"/><circle cx="18" cy="22" r="2.6" fill="currentColor"/><circle cx="27" cy="22" r="2.6" fill="currentColor"/><path d="M8 19V9h9M18 19v-6h8"/></svg>'},
+  doors=[["tree","Org chart","Who runs UAP work: the offices, programs, and secret projects, and how they connect.",nTree+" offices and programs"],
+    ["map","Map","Where it happened: bases, sightings, crash sites, and ancient places around the world.",nPins+" places"],
+    ["timeline","Timeline","When it happened: programs, hearings, books, and events from 1900 to today.",nTL+" events and books"]],
+  feat=[["tree","aaro","Org chart","From Blue Book to AARO","Seventy years of official UAP offices, and how each one led to the next."],
+    ["map","m-tictac","Map","The Nimitz Tic Tac","In 2004 Navy pilots chased a white, wingless object off San Diego."],
+    ["timeline","tl-moore89","Timeline","The Aviary","How Air Force agents fed false UFO stories to researchers in the 1980s."],
+    ["timeline","tl-pursue","Timeline","The PURSUE files","The Pentagon's 2026 release of declassified UAP records."]];
+  document.body.insertAdjacentHTML("beforeend",'<div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wtl" hidden><div class="wc">'+
+    '<button class="wx" id="wx" aria-label="Close welcome">&times;</button>'+
+    '<h2 id="wtl" style="margin:0"><span class="brand" role="img" aria-label="Watcher"><i class="lgm" aria-hidden="true"></i></span></h2>'+
+    '<p class="wlede">A research guide to UFOs and UAP: who in the U.S. government has handled them, where the cases happened, and when.</p>'+
+    '<p class="wnote">Sourced facts sit next to disputed claims, and anything unconfirmed is labeled.</p>'+
+    '<div class="went">'+doors.map(function(d){return '<button data-door="'+d[0]+'">'+ico[d[0]]+'<b>'+d[1]+'</b><span>'+d[2]+'</span><em>'+d[3]+'</em></button>'}).join("")+'</div>'+
+    '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
+    '</div></div>');
+  var W=document.getElementById("welcome"),last=null;
+  function shut(then){try{sessionStorage.setItem("watcher-welcomed","1")}catch(e){}
+    if(RM){W.hidden=true;if(then)then();return;}W.classList.add("out");setTimeout(function(){W.hidden=true;W.classList.remove("out");if(then)then();},220);
+    if(last&&!then)try{last.focus()}catch(e){}}
+  function show(){last=document.activeElement;W.hidden=false;W.classList.remove("out");var b=W.querySelector(".went button");if(b)b.focus();}
+  W.querySelectorAll("[data-door]").forEach(function(b){b.onclick=function(){var m=b.dataset.door;shut(function(){switchTo(m)})}});
+  W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
+    goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
+  document.getElementById("wx").onclick=function(){shut()};
+  W.addEventListener("click",function(e){if(e.target===W)shut()});
+  W.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();shut();return;}
+    if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button")),a=f.indexOf(document.activeElement);
+      if(e.shiftKey&&a<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&a===f.length-1){e.preventDefault();f[0].focus()}}});
+  var br=document.querySelector("header .brand");br.classList.add("wopen");br.setAttribute("role","button");br.setAttribute("tabindex","0");br.setAttribute("aria-label","Watcher: open the welcome screen");
+  br.onclick=show;br.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};
+  var seen=null;try{seen=sessionStorage.getItem("watcher-welcomed")||sessionStorage.getItem("uap-mode")}catch(e){}
+  if(!seen)show();})();
 window.addEventListener("resize",function(){gSize();if(mode==="map")apply();else if(!panel.classList.contains("open"))fit();});
 })();
 </script>
