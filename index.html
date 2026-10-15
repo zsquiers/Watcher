@@ -381,7 +381,8 @@ body.keyopen #vp .legend{display:flex}
 #vp .fkey button{padding:6px 8px}
 body.mode-tree header>.tb{order:2;width:auto;flex:none}
 body.mode-tree .srch{flex-basis:110px}
-#panel{height:var(--ph,68%);max-height:calc(100% - 12px)}
+#panel{position:fixed;z-index:7;height:var(--ph,60%);max-height:100%}
+#panel.full{border-radius:0}
 #panel.sdrag{transition:none}
 .sgrip{display:block;position:absolute;left:0;right:0;top:0;height:22px;z-index:5;touch-action:none;cursor:ns-resize}
 .sgrip::before{content:"";position:absolute;left:50%;top:7px;width:40px;height:5px;margin-left:-20px;border-radius:3px;background:var(--line);opacity:.7}
@@ -1888,7 +1889,7 @@ function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap()
 
 /* keep the org chart and timeline on screen: a small margin past each edge, plus room for the details panel when it's open */
 function clampPan(){var r=vpR(),b=dims();if(!b||!b.w)return;var cw=b.w*k,chh=b.h*k,po=panel.classList.contains("open"),
-    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?panel.offsetHeight:0,vw=r.width-rp,vh=r.height-bp,mx=Math.max(60,vw*0.45),my=Math.max(60,vh*0.45);
+    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,mx=Math.max(60,vw*0.45),my=Math.max(60,vh*0.45);
   if(cw<=vw-2*mx)tx=Math.min(vw-cw-mx,Math.max(mx,tx));else tx=Math.min(mx,Math.max(vw-cw-mx,tx));
   if(mode==="timeline"){var t0=tlTop();ty=Math.min(t0,Math.max(Math.min(t0,vh-chh-20),ty));return;}
   if(chh<=vh-2*my)ty=Math.min(vh-chh-my,Math.max(my,ty));else ty=Math.min(my,Math.max(vh-chh-my,ty));}
@@ -2382,19 +2383,20 @@ window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(
   new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:["class"]});
   window.addEventListener("resize",apply);})();
 /* phones: the details sheet can be dragged taller or shorter by its handle or title bar; dragging it almost off the
-   bottom closes it, and the chosen height is remembered */
+   bottom closes it, near the top it fills the screen, and the chosen height is remembered */
 (function(){var KEY="watcher-sheeth",R=document.documentElement,mq=window.matchMedia?matchMedia("(max-width:640px)"):null;
   function phone(){return mq&&mq.matches}
-  try{var sh=+localStorage.getItem(KEY);if(sh>=25&&sh<=95)R.style.setProperty("--ph",sh+"%")}catch(e){}
+  try{var sh=+localStorage.getItem(KEY);if(sh>=25&&sh<=100){R.style.setProperty("--ph",sh+"%");panel.classList.toggle("full",sh>=100)}}catch(e){}
   panel.addEventListener("pointerdown",function(e){if(!phone()||e.button>0)return;var h=e.target.closest(".sgrip,.ph");
     if(!h||e.target.closest("button,a,input,textarea,select,[data-claim],[data-person]"))return;
-    var vh=vpR().height,y0=e.clientY,h0=panel.offsetHeight,cur=h0,moved=false;h.setPointerCapture(e.pointerId);
+    var vh=window.innerHeight,y0=e.clientY,h0=panel.offsetHeight,cur=h0,moved=false;h.setPointerCapture(e.pointerId);
     function mv(ev){var d=ev.clientY-y0;if(!moved&&Math.abs(d)<4)return;if(!moved){moved=true;panel.classList.add("sdrag");}
-      cur=h0-d;R.style.setProperty("--ph",Math.round(Math.max(vh*0.12,Math.min(cur,vh-12)))+"px");}
+      cur=h0-d;R.style.setProperty("--ph",Math.round(Math.max(vh*0.12,Math.min(cur,vh)))+"px");}
     function up(){h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);h.removeEventListener("pointercancel",up);
       if(!moved)return;panel.classList.remove("sdrag");
-      if(cur<vh*0.2){closePanel();try{var s0=+localStorage.getItem(KEY)}catch(x){}R.style.setProperty("--ph",(s0>=25&&s0<=95?s0:68)+"%");return;}
-      var pct=Math.round(Math.max(25,Math.min(95,cur/vh*100)));R.style.setProperty("--ph",pct+"%");
+      if(cur<vh*0.2){closePanel();try{var s0=+localStorage.getItem(KEY)}catch(x){}R.style.setProperty("--ph",(s0>=25&&s0<=100?s0:60)+"%");return;}
+      /* within a thumb's reach of the top it snaps to full screen */
+      var pct=cur>vh-56?100:Math.round(Math.max(25,Math.min(95,cur/vh*100)));R.style.setProperty("--ph",pct+"%");panel.classList.toggle("full",pct>=100);
       try{localStorage.setItem(KEY,String(pct))}catch(x){}apply();}
     h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);h.addEventListener("pointercancel",up);});})();
 /* claims ledger page */
