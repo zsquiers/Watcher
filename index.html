@@ -353,7 +353,42 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .pgrip:focus-visible{outline:none}
 body.pdrag,body.pdrag *{cursor:col-resize!important;user-select:none!important}
 body.pdrag #panel{transition:none}
-@media (max-width:640px){.pgrip{display:none}}</style>
+@media (max-width:640px){.pgrip{display:none}}
+/* phones: compact two-row header, and the key folds away behind a Key button */
+.keybtn{display:none}
+.sgrip{display:none}
+@media (max-width:640px){
+header{gap:6px 6px;padding:8px 10px}
+h1{margin:0 auto 0 0}
+h1 .vt{display:none}
+header .brand .lgm{height:21px}
+header .tools{display:contents}
+header .tools>.seg{order:0}
+header .tools .seg button{min-height:32px;padding:4px 9px;font-size:13.5px;white-space:nowrap}
+.srch{order:1;flex:1 1 170px;min-width:0}
+#q{font-size:16px;min-height:34px;padding:4px 12px 4px 32px}
+#ledgerBtn,#fit{order:2;min-height:34px;padding:4px 10px;font-size:13.5px}
+#zo,#zi{display:none}
+header>.tb{order:3;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none}
+header>.tb::-webkit-scrollbar{display:none}
+header>.tb .tb{flex-wrap:nowrap}
+header>.tb button{min-height:30px;padding:3px 10px;font-size:13px;white-space:nowrap;flex:none}
+header>.tb .seg button{min-height:30px}
+.keybtn{display:flex;align-items:center;gap:7px;position:absolute;left:10px;bottom:10px;z-index:3;min-height:36px;padding:4px 12px;font-size:13.5px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.keybtn i{display:block;width:14px;height:10px;background:linear-gradient(var(--ink2) 0 2px,transparent 2px 4px,var(--ink2) 4px 6px,transparent 6px 8px,var(--ink2) 8px 10px)}
+#vp .legend{display:none;left:10px;bottom:54px;max-height:calc(100% - 66px);overflow-y:auto}
+body.keyopen #vp .legend{display:flex}
+#vp .fkey button{padding:6px 8px}
+body.mode-tree header>.tb{order:2;width:auto;flex:none}
+body.mode-tree .srch{flex-basis:110px}
+#panel{position:fixed;z-index:7;height:var(--ph,60%);max-height:100%}
+#panel.full{border-radius:0}
+#panel.sdrag{transition:none}
+.sgrip{display:block;position:absolute;left:0;right:0;top:0;height:22px;z-index:5;touch-action:none;cursor:ns-resize}
+.sgrip::before{content:"";position:absolute;left:50%;top:7px;width:40px;height:5px;margin-left:-20px;border-radius:3px;background:var(--line);opacity:.7}
+#panel .ph{padding-top:22px;touch-action:none}
+}
+</style>
 </head>
 <body>
 <script id="state" type="application/json">{"rev":0,"notes":{},"custom":[],"pins":[]}</script>
@@ -687,6 +722,13 @@ var SRC={
 "nyt-thurmond":["Senator Regrets Role in Book on Aliens","New York Times","1997","https://www.nytimes.com/1997/06/05/us/senator-regrets-role-in-book-on-aliens.html","news"],
 "randle-corso":["Philip Corso and The Day After Roswell, Again","Kevin Randle, A Different Perspective","2014","https://kevinrandle.blogspot.com/2014/01/philip-corso-and-day-after-roswell-again.html","news"],
 "guardian-hoaxes":["Top 10 literary hoaxes","The Guardian","2001","https://www.theguardian.com/books/2001/nov/15/news","news"],
+"vonneumann-wiki":["John von Neumann","Wikipedia","","https://en.wikipedia.org/wiki/John_von_Neumann","ref"],
+"vnprobe-wiki":["Self-replicating spacecraft","Wikipedia","","https://en.wikipedia.org/wiki/Self-replicating_spacecraft","ref"],
+"martians-wiki":["The Martians (scientists)","Wikipedia","","https://en.wikipedia.org/wiki/The_Martians_(scientists)","ref"],
+"fermi-wiki":["Fermi paradox","Wikipedia","","https://en.wikipedia.org/wiki/Fermi_paradox","ref"],
+"philexp-wiki":["Philadelphia Experiment","Wikipedia","","https://en.wikipedia.org/wiki/Philadelphia_Experiment","ref"],
+"montauk-wiki":["Montauk Project","Wikipedia","","https://en.wikipedia.org/wiki/Montauk_Project","ref"],
+"montaukbook-wiki":["The Montauk Project: Experiments in Time","Wikipedia","","https://en.wikipedia.org/wiki/The_Montauk_Project:_Experiments_in_Time","ref"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -880,6 +922,9 @@ var CITE={
 "pp-corso":[[0,"commissioned in 1942","dar-wiki"],[0,"May 1961","sparks-corso"],[0,"Strom Thurmond","dar-wiki"],[1,"found no record","randle-corso dar-wiki"]],
 "tl-b-dayafter":[[0,"Ghostwritten","dar-wiki"],[0,"bestseller list","dar-wiki"],[0,"foreword was withdrawn","nyt-thurmond sparks-corso"],[0,"could not have happened","sparks-corso"],[0,"literary hoaxes","guardian-hoaxes"]],
 "cl-corso":[[0,"fiber optics","sparks-corso"],[1,"Langley headquarters","sparks-corso"],[1,"no such cover-up","nyt-thurmond"],[1,"unreliable testimony","dar-wiki"]],
+"pp-vonneumann":[[0,"Atomic Energy Commission","vonneumann-wiki"],[0,"February 1957","vonneumann-wiki"],[1,"von Neumann probes","vnprobe-wiki"],[1,"Hungarians","martians-wiki"],[1,"secret director","montaukbook-wiki"]],
+"tl-fermi":[[0,"no sign of it","fermi-wiki"],[0,"disputed his reasoning","vnprobe-wiki"]],
+"cl-vonneumann":[[0,"Montauk, New York","montauk-wiki montaukbook-wiki"],[1,"worked on one","philexp-wiki montaukbook-wiki"],[1,"highly questionable","montauk-wiki"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -922,6 +967,10 @@ var CLST={confirmed:["Confirmed","The core claim is backed by official records."
   unverified:["Unverified","No public evidence either way."],denied:["Officially denied","The government says it is not true."],
   explained:["Officially explained","An official investigation gave an ordinary explanation."],false:["Shown false","The evidence for it was shown to be fake or mistaken."]};
 var CLAIMS=[
+{id:"cl-vonneumann",t:"John von Neumann secretly ran the Philadelphia Experiment and the Montauk Project",by:"",byt:"Al Bielek and Preston Nichols",yr:1992,venue:"Lectures and the Montauk Project book series",st:"denied",
+ c:"In the Montauk Project story, launched by Preston Nichols and Peter Moon's 1992 book and Al Bielek's talks, von Neumann had directed the 1943 Philadelphia Experiment and was still alive in the 1980s, running time-travel and mind-control experiments at Montauk, New York.",
+ r:"The U.S. Navy says no such experiment was conducted and denies that von Neumann worked on one. He died in February 1957, so he could not have been at Montauk in the 1980s. Nichols and Bielek said they recovered their memories of the project years later, and researcher Jacques Vallée called their accounts highly questionable.",
+ L:[["timeline","tl-b-jessup","The Case for the UFO, 1955"],["tree","navy","Navy"]]},
 {id:"cl-corso",t:"Roswell technology was secretly fed to U.S. industry",by:"pp-corso",yr:1997,venue:"The Day After Roswell (book) and TV interviews",st:"disputed",
  c:"Philip Corso wrote that wreckage from the 1947 Roswell crash sat in Army files until 1961, when, running the Foreign Technology desk of Army research and development, he quietly passed pieces to defense contractors. He said this seeded advances such as microcircuits, lasers, fiber optics and the microwave oven.",
  r:"No document supports his role, and each of those technologies has a well-documented development history. Reviewers found impossible events in the book, such as a 1961 confrontation with CIA official Frank Wisner at Langley, when Wisner was posted in London and the Langley headquarters had not yet opened. Senator Strom Thurmond, who wrote the foreword, said he knew of no such cover-up, and a 1997 British defence memo released in 2011 dismissed Corso for a record of unreliable testimony.",
@@ -1145,7 +1194,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="legend treeonly"><span><i class="sw a"></i>Active UAP office</span><span><i class="sw c"></i>Closed program</span><span><i class="sw s"></i>Secret project</span><span><i class="sw"></i>Parent body</span><span id="lgl" hidden><i class="sw l"></i>Succeeded by</span></div>'+
 '<div class="legend maponly mapkey fkey" role="group" aria-label="Show or hide on the map">'+MAPKEYS.map(function(r){var n=r[0]==="mine"?"":MAP.pins.filter(function(p){return pinKey(p)===r[0]}).length;return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+(n!==""?'<span class="kn">'+n+'</span>':'')+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<div class="legend tlonly tlkey fkey" role="group" aria-label="Show or hide on the timeline">'+TLKEYS.map(function(r){return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
-'<div class="hint" id="hint"></div>'+
+'<button id="keyBtn" class="keybtn" aria-expanded="false"><i aria-hidden="true"></i><span>Key</span></button><div class="hint" id="hint"></div>'+
 '<aside id="panel" aria-label="Details"></aside></div>');
 
 var vp=document.getElementById("vp"),world=document.getElementById("world"),svg=document.getElementById("edges"),panel=document.getElementById("panel"),mapw=document.getElementById("mapw"),pinsEl=document.getElementById("pins"),hint=document.getElementById("hint");
@@ -1315,6 +1364,15 @@ function cloudsWanted(){try{return localStorage.getItem("watcher-clouds")!=="off
 function cloudPixels(d){for(var i=0;i<d.length;i+=4){var r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=(r*0.3+g*0.59+b*0.11)/255,sat=mx?(mx-mn)/mx:0;
     var a=Math.max(0,Math.min(1,(lum-0.24)/0.66)),w=Math.max(0,Math.min(1,(0.42-sat)/0.26));a=Math.pow(a,1.6)*w;
     var t=Math.round(255*(0.8+0.2*Math.min(1,lum*1.15)));d[i]=t;d[i+1]=t;d[i+2]=Math.min(255,t+4);d[i+3]=Math.round(Math.min(1,a)*215);}}
+/* where NASA has no imagery at all (polar night, or a gap no day could fill) the clouds would stop at a hard edge, so
+   they thin out over about 6 degrees before it */
+function cloudFeather(d,W,H,src,z){var R=Math.max(8,Math.min(64,4.3*Math.pow(2,z))),B=4,w=W/B,h=H/B,D=new Float32Array(w*h),x,y,k,any=false;
+  /* only solid no-data areas count (a 4x4 block that is mostly black), not stray dark specks */
+  for(y=0;y<h;y++)for(x=0;x<w;x++){var n=0;for(var dy=0;dy<B;dy++)for(var dx=0;dx<B;dx++){var q=((y*B+dy)*W+x*B+dx)*4;if(src[q]+src[q+1]+src[q+2]<=12)n++}
+    k=y*w+x;if(n>=12){D[k]=0;any=true}else D[k]=1e4}if(!any)return;
+  for(y=0;y<h;y++)for(x=0;x<w;x++){k=y*w+x;var v=D[k];if(x>0)v=Math.min(v,D[k-1]+1);if(y>0){v=Math.min(v,D[k-w]+1);if(x>0)v=Math.min(v,D[k-w-1]+1.41);if(x<w-1)v=Math.min(v,D[k-w+1]+1.41)}D[k]=v}
+  for(y=h-1;y>=0;y--)for(x=w-1;x>=0;x--){k=y*w+x;var u=D[k];if(x<w-1)u=Math.min(u,D[k+1]+1);if(y<h-1){u=Math.min(u,D[k+w]+1);if(x<w-1)u=Math.min(u,D[k+w+1]+1.41);if(x>0)u=Math.min(u,D[k+w-1]+1.41)}D[k]=u}
+  for(y=0;y<H;y++)for(x=0;x<W;x++){var e=D[((y/B)|0)*w+((x/B)|0)]*B;if(e<R){var t=e/R;k=(y*W+x)*4;d[k+3]=Math.round(d[k+3]*t*t*(3-2*t))}}}
 /* NASA posts a day's imagery in pieces as each satellite pass is processed, and leaves black where it has no data yet
    (or between passes near the equator), so each tile is patched from the other satellite and the day before */
 var cloudSrcs=[];
@@ -1332,7 +1390,7 @@ function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)
         for(y=0;y<H;y++)for(x=0;x<W;x++){var hit=g[y*W+x];for(dy=-2;dy<=2&&!hit;dy++)for(dx=-2;dx<=2&&!hit;dx++){var yy=y+dy,xx=x+dx;if(yy>=0&&yy<H&&xx>=0&&xx<W&&g[yy*W+xx])hit=1;}
           var q=(y*W+x)*4;if(hit&&o[q]+o[q+1]+o[q+2]>12){d[q]=o[q];d[q+1]=o[q+1];d[q+2]=o[q+2];}}}
       if(gaps(img.data)>0.01)return next();},function(e){if(e&&e.name==="AbortError")throw e;return next();});}
-  return next().then(function(){if(!cx)throw new Error("no cloud imagery");cloudPixels(img.data);cx.putImageData(img,0,0);
+  return next().then(function(){if(!cx)throw new Error("no cloud imagery");var raw=img.data.slice(0);cloudPixels(img.data);cloudFeather(img.data,cv.width,cv.height,raw,+m[1]);cx.putImageData(img,0,0);
     return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){res({data:ab})})},"image/png")})})}
 function cloudsLoad(){if(cloudBusy)return;cloudBusy=true;
   /* newest first: today's passes once NASA has posted them, then yesterday's, then older days to fill what's left;
@@ -1348,9 +1406,28 @@ function cloudsLoad(){if(cloudBusy)return;cloudBusy=true;
     if(!window.__cloudProto){maplibregl.addProtocol("clouds",cloudTile);window.__cloudProto=true;}
     if(!satMap.getSource("clouds")){satMap.addSource("clouds",{type:"raster",tiles:["clouds://{z}/{y}/{x}"],tileSize:256,maxzoom:7});
       satMap.addLayer({id:"clouds",type:"raster",source:"clouds",layout:{visibility:CLOUDS?"visible":"none"},
-        paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,0.85,7.5,0]}},satMap.getLayer("night")?"night":"ref");}
+        paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,0.85,7.5,0]}},satMap.getLayer("night")?"night":"ref");polarInit();}
     var nd=cloudSrcs[0].match(/\d{4}-\d\d-\d\d/)[0];
     document.getElementById("cloud").title="Clouds from NASA satellites (VIIRS imagery via NASA GIBS), newest from "+new Date(nd+"T12:00:00Z").toLocaleDateString(undefined,{month:"long",day:"numeric",timeZone:"UTC"})+", with gaps filled from the days before. They fade out as you zoom in.";});}
+/* the poles: web map tiles stop at 85.05 degrees, and the globe fills the rest by stretching each tile's last row of
+   pixels into a cap, which turns any detail there into a pinwheel. This layer fades the last few degrees into one even
+   color by the tile edge (Esri's own average there: Arctic Ocean blue in the north, ice in the south), with the same
+   color adjustments as the photos, so the stretched cap blends in */
+var polarCache={};
+function polarTile(params){var m=params.url.match(/polar:\/\/(\d+)\/(\d+)/),z=+m[1],y=+m[2],n=Math.pow(2,z),S=256,
+    lat=function(py){return Math.atan(Math.sinh(Math.PI*(1-2*(y*S+py)/(S*n))))*180/Math.PI},
+    top=Math.abs(lat(0)),bot=Math.abs(lat(S)),key=Math.max(top,bot)<81?"empty":z+"/"+y;
+  if(polarCache[key])return Promise.resolve({data:polarCache[key].slice(0)});
+  var cv=document.createElement("canvas");cv.width=cv.height=S;var cx=cv.getContext("2d");
+  if(key!=="empty"){var im=cx.createImageData(1,S);
+    for(var py=0;py<S;py++){var a=lat(py+0.5),t=Math.max(0,Math.min(1,(Math.abs(a)-82)/(84.9-82))),q=py*4;t=t*t*(3-2*t);
+      if(a>0){im.data[q]=15;im.data[q+1]=70;im.data[q+2]=88;}else{im.data[q]=242;im.data[q+1]=245;im.data[q+2]=253;}im.data[q+3]=Math.round(255*t);}
+    var c1=document.createElement("canvas");c1.width=1;c1.height=S;c1.getContext("2d").putImageData(im,0,0);cx.drawImage(c1,0,0,S,S);}
+  return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){polarCache[key]=ab;res({data:ab.slice(0)})})},"image/png")})}
+function polarInit(){if(!satMap)return;if(!window.__polarProto){maplibregl.addProtocol("polar",polarTile);window.__polarProto=true;}
+  if(!satMap.getSource("polar")){satMap.addSource("polar",{type:"raster",tiles:["polar://{z}/{y}/{x}"],tileSize:256,maxzoom:5});
+    satMap.addLayer({id:"polar",type:"raster",source:"polar",paint:{"raster-fade-duration":0,"raster-resampling":"linear","raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},"ref");}
+  else if(satMap.getLayer("polar"))satMap.moveLayer("polar","ref");}
 function setClouds(on){CLOUDS=on;document.getElementById("cloud").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-clouds",on?"on":"off")}catch(e){}
   if(on&&!SAT){setSat(true);return;}
   if(!satMap||!satReady)return;
@@ -1377,7 +1454,7 @@ function satInit(){
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
-  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
+  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
    built the first time someone zooms in far enough to see them */
@@ -1669,6 +1746,7 @@ var TLM=[["tl-condon",1968,"Condon Report","bluebook",null,"The University of Co
 ["tl-starlink",2019,"First Starlink satellites launched",null,null,"SpaceX launched its first 60 Starlink satellites in May 2019. The \"trains\" of bright moving dots that followed set off waves of UFO reports, and AARO's FY2025 report explained 238 cases as sunlight flashing off satellites.","tech"],
 ["tl-chatgpt",2022,"ChatGPT released",null,null,"ChatGPT's release on November 30, 2022 brought AI to the mainstream. Together with image generators, it made convincing fake photos, documents and testimony cheap to produce, raising the bar for checking any new UAP evidence.","tech"],
 ["tl-sora",2024,"AI video arrives",null,null,"OpenAI previewed Sora, a model that makes video from text prompts, in February 2024. With realistic AI video, a striking clip is no longer evidence by itself; the original file, its provenance, and other witnesses or sensors matter more.","tech"],
+["tl-fermi",1950,"Fermi asks \"Where is everybody?\"",null,"m-losalamos","Over lunch at Los Alamos in 1950, physicist Enrico Fermi asked colleagues including Edward Teller why, if intelligent life is common, there was no sign of it. The \"Fermi paradox\" became a central puzzle for the search for extraterrestrial intelligence. In 1981 Frank Tipler argued that because no self-replicating \"von Neumann probes\" have been seen, no other civilizations exist; Carl Sagan and William Newman disputed his reasoning.","civ"],
 ["tl-mj12",1984,"Majestic 12 papers surface","mj12",null,"Documents claiming a secret 1947 UFO committee began circulating in the 1980s. The FBI later concluded they were fake."],
 ["tl-nyt",2017,"AATIP revealed","aatip",null,"In December 2017, The New York Times reported on the Pentagon's secret UFO program and published two Navy videos."],
 ["tl-videos",2020,"Navy videos released","navy",null,"In April 2020, the Pentagon officially released the FLIR1, Gimbal, and GoFast videos."],
@@ -1811,7 +1889,7 @@ function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap()
 
 /* keep the org chart and timeline on screen: a small margin past each edge, plus room for the details panel when it's open */
 function clampPan(){var r=vpR(),b=dims();if(!b||!b.w)return;var cw=b.w*k,chh=b.h*k,po=panel.classList.contains("open"),
-    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?r.height*0.68:0,vw=r.width-rp,vh=r.height-bp,mx=Math.max(60,vw*0.45),my=Math.max(60,vh*0.45);
+    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,mx=Math.max(60,vw*0.45),my=Math.max(60,vh*0.45);
   if(cw<=vw-2*mx)tx=Math.min(vw-cw-mx,Math.max(mx,tx));else tx=Math.min(mx,Math.max(vw-cw-mx,tx));
   if(mode==="timeline"){var t0=tlTop();ty=Math.min(t0,Math.max(Math.min(t0,vh-chh-20),ty));return;}
   if(chh<=vh-2*my)ty=Math.min(vh-chh-my,Math.max(my,ty));else ty=Math.min(my,Math.max(vh-chh-my,ty));}
@@ -1888,7 +1966,7 @@ document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo(TE
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
-vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
+vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey,.keybtn"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
   if(ptrs.size===2){var v=[...ptrs.values()];startDist=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);startK=k;}vp.classList.add("drag");});
 vp.addEventListener("pointermove",function(e){if(!ptrs.has(e.pointerId))return;var prev=ptrs.get(e.pointerId);var dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
   var r=vpR();
@@ -2038,6 +2116,7 @@ var PEOPLE=[
 {id:"pp-hancock",t:"Graham Hancock",a:"",s:"British author, born 1950",d:["A former journalist whose books argue that an advanced civilization was lost at the end of the last Ice Age. Archaeologists widely reject his theories as pseudoarchaeology."],L:[["timeline","tl-b-fingerprints","Fingerprints of the Gods, 1995"],["map","a-giza","Giza"],["map","a-tiwanaku","Tiwanaku"],["map","a-gobekli","Göbekli Tepe"]]},
 {id:"pp-prasad",t:"Deep Prasad",a:"Deeptanshu Prasad",s:"Technology entrepreneur and UFO researcher",d:["An Indian-born Canadian entrepreneur who studied industrial engineering at the University of Toronto and founded the quantum computing startup ReactiveQ in 2018. He later founded the technology company GenMat.","He says the 2017 Pentagon UFO videos first drew him to the subject, and that sometime between 2017 and 2019 he was taken aboard a craft by non-human beings in an experience he compared to a kundalini awakening. In 2019 he said he wanted to find and reverse-engineer a UFO and backed UAP eXpeditions, a nonprofit searching for UAP off Southern California. His account is UNVERIFIED and rests on his own statements."],L:[["timeline","tl-prasad","His abduction account"],["timeline","tl-videos","The videos that drew him in"]]},
 {id:"pp-marrs",t:"Jim Marrs",a:"James Marrs",s:"Journalist and conspiracy author, 1943 to 2017",d:["A Fort Worth newspaper reporter whose 1989 book Crossfire became a main source for Oliver Stone's film JFK and a New York Times bestseller.","He went on to write bestselling books asserting government conspiracies about UFOs, remote viewing, secret societies, and the September 11 attacks, and was a member of Scholars for 9/11 Truth. He died in 2017."],L:[["timeline","tl-b-alienagenda","Alien Agenda, 1997"],["timeline","tl-b-psispies","Psi Spies, 2002"],["timeline","tl-b-crossfire","Crossfire, 1989"],["tree","stargate","Wrote about the Stargate Project"]]},
+{id:"pp-vonneumann",t:"John von Neumann",a:"Johnny von Neumann, Neumann János",s:"Mathematician and physicist, 1903 to 1957",d:["A Hungarian-born mathematician and physicist at the Institute for Advanced Study in Princeton. He worked on the Manhattan Project at Los Alamos, helped shape the ENIAC computer, chaired the Defense Department's Strategic Missile Evaluation Committee, and in 1955 became a commissioner of the Atomic Energy Commission. He died in February 1957.","He has no documented connection to UFOs, but his analysis of self-replicating machines gave its name to \"von Neumann probes,\" a fixture of the debate over why no alien visitors have been confirmed. He was also one of \"the Martians,\" the Hungarian émigré scientists about whom Leo Szilard joked that aliens were already here and \"just call themselves Hungarians.\" Decades after his death, Philadelphia Experiment and Montauk Project lore cast him as the secret director of both."],L:[["tree","manhattan","Manhattan Project"],["tree","aec","Atomic Energy Commission"],["map","m-losalamos","Los Alamos"],["timeline","tl-fermi","Von Neumann probes and the Fermi paradox"]]},
 {id:"pp-keyhoe",t:"Donald Keyhoe",a:"Donald E. Keyhoe, Major Keyhoe",s:"Marine Corps aviator and author, 1897 to 1988",d:["A retired Marine Corps major whose 1950 book The Flying Saucers Are Real argued that the Air Force was hiding what it knew.","He led NICAP from 1957 to 1969 and pressed Congress to hold open UFO hearings."],L:[["map","m-nicap","Led NICAP from 1957 to 1969"],["timeline","tl-nicap","NICAP's founding"]]},
 {id:"pp-hynek",t:"J. Allen Hynek",a:"Josef Allen Hynek, Allen Hynek",s:"Astronomer, 1910 to 1986",d:["The Air Force's scientific consultant on Projects Sign, Grudge, and Blue Book from 1948 to 1969. He began as a skeptic but came to argue that some cases deserved serious study.","He coined the \"close encounters\" categories and founded the Center for UFO Studies in 1973."],L:[["tree","bluebook","Scientific consultant to Blue Book"],["map","m-wpafb","Blue Book was run from Wright-Patterson"],["map","m-socorro","Investigated the 1964 Socorro landing"],["timeline","tl-p-bluebook","Sign, Grudge, and Blue Book, 1948 to 1969"]]},
 {id:"pp-condon",t:"Edward Condon",a:"Edward U. Condon",s:"Physicist, 1902 to 1974",d:["Led the Air Force-funded University of Colorado UFO study. Its report concluded that further study was unlikely to be productive, and Project Blue Book closed soon after."],L:[["timeline","tl-condon","The Condon Report"],["tree","bluebook","Led to Blue Book's closing"]]},
@@ -2288,7 +2367,7 @@ window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(
   try{var sw=+localStorage.getItem(KEY);if(sw)pref=sw}catch(e){}apply();
   function refocus(){if(selId)focusItem(selId)}
   function grip(){apply();if(panel.querySelector(".pgrip"))return;
-    panel.insertAdjacentHTML("afterbegin",'<div class="pgrip" role="separator" aria-orientation="vertical" aria-label="Resize details panel. Use the arrow keys, or double-click to reset." tabindex="0" aria-valuemin="360"></div>');
+    panel.insertAdjacentHTML("afterbegin",'<div class="sgrip" aria-hidden="true"></div><div class="pgrip" role="separator" aria-orientation="vertical" aria-label="Resize details panel. Use the arrow keys, or double-click to reset." tabindex="0" aria-valuemin="360"></div>');
     var g=panel.querySelector(".pgrip");apply();
     g.addEventListener("pointerdown",function(e){if(e.button!==0)return;e.preventDefault();g.setPointerCapture(e.pointerId);g.classList.add("drag");document.body.classList.add("pdrag");
       var r=vpR(),right=r.left+r.width;
@@ -2303,6 +2382,23 @@ window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(
   /* switching views changes which legend is showing, so the limit is checked again */
   new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:["class"]});
   window.addEventListener("resize",apply);})();
+/* phones: the details sheet can be dragged taller or shorter by its handle or title bar; dragging it almost off the
+   bottom closes it, near the top it fills the screen, and the chosen height is remembered */
+(function(){var KEY="watcher-sheeth",R=document.documentElement,mq=window.matchMedia?matchMedia("(max-width:640px)"):null;
+  function phone(){return mq&&mq.matches}
+  try{var sh=+localStorage.getItem(KEY);if(sh>=25&&sh<=100){R.style.setProperty("--ph",sh+"%");panel.classList.toggle("full",sh>=100)}}catch(e){}
+  panel.addEventListener("pointerdown",function(e){if(!phone()||e.button>0)return;var h=e.target.closest(".sgrip,.ph");
+    if(!h||e.target.closest("button,a,input,textarea,select,[data-claim],[data-person]"))return;
+    var vh=window.innerHeight,y0=e.clientY,h0=panel.offsetHeight,cur=h0,moved=false;h.setPointerCapture(e.pointerId);
+    function mv(ev){var d=ev.clientY-y0;if(!moved&&Math.abs(d)<4)return;if(!moved){moved=true;panel.classList.add("sdrag");}
+      cur=h0-d;R.style.setProperty("--ph",Math.round(Math.max(vh*0.12,Math.min(cur,vh)))+"px");}
+    function up(){h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);h.removeEventListener("pointercancel",up);
+      if(!moved)return;panel.classList.remove("sdrag");
+      if(cur<vh*0.2){closePanel();try{var s0=+localStorage.getItem(KEY)}catch(x){}R.style.setProperty("--ph",(s0>=25&&s0<=100?s0:60)+"%");return;}
+      /* within a thumb's reach of the top it snaps to full screen */
+      var pct=cur>vh-56?100:Math.round(Math.max(25,Math.min(95,cur/vh*100)));R.style.setProperty("--ph",pct+"%");panel.classList.toggle("full",pct>=100);
+      try{localStorage.setItem(KEY,String(pct))}catch(x){}apply();}
+    h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);h.addEventListener("pointercancel",up);});})();
 /* claims ledger page */
 function claimsFor(id){return CLAIMS.filter(function(c){return c.by===id||c.L.some(function(l){return l[1]===id})})}
 function claimsHtml(id){var cs=claimsFor(id);if(!cs.length)return "";return '<h3>Claims on the record</h3><div class="clx">'+cs.map(function(c){
@@ -2336,6 +2432,8 @@ function openLedger(focus){var L=document.getElementById("ledger");
   else{L.scrollTop=0;document.getElementById("lgx").focus();}}
 function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 document.getElementById("ledgerBtn").onclick=function(){openLedger()};
+if(window.matchMedia&&matchMedia("(max-width:640px)").matches)document.getElementById("q").placeholder="Search";
+document.getElementById("keyBtn").onclick=function(){var o=document.body.classList.toggle("keyopen");this.setAttribute("aria-expanded",o);this.lastChild.textContent=o?"Hide key":"Key";};
 /* welcome: shown once per visit (and whenever the logo is clicked); each door opens its view */
 (function(){var nTree=BASE.length,nPins=MAP.pins.length,nTL=TLM.length+TLE.length+TLBK.length,
   ico={tree:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="12" y="3" width="10" height="7" rx="1.5"/><rect x="3" y="24" width="10" height="7" rx="1.5"/><rect x="21" y="24" width="10" height="7" rx="1.5"/><path d="M17 10v7M8 24v-7h18v7"/></svg>',
@@ -2376,6 +2474,10 @@ document.getElementById("ledgerBtn").onclick=function(){openLedger()};
   var seen=null;try{seen=sessionStorage.getItem("watcher-welcomed")||sessionStorage.getItem("uap-mode")}catch(e){}
   if(!seen)show();})();
 window.addEventListener("resize",function(){gSize();if(mode==="map")apply();else if(!panel.classList.contains("open"))fit();});
+/* the viewport can change size without the window resizing (on phones the header is taller in Map view), so the globe
+   canvas is re-measured whenever it does, or it would be stretched into an oval */
+if(window.ResizeObserver)new ResizeObserver(function(){if(!gc)return;var r=vpR();
+  if(Math.round(r.width*gDpr)!==gc.width||Math.round(r.height*gDpr)!==gc.height){gSize();if(mode==="map")apply();}}).observe(vp);
 })();
 </script>
 </body>
