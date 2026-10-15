@@ -353,7 +353,35 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .pgrip:focus-visible{outline:none}
 body.pdrag,body.pdrag *{cursor:col-resize!important;user-select:none!important}
 body.pdrag #panel{transition:none}
-@media (max-width:640px){.pgrip{display:none}}</style>
+@media (max-width:640px){.pgrip{display:none}}
+/* phones: compact two-row header, and the key folds away behind a Key button */
+.keybtn{display:none}
+@media (max-width:640px){
+header{gap:6px 6px;padding:8px 10px}
+h1{margin:0 auto 0 0}
+h1 .vt{display:none}
+header .brand .lgm{height:21px}
+header .tools{display:contents}
+header .tools>.seg{order:0}
+header .tools .seg button{min-height:32px;padding:4px 9px;font-size:13.5px;white-space:nowrap}
+.srch{order:1;flex:1 1 170px;min-width:0}
+#q{font-size:16px;min-height:34px;padding:4px 12px 4px 32px}
+#ledgerBtn,#fit{order:2;min-height:34px;padding:4px 10px;font-size:13.5px}
+#zo,#zi{display:none}
+header>.tb{order:3;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none}
+header>.tb::-webkit-scrollbar{display:none}
+header>.tb .tb{flex-wrap:nowrap}
+header>.tb button{min-height:30px;padding:3px 10px;font-size:13px;white-space:nowrap;flex:none}
+header>.tb .seg button{min-height:30px}
+.keybtn{display:flex;align-items:center;gap:7px;position:absolute;left:10px;bottom:10px;z-index:3;min-height:36px;padding:4px 12px;font-size:13.5px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.keybtn i{display:block;width:14px;height:10px;background:linear-gradient(var(--ink2) 0 2px,transparent 2px 4px,var(--ink2) 4px 6px,transparent 6px 8px,var(--ink2) 8px 10px)}
+#vp .legend{display:none;left:10px;bottom:54px;max-height:calc(100% - 66px);overflow-y:auto}
+body.keyopen #vp .legend{display:flex}
+#vp .fkey button{padding:6px 8px}
+body.mode-tree header>.tb{order:2;width:auto;flex:none}
+body.mode-tree .srch{flex-basis:110px}
+}
+</style>
 </head>
 <body>
 <script id="state" type="application/json">{"rev":0,"notes":{},"custom":[],"pins":[]}</script>
@@ -1145,7 +1173,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="legend treeonly"><span><i class="sw a"></i>Active UAP office</span><span><i class="sw c"></i>Closed program</span><span><i class="sw s"></i>Secret project</span><span><i class="sw"></i>Parent body</span><span id="lgl" hidden><i class="sw l"></i>Succeeded by</span></div>'+
 '<div class="legend maponly mapkey fkey" role="group" aria-label="Show or hide on the map">'+MAPKEYS.map(function(r){var n=r[0]==="mine"?"":MAP.pins.filter(function(p){return pinKey(p)===r[0]}).length;return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+(n!==""?'<span class="kn">'+n+'</span>':'')+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<div class="legend tlonly tlkey fkey" role="group" aria-label="Show or hide on the timeline">'+TLKEYS.map(function(r){return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
-'<div class="hint" id="hint"></div>'+
+'<button id="keyBtn" class="keybtn" aria-expanded="false"><i aria-hidden="true"></i><span>Key</span></button><div class="hint" id="hint"></div>'+
 '<aside id="panel" aria-label="Details"></aside></div>');
 
 var vp=document.getElementById("vp"),world=document.getElementById("world"),svg=document.getElementById("edges"),panel=document.getElementById("panel"),mapw=document.getElementById("mapw"),pinsEl=document.getElementById("pins"),hint=document.getElementById("hint");
@@ -1888,7 +1916,7 @@ document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo(TE
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
-vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
+vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey,.keybtn"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
   if(ptrs.size===2){var v=[...ptrs.values()];startDist=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);startK=k;}vp.classList.add("drag");});
 vp.addEventListener("pointermove",function(e){if(!ptrs.has(e.pointerId))return;var prev=ptrs.get(e.pointerId);var dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
   var r=vpR();
@@ -2336,6 +2364,8 @@ function openLedger(focus){var L=document.getElementById("ledger");
   else{L.scrollTop=0;document.getElementById("lgx").focus();}}
 function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 document.getElementById("ledgerBtn").onclick=function(){openLedger()};
+if(window.matchMedia&&matchMedia("(max-width:640px)").matches)document.getElementById("q").placeholder="Search";
+document.getElementById("keyBtn").onclick=function(){var o=document.body.classList.toggle("keyopen");this.setAttribute("aria-expanded",o);this.lastChild.textContent=o?"Hide key":"Key";};
 /* welcome: shown once per visit (and whenever the logo is clicked); each door opens its view */
 (function(){var nTree=BASE.length,nPins=MAP.pins.length,nTL=TLM.length+TLE.length+TLBK.length,
   ico={tree:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="12" y="3" width="10" height="7" rx="1.5"/><rect x="3" y="24" width="10" height="7" rx="1.5"/><rect x="21" y="24" width="10" height="7" rx="1.5"/><path d="M17 10v7M8 24v-7h18v7"/></svg>',
