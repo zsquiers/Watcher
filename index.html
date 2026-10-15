@@ -2472,6 +2472,10 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   var seen=null;try{seen=sessionStorage.getItem("watcher-welcomed")||sessionStorage.getItem("uap-mode")}catch(e){}
   if(!seen)show();})();
 window.addEventListener("resize",function(){gSize();if(mode==="map")apply();else if(!panel.classList.contains("open"))fit();});
+/* the viewport can change size without the window resizing (on phones the header is taller in Map view), so the globe
+   canvas is re-measured whenever it does, or it would be stretched into an oval */
+if(window.ResizeObserver)new ResizeObserver(function(){if(!gc)return;var r=vpR();
+  if(Math.round(r.width*gDpr)!==gc.width||Math.round(r.height*gDpr)!==gc.height){gSize();if(mode==="map")apply();}}).observe(vp);
 })();
 </script>
 </body>
