@@ -342,7 +342,16 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .wled:hover{border-color:var(--focus);border-left-color:var(--amber)}
 .wled b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:20px}
 .wled span{font-size:14px;color:var(--ink2);flex:1 1 300px}
-.wled em{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}</style>
+.wled em{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+/* drag the panel's left edge to resize it */
+.pgrip{position:absolute;left:0;top:0;bottom:0;width:10px;margin-left:-5px;cursor:col-resize;z-index:5;touch-action:none}
+.pgrip::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--focus);opacity:0;transition:opacity .15s}
+.pgrip::before{content:"";position:absolute;left:2px;top:50%;width:6px;height:36px;margin-top:-18px;border-radius:3px;background:var(--line);opacity:.55;transition:opacity .15s}
+.pgrip:hover::after,.pgrip:focus-visible::after,.pgrip.drag::after{opacity:1}.pgrip:hover::before,.pgrip.drag::before{opacity:.9}
+.pgrip:focus-visible{outline:none}
+body.pdrag,body.pdrag *{cursor:col-resize!important;user-select:none!important}
+body.pdrag #panel{transition:none}
+@media (max-width:640px){.pgrip{display:none}}</style>
 </head>
 <body>
 <script id="state" type="application/json">{"rev":0,"notes":{},"custom":[],"pins":[]}</script>
@@ -1800,7 +1809,10 @@ function up(e){if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(ptrs
     if(mode==="map"&&placing&&downPt&&!e.target.closest(".legend")){var r=vpR(),ll=gInv(downPt.x-r.left,downPt.y-r.top);if(!ll)return;placePin(ll[0],ll[1]);}
     else if(downTarget)open(downTarget.dataset.id);}}}
 vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
-vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;if(mode==="map"&&SAT)return;e.preventDefault();var r=vpR(),cx=e.clientX-r.left,cy=e.clientY-r.top;
+vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
+  /* in Satellite view the pins sit on a layer above the map, so a scroll over a pin is passed on to the map to zoom */
+  if(mode==="map"&&SAT){if(satMap&&e.target.closest&&e.target.closest("#pins")){e.preventDefault();satMap.getCanvas().dispatchEvent(new WheelEvent("wheel",{deltaX:e.deltaX,deltaY:e.deltaY,deltaZ:e.deltaZ,deltaMode:e.deltaMode,
+    clientX:e.clientX,clientY:e.clientY,screenX:e.screenX,screenY:e.screenY,ctrlKey:e.ctrlKey,shiftKey:e.shiftKey,altKey:e.altKey,metaKey:e.metaKey,bubbles:true,cancelable:true}));}return;}e.preventDefault();var r=vpR(),cx=e.clientX-r.left,cy=e.clientY-r.top;
   if(e.ctrlKey){var d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);d=Math.max(-25,Math.min(25,d));zoomAt(Math.exp(-d*0.008),cx,cy);}
   else if(e.deltaMode===0&&(Math.abs(e.deltaX)>0||Math.abs(e.deltaY)<50)){if(mode==="map")gRot(-e.deltaX,-e.deltaY);else{tx-=e.deltaX;ty-=e.deltaY;apply();}}
   else{zoomAt(Math.exp(-Math.sign(e.deltaY)*0.15),cx,cy);}},{passive:false});
@@ -2154,6 +2166,28 @@ renderTree();requestAnimationFrame(function(){homeTree();var m=null;try{m=sessio
 window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(function(){})},800)});
 
 
+
+/* resizable panel: drag the left edge (or use the arrow keys on it); the width is remembered, and double-click resets it */
+(function(){var KEY="watcher-panelw",R=document.documentElement;
+  function lim(w){var r=vpR();return Math.round(Math.max(360,Math.min(w,Math.max(420,r.width-160),1400)))}
+  function setW(w,save){if(w==null){R.style.removeProperty("--pw");try{localStorage.removeItem(KEY)}catch(e){}return;}
+    w=lim(w);R.style.setProperty("--pw",w+"px");var g=panel.querySelector(".pgrip");if(g)g.setAttribute("aria-valuenow",w);if(save)try{localStorage.setItem(KEY,String(w))}catch(e){}}
+  try{var sw=+localStorage.getItem(KEY);if(sw)setW(sw)}catch(e){}
+  function refocus(){if(selId)focusItem(selId)}
+  function grip(){if(panel.querySelector(".pgrip"))return;
+    panel.insertAdjacentHTML("afterbegin",'<div class="pgrip" role="separator" aria-orientation="vertical" aria-label="Resize details panel. Use the arrow keys, or double-click to reset." tabindex="0" aria-valuemin="360"></div>');
+    var g=panel.querySelector(".pgrip");g.setAttribute("aria-valuenow",panel.offsetWidth);
+    g.addEventListener("pointerdown",function(e){if(e.button!==0)return;e.preventDefault();g.setPointerCapture(e.pointerId);g.classList.add("drag");document.body.classList.add("pdrag");
+      var r=vpR(),right=r.left+r.width;
+      function mv(ev){setW(right-ev.clientX,false)}
+      function up(){g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up);g.removeEventListener("pointercancel",up);
+        g.classList.remove("drag");document.body.classList.remove("pdrag");setW(panel.offsetWidth,true);refocus();}
+      g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up);g.addEventListener("pointercancel",up);});
+    g.addEventListener("dblclick",function(){setW(null);refocus()});
+    g.addEventListener("keydown",function(e){var d=e.key==="ArrowLeft"?40:e.key==="ArrowRight"?-40:0;if(!d)return;e.preventDefault();setW(panel.offsetWidth+d,true);});
+    g.addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="ArrowRight")refocus()});}
+  grip();new MutationObserver(grip).observe(panel,{childList:true});
+  window.addEventListener("resize",function(){var cur=parseFloat(R.style.getPropertyValue("--pw"));if(cur)setW(cur,false)});})();
 /* claims ledger page */
 function claimsFor(id){return CLAIMS.filter(function(c){return c.by===id||c.L.some(function(l){return l[1]===id})})}
 function claimsHtml(id){var cs=claimsFor(id);if(!cs.length)return "";return '<h3>Claims on the record</h3><div class="clx">'+cs.map(function(c){
