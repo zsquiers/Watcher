@@ -1454,6 +1454,7 @@ function satInit(){
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
+  satMap.setPadding({left:Math.max(0,2*gox),right:Math.max(0,-2*gox),top:Math.max(0,2*goy),bottom:Math.max(0,-2*goy)});
   satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
@@ -1484,11 +1485,14 @@ function setSat(on){var bm=document.getElementById("stMap"),bs=document.getEleme
   try{localStorage.setItem("watcher-mapstyle",on?"sat":"map")}catch(e){}
   if(on===SAT){mark(on);return;}
   if(!on){SAT=false;mark(false);document.body.classList.remove("sat");if(TERR){TERR=false;document.getElementById("terr").setAttribute("aria-pressed",false);try{localStorage.setItem("watcher-terrain","off")}catch(e){}if(satMap){satMap.setTerrain(null);satMap.setPitch(0);}}
-    if(satMap){var c=satMap.getCenter();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,zToK(satMap.getZoom())));gox=0;goy=0;}
+    /* the satellite map keeps its center inside any padding it was given (room for the details panel), so the drawn
+       globe takes the same offset and nothing jumps when switching */
+    if(satMap){var c=satMap.getCenter(),pd=satMap.getPadding();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,zToK(satMap.getZoom())));
+      gox=((pd.left||0)-(pd.right||0))/2;goy=((pd.top||0)-(pd.bottom||0))/2;}
     PINS.forEach(function(o){o.v=null});gQueue();return;}
   mark(true);bs.textContent="Loading…";cancelAnimationFrame(gAnim);
   satLib().then(function(){bs.textContent="Satellite";SAT=true;document.body.classList.add("sat");
-    if(!satMap)satInit();else{satMap.resize();satMap.jumpTo({center:[gLon,gLat],zoom:kToZ(k)});}
+    if(!satMap)satInit();else{satMap.resize();satMap.jumpTo({center:[gLon,gLat],zoom:kToZ(k),padding:{left:Math.max(0,2*gox),right:Math.max(0,-2*gox),top:Math.max(0,2*goy),bottom:Math.max(0,-2*goy)}});}
     PINS.forEach(function(o){o.v=null});gQueue();if(selId&&mode==="map")focusItem(selId);if(TERR)setTerrain(true);
   }).catch(function(){bs.textContent="Satellite";mark(false);try{localStorage.setItem("watcher-mapstyle","map")}catch(e){}
     hint.textContent="Satellite view needs an internet connection. Showing the regular map.";});}
