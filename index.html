@@ -194,6 +194,8 @@ body.sat #compass{display:block}
 .tle.mil .tm{background:var(--mil);border-radius:50%;transform:none;box-shadow:0 0 0 2px var(--amber)}
 .tle.gov .tm{background:var(--ink);transform:none;border-radius:2px}
 .tle.book .tm,.lg-book{width:10px;height:12px;background:var(--book);transform:none;border-radius:1px 2px 2px 1px;box-shadow:inset 3px 0 0 rgba(0,0,0,.28)}
+.tle.tech .tm,.lg-tech{background:transparent;transform:none;width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--closed)}
+.tle.tech{color:var(--ink2);border-style:dashed}
 .tle.civ .tm{background:var(--civ);transform:none;width:13px;height:12px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
 .tle .tdot{width:7px;height:7px;border-radius:50%;background:var(--amber)}
 .tlb:hover,.tle:hover{border-color:var(--ink2)}
@@ -360,14 +362,14 @@ body.pdrag #panel{transition:none}
 <script id="app">
 (function(){
 /* the timeline key doubles as a filter: each row turns its kind of item on or off */
-var TLKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["uap","lg-uap","Sighting or incident"],["sec","lg-sec","Secret project event"],["mil","lg-milu","Incident at a base"],["gov","lg-gov","Milestone"],["civ","lg-civ","Civilian or media milestone"],["book","lg-book","Book"]];
+var TLKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["uap","lg-uap","Sighting or incident"],["sec","lg-sec","Secret project event"],["mil","lg-milu","Incident at a base"],["gov","lg-gov","Milestone"],["civ","lg-civ","Civilian or media milestone"],["book","lg-book","Book"],["tech","lg-tech","Tech and media context"]];
 var MAPKEYS=[["gov","lg-gov","Government building"],["mil","lg-mil","Military base"],["milu","lg-milu","Base with UAP history"],["uap","lg-uap","UAP or anomaly site"],["sec","lg-sec","Secret project site"],["civ","lg-civ","Civilian research group"],["anc","lg-anc","Ancient site"],["mine","lg-mine","Your pin"]];
 function pinKey(p){return p.c==="mil"?(p.u?"milu":"mil"):p.c}
 function keySync(sel,keys,on){document.querySelectorAll(sel+" [data-k]").forEach(function(b){b.setAttribute("aria-pressed",on[b.dataset.k]!==false)});
   document.querySelector(sel+' [data-all="1"]').disabled=keys.every(function(r){return on[r[0]]!==false});document.querySelector(sel+' [data-all="0"]').disabled=keys.every(function(r){return on[r[0]]===false});}
 function mapKeySync(){keySync(".mapkey",MAPKEYS,filt)}
 function mapFilter(){try{localStorage.setItem("watcher-mapkeys",JSON.stringify(filt))}catch(e){}mapKeySync();if(mode==="map")renderMap();}
-var TLF={};TLKEYS.forEach(function(r){TLF[r[0]]=true});
+var TLF={};TLKEYS.forEach(function(r){TLF[r[0]]=r[0]!=="tech"});
 try{var tlf0=JSON.parse(localStorage.getItem("watcher-tlkeys")||"{}");Object.keys(tlf0).forEach(function(k){if(k in TLF)TLF[k]=!!tlf0[k]})}catch(e){}
 function tlShown(e){return TLF[e.kind]!==false}
 function tlKeySync(){keySync(".tlkey",TLKEYS,TLF)}
@@ -668,6 +670,23 @@ var SRC={
 "aa-woods":["Air Force Veterans Abducted By Aliens Reunite After 50 Years","American Alchemy with Jesse Michels (transcript)","Sept. 2026","https://podscripts.co/podcasts/american-alchemy-with-jesse-michels/air-force-veterans-abducted-by-aliens-reunite-after-50-years-emotional","news"],
 "marrs-wiki":["Jim Marrs","Wikipedia","","https://en.wikipedia.org/wiki/Jim_Marrs","ref"],
 "illuminati-wiki":["Illuminati","Wikipedia","","https://en.wikipedia.org/wiki/Illuminati","ref"],
+"wiki-sputnik":["Sputnik 1","Wikipedia","","https://en.wikipedia.org/wiki/Sputnik_1","ref"],
+"wiki-www":["World Wide Web","Wikipedia","","https://en.wikipedia.org/wiki/World_Wide_Web","ref"],
+"wiki-facebook":["Facebook","Wikipedia","","https://en.wikipedia.org/wiki/Facebook","ref"],
+"wiki-youtube":["YouTube","Wikipedia","","https://en.wikipedia.org/wiki/YouTube","ref"],
+"wiki-reddit":["Reddit","Wikipedia","","https://en.wikipedia.org/wiki/Reddit","ref"],
+"wiki-twitter":["Twitter","Wikipedia","","https://en.wikipedia.org/wiki/Twitter","ref"],
+"wiki-iphone":["iPhone (1st generation)","Wikipedia","","https://en.wikipedia.org/wiki/IPhone_(1st_generation)","ref"],
+"wiki-phantom":["DJI Phantom","Wikipedia","","https://en.wikipedia.org/wiki/DJI_Phantom","ref"],
+"wiki-starlink":["Starlink","Wikipedia","","https://en.wikipedia.org/wiki/Starlink","ref"],
+"wiki-openai":["OpenAI","Wikipedia","","https://en.wikipedia.org/wiki/OpenAI","ref"],
+"wiki-chatgpt":["ChatGPT","Wikipedia","","https://en.wikipedia.org/wiki/ChatGPT","ref"],
+"wiki-sora":["Sora (text-to-video model)","Wikipedia","","https://en.wikipedia.org/wiki/Sora_(text-to-video_model)","ref"],
+"dar-wiki":["The Day After Roswell","Wikipedia","","https://en.wikipedia.org/wiki/The_Day_After_Roswell","ref"],
+"sparks-corso":["Philip Corso's Roswellmania","Skeptical Inquirer","1998","https://cdn.centerforinquiry.org/wp-content/uploads/sites/29/1998/03/22164921/p52.pdf","news"],
+"nyt-thurmond":["Senator Regrets Role in Book on Aliens","New York Times","1997","https://www.nytimes.com/1997/06/05/us/senator-regrets-role-in-book-on-aliens.html","news"],
+"randle-corso":["Philip Corso and The Day After Roswell, Again","Kevin Randle, A Different Perspective","2014","https://kevinrandle.blogspot.com/2014/01/philip-corso-and-day-after-roswell-again.html","news"],
+"guardian-hoaxes":["Top 10 literary hoaxes","The Guardian","2001","https://www.theguardian.com/books/2001/nov/15/news","news"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -847,6 +866,20 @@ var CITE={
 "tl-b-psispies":[[0,"remote-viewing program","marrs-wiki"],[0,"never produced useful","stargate-wiki"]],"tl-b-waronfreedom":[[0,"September 11 attacks","marrs-wiki"]],
 "tl-b-fourthreich":[[0,"Nazi ideas","marrs-wiki"],[0,"Operation Paperclip","paperclip-wiki"]],"tl-b-trilliondollar":[[0,"hidden elite agenda","marrs-wiki"]],"tl-b-oswaldsconfession":[[0,"Cremo Studios","marrs-wiki"]],
 "tl-b-occulted":[[0,"Do the Global Elite","marrs-wiki"],[0,"Archaeologists reject","ancient-wiki"]],"tl-b-illuminati":[[0,"Illuminati mythos","marrs-wiki"],[0,"suppressed in the 1780s","illuminati-wiki"]],
+"tl-sputnik":[[0,"October 4, 1957","wiki-sputnik"]],
+"tl-www":[[0,"August 1991","wiki-www"]],
+"tl-facebook":[[0,"February 2004","wiki-facebook"]],
+"tl-youtube":[[0,"February 2005","wiki-youtube"],[0,"June 2005","wiki-reddit"]],
+"tl-twitter":[[0,"launched in 2006","wiki-twitter"]],
+"tl-iphone":[[0,"June 2007","wiki-iphone"]],
+"tl-drones":[[0,"January 2013","wiki-phantom"],[0,"case resolutions","aaro-fy25"]],
+"tl-openai":[[0,"December 2015","wiki-openai"]],
+"tl-starlink":[[0,"May 2019","wiki-starlink"],[0,"238 cases","aaro-fy25"]],
+"tl-chatgpt":[[0,"November 30, 2022","wiki-chatgpt"]],
+"tl-sora":[[0,"February 2024","wiki-sora"]],
+"pp-corso":[[0,"commissioned in 1942","dar-wiki"],[0,"May 1961","sparks-corso"],[0,"Strom Thurmond","dar-wiki"],[1,"found no record","randle-corso dar-wiki"]],
+"tl-b-dayafter":[[0,"Ghostwritten","dar-wiki"],[0,"bestseller list","dar-wiki"],[0,"foreword was withdrawn","nyt-thurmond sparks-corso"],[0,"could not have happened","sparks-corso"],[0,"literary hoaxes","guardian-hoaxes"]],
+"cl-corso":[[0,"fiber optics","sparks-corso"],[1,"Langley headquarters","sparks-corso"],[1,"no such cover-up","nyt-thurmond"],[1,"unreliable testimony","dar-wiki"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -889,6 +922,10 @@ var CLST={confirmed:["Confirmed","The core claim is backed by official records."
   unverified:["Unverified","No public evidence either way."],denied:["Officially denied","The government says it is not true."],
   explained:["Officially explained","An official investigation gave an ordinary explanation."],false:["Shown false","The evidence for it was shown to be fake or mistaken."]};
 var CLAIMS=[
+{id:"cl-corso",t:"Roswell technology was secretly fed to U.S. industry",by:"pp-corso",yr:1997,venue:"The Day After Roswell (book) and TV interviews",st:"disputed",
+ c:"Philip Corso wrote that wreckage from the 1947 Roswell crash sat in Army files until 1961, when, running the Foreign Technology desk of Army research and development, he quietly passed pieces to defense contractors. He said this seeded advances such as microcircuits, lasers, fiber optics and the microwave oven.",
+ r:"No document supports his role, and each of those technologies has a well-documented development history. Reviewers found impossible events in the book, such as a 1961 confrontation with CIA official Frank Wisner at Langley, when Wisner was posted in London and the Langley headquarters had not yet opened. Senator Strom Thurmond, who wrote the foreword, said he knew of no such cover-up, and a 1997 British defence memo released in 2011 dismissed Corso for a record of unreliable testimony.",
+ L:[["timeline","tl-b-dayafter","The Day After Roswell, 1997"],["map","m-roswell","Roswell"],["tree","army","Army"]]},
 {id:"cl-l9",t:"Aliens intruded on an Ellsworth missile site and abducted its guards in 1977",by:"",byt:"The L-9 document; later, veterans Mario Woods and Michael Johnson",yr:1977,venue:"An alleged FOIA document, and a 2026 podcast interview",st:"disputed",
  c:"A document describing a November 1977 intrusion at Ellsworth's L-9 launch facility says security airmen met figures in glowing suits near a hovering craft. In 2026, former security policemen Mario Woods and Michael Johnson said they lost hours of time while guarding an Ellsworth missile site that year.",
  r:"No official record of the event has been released. The L-9 document was exposed as a hoax in 1984 and is strongly suspected to be a fabrication by Richard Doty, who served at Ellsworth then; it names different airmen than Woods and Johnson. Their own account has not been independently corroborated, and their accounts of how long they were missing vary.",
@@ -1621,6 +1658,17 @@ var TLM=[["tl-condon",1968,"Condon Report","bluebook",null,"The University of Co
 ["tl-prasad",2019,"Deep Prasad's abduction account",null,null,"Canadian technology entrepreneur Deep Prasad said that sometime between 2017 and 2019 he was taken aboard a craft by non-human beings in an experience he compared to a kundalini awakening, and that it turned him toward UFO research. The account rests on his own statements and has not been independently verified.","civ"],
 ["tl-l9",1977,"The Ellsworth L-9 document","af","m-ellsworth","A document said to come from a FOIA request describes an intruder alarm at Ellsworth's L-9 missile launch facility on November 16, 1977, where security airmen met figures in glowing suits and a hovering craft. It has long been considered a hoax: MUFON's Bob Pratt exposed it in 1984, researchers cite its spelling and technical errors, and it is strongly suspected to be a fabrication by Richard Doty, who was stationed at Ellsworth then."],
 ["tl-woods",2026,"Ellsworth guards go public","af","m-ellsworth","On the American Alchemy podcast, former Air Force security policemen Mario Woods and Michael Johnson said that while guarding a nuclear missile site at Ellsworth in 1977 they lost hours of time after alarms tripped, and woke miles away near Newell Reservoir. The episode tied their story to the L-9 document. Their account is unverified.","civ"],
+["tl-sputnik",1957,"Sputnik 1 launched",null,null,"The Soviet Union put the first artificial satellite into orbit on October 4, 1957. A month later came the November 1957 sighting wave, including Levelland, Texas, and from then on satellites, rocket bodies and re-entries became a steady source of UFO reports.","tech"],
+["tl-www",1991,"The World Wide Web goes public",null,null,"Tim Berners-Lee's web opened to the whole internet in August 1991. UFO documents, FOIA releases and claims could now spread without publishers or newsletters, from early fan sites to the 2005 Serpo emails.","tech"],
+["tl-facebook",2004,"Facebook launches",null,null,"Facebook launched in February 2004. Its groups and shared videos became a main channel for sighting reports, and for viral hoaxes, outside the old network of UFO clubs and newsletters.","tech"],
+["tl-youtube",2005,"YouTube and Reddit launch",null,null,"YouTube launched in February 2005 and Reddit in June 2005. Video sharing turned every clip into a public exhibit, and Reddit's r/UFOs grew into one of the busiest places where sightings, leaks and debunks are argued over.","tech"],
+["tl-twitter",2006,"Twitter launches",null,null,"Twitter, renamed X in 2023, launched in 2006. Journalists, whistleblowers and members of Congress now often break UAP news there first, and claims can travel faster than they can be checked.","tech"],
+["tl-iphone",2007,"The iPhone goes on sale",null,null,"Apple's iPhone went on sale in June 2007, and smartphones soon put a camera in almost every pocket. Skeptics point out that clear UFO photos did not become common as a result; small phone lenses tend to turn distant lights at night into blurry blobs.","tech"],
+["tl-drones",2013,"Camera drones go mainstream",null,"m-njdrones","DJI's Phantom, released in January 2013, helped turn camera drones into a mass-market product. Drones are now a common explanation in AARO's case resolutions, and they were at the center of the late-2024 New Jersey drone sightings.","tech"],
+["tl-openai",2015,"OpenAI founded",null,null,"OpenAI was founded in December 2015 as an artificial intelligence research lab. Its later tools, and those of its rivals, changed how images, documents and claims are made and how they have to be checked.","tech"],
+["tl-starlink",2019,"First Starlink satellites launched",null,null,"SpaceX launched its first 60 Starlink satellites in May 2019. The \"trains\" of bright moving dots that followed set off waves of UFO reports, and AARO's FY2025 report explained 238 cases as sunlight flashing off satellites.","tech"],
+["tl-chatgpt",2022,"ChatGPT released",null,null,"ChatGPT's release on November 30, 2022 brought AI to the mainstream. Together with image generators, it made convincing fake photos, documents and testimony cheap to produce, raising the bar for checking any new UAP evidence.","tech"],
+["tl-sora",2024,"AI video arrives",null,null,"OpenAI previewed Sora, a model that makes video from text prompts, in February 2024. With realistic AI video, a striking clip is no longer evidence by itself; the original file, its provenance, and other witnesses or sensors matter more.","tech"],
 ["tl-mj12",1984,"Majestic 12 papers surface","mj12",null,"Documents claiming a secret 1947 UFO committee began circulating in the 1980s. The FBI later concluded they were fake."],
 ["tl-nyt",2017,"AATIP revealed","aatip",null,"In December 2017, The New York Times reported on the Pentagon's secret UFO program and published two Navy videos."],
 ["tl-videos",2020,"Navy videos released","navy",null,"In April 2020, the Pentagon officially released the FLIR1, Gimbal, and GoFast videos."],
@@ -1641,7 +1689,7 @@ function buildTL(){
   var bid={};BASE.forEach(function(n){bid[n.id]=n});var pid={};MAP.pins.forEach(function(p){pid[p.id]=p});
   TLP.forEach(function(r){var n=bid[r[0]];if(!n)return;TL.push({id:"tl-p-"+r[0],type:"bar",y1:r[1],y2:r[2],tid:r[0],pid:r[3],t:n.t,kind:n.k||"closed",ongoing:r[2]===NOWY})});
   TLE.forEach(function(r){var p=pid[r[0]];if(!p)return;TL.push({id:"tl-e-"+r[0],type:"ev",yr:r[1],pid:r[0],tid:r[2]||null,t:p.t,kind:p.c})});
-  TLM.forEach(function(r){TL.push({id:r[0],type:"ev",yr:r[1],t:r[2],tid:r[3],pid:r[4],kind:r[6]||"gov",own:true,s:String(r[1]),st:r[6]==="civ"?"Civilian or media milestone":undefined,d:[r[5]]})});
+  TLM.forEach(function(r){TL.push({id:r[0],type:"ev",yr:r[1],t:r[2],tid:r[3],pid:r[4],kind:r[6]||"gov",own:true,s:String(r[1]),st:r[6]==="civ"?"Civilian or media milestone":r[6]==="tech"?"Tech and media context":undefined,d:[r[5]]})});
   TLBK.forEach(function(r){var by=r[3].map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(" and ");TL.push({id:"tl-b-"+r[0],type:"ev",yr:r[1],t:r[2],au:r[3],tid:r[6]||null,pid:r[5]||null,kind:"book",own:true,st:"Book",s:"By "+by+", "+r[1],d:[r[4]]})});
   TL.forEach(function(e){TLById[e.id]=e;if(e.tid&&!TLByTid[e.tid]&&!e.own)TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid]&&!e.own)TLByPid[e.pid]=e.id;});
   TL.forEach(function(e){if(e.tid&&!TLByTid[e.tid])TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid])TLByPid[e.pid]=e.id;});
@@ -2074,7 +2122,7 @@ var TLBK=[
 ["missing",1981,"Missing Time",["pp-hopkins"],"An artist's study of people who reported lost time and abductions. It shaped how many later abduction cases were investigated."],
 ["consent",1994,"Without Consent",["pp-mantle"],"Co-written with journalist Carl Nagaitis, it was the first book to focus on reported abductions in the United Kingdom, including the Lynda Jones case.","w-lyndajones"],
 ["abduction",1994,"Abduction: Human Encounters with Aliens",["pp-mack"],"A Harvard psychiatrist's study of people reporting abductions, arguing that their experiences deserved serious attention."],
-["dayafter",1997,"The Day After Roswell",["pp-corso"],"Claimed that as an Army officer he helped seed technology from the Roswell crash into U.S. industry. Historians and former colleagues dispute his account.","m-roswell","army"],
+["dayafter",1997,"The Day After Roswell",["pp-corso"],"Ghostwritten by William J. Birnes and published for the 50th anniversary of Roswell, it claimed that Corso, as an Army officer, quietly fed technology from the crashed craft to U.S. industry. It spent three weeks on the New York Times bestseller list. Senator Strom Thurmond had written a foreword believing it was a plain memoir; once he learned what the book said, he stated he knew of no such cover-up, and his foreword was withdrawn. Reviewers found dates and events in it that could not have happened, and The Guardian later named it one of the top 10 literary hoaxes.","m-roswell","army"],
 ["hunt",2005,"Hunt for the Skinwalker",["pp-kelleher","pp-knapp"],"An account of the research at Skinwalker Ranch funded by Robert Bigelow.","m-skinwalker"],
 ["record",2010,"UFOs: Generals, Pilots, and Government Officials Go on the Record",["pp-kean"],"First-person accounts from pilots and officials around the world. Kean later co-wrote The New York Times' 2017 story on AATIP."],
 ["sekret",2016,"Sekret Machines: Chasing Shadows",["pp-delonge"],"A novel co-written with A. J. Hartley, the first in DeLonge's series of books and media about secret UFO programs."],
@@ -2107,7 +2155,7 @@ PEOPLE=PEOPLE.concat([
 {id:"pp-berlitz",t:"Charles Berlitz",a:"",s:"Author, 1913 to 2003",d:["A language-school heir and author best known for The Bermuda Triangle."],L:[["timeline","tl-b-bermuda","Wrote The Bermuda Triangle"],["map","w-bermuda","Bermuda Triangle"],["timeline","tl-b-roswell","Co-wrote The Roswell Incident"],["map","m-roswell","Roswell"]]},
 {id:"pp-moore",t:"William L. Moore",a:"William Moore, Bill Moore",s:"UFO researcher and author",d:["A former teacher who co-wrote The Roswell Incident (1980) with Charles Berlitz, the book that revived the Roswell story, and was research director of the Aerial Phenomena Research Organization (APRO).","With TV producer Jaime Shandera he received the Majestic 12 papers on film in 1984. In 1989 he admitted he had cooperated with Air Force intelligence agents who were feeding disinformation to UFO researchers, and had reported on colleagues, including APRO, in exchange for access."],L:[["timeline","tl-moore89","His 1989 confession"],["map","m-apro","APRO research director"],["timeline","tl-bennewitz","The Bennewitz affair"],["timeline","tl-b-roswell","Co-wrote The Roswell Incident"],["tree","mj12","Circulated the Majestic 12 papers"],["timeline","tl-mj12","Majestic 12 papers surface"]]},
 {id:"pp-hopkins",t:"Budd Hopkins",a:"",s:"Artist and researcher, 1931 to 2011",d:["An abstract painter who became a leading investigator of reported abductions."],L:[["timeline","tl-b-missing","Wrote Missing Time"]]},
-{id:"pp-corso",t:"Philip J. Corso",a:"Philip Corso",s:"Army officer, 1915 to 1998",d:["A retired Army lieutenant colonel who served on the National Security Council staff under President Eisenhower and later worked in Army research and development."],L:[["timeline","tl-b-dayafter","Wrote The Day After Roswell"],["tree","army","Army officer"],["map","m-roswell","Roswell"]]},
+{id:"pp-corso",t:"Philip J. Corso",a:"Philip Corso",s:"Army officer, 1915 to 1998",d:["A U.S. Army intelligence officer from California, Pennsylvania, who was commissioned in 1942 and spent ten years as a lieutenant colonel. In May 1961 he joined Army research and development at the Pentagon under Lt. Gen. Arthur Trudeau, where, by his own account, he ran the Foreign Technology desk. He resigned from the Army in 1963 and went to work for Senator Strom Thurmond.","His 1997 book The Day After Roswell made him one of the best-known Roswell witnesses. The book says he served on President Eisenhower's National Security Council staff, but researcher Kevin Randle, citing the Eisenhower Presidential Library, found no record that he held that role."],L:[["timeline","tl-b-dayafter","Wrote The Day After Roswell"],["tree","army","Army officer"],["map","m-roswell","Roswell"]]},
 {id:"pp-aubeck",t:"Chris Aubeck",a:"Christopher Aubeck",s:"UFO historian",d:["A researcher of historical reports of strange aerial phenomena, from before and after the modern UFO era. He founded the Magonia Exchange, an online research group."],L:[["timeline","tl-b-wonders","Co-wrote Wonders in the Sky"],["timeline","tl-b-rmagonia","Co-wrote Return to Magonia"],["timeline","tl-b-saucers","Wrote Saucers"]]},
 {id:"pp-eghigian",t:"Greg Eghigian",a:"",s:"Historian",d:["A Penn State history professor who studies the history of science, psychiatry, and the UFO phenomenon."],L:[["timeline","tl-b-eghigian","Wrote After the Flying Saucers Came"]]},
 {id:"pp-cdjackson",t:"C. D. Jackson",a:"Charles Douglas Jackson, CD Jackson",s:"Time Inc. executive and White House adviser, 1902 to 1964",d:["A Time Inc. executive who ran psychological warfare efforts in World War II and led the National Committee for a Free Europe, the parent of Radio Free Europe.","He served as President Eisenhower's special assistant for psychological warfare and Cold War strategy in 1953 and 1954."],L:[["tree","pres","Adviser to President Eisenhower"],["map","m-whitehouse","The White House"]]},
