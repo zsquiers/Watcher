@@ -1396,9 +1396,27 @@ function cloudsLoad(){if(cloudBusy)return;cloudBusy=true;
     if(!window.__cloudProto){maplibregl.addProtocol("clouds",cloudTile);window.__cloudProto=true;}
     if(!satMap.getSource("clouds")){satMap.addSource("clouds",{type:"raster",tiles:["clouds://{z}/{y}/{x}"],tileSize:256,maxzoom:7});
       satMap.addLayer({id:"clouds",type:"raster",source:"clouds",layout:{visibility:CLOUDS?"visible":"none"},
-        paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,0.85,7.5,0]}},satMap.getLayer("night")?"night":"ref");}
+        paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,0.85,7.5,0]}},satMap.getLayer("night")?"night":"ref");polarInit();}
     var nd=cloudSrcs[0].match(/\d{4}-\d\d-\d\d/)[0];
     document.getElementById("cloud").title="Clouds from NASA satellites (VIIRS imagery via NASA GIBS), newest from "+new Date(nd+"T12:00:00Z").toLocaleDateString(undefined,{month:"long",day:"numeric",timeZone:"UTC"})+", with gaps filled from the days before. They fade out as you zoom in.";});}
+/* the poles: web map tiles stop at 85.05 degrees, and the globe fills the rest by stretching each tile's last row of
+   pixels into a cap, which turns any detail there into a pinwheel. This layer fades the high Arctic and Antarctic into
+   an even ice color by the tile edge, so the stretched cap comes out as one smooth color */
+var polarCache={};
+function polarTile(params){var m=params.url.match(/polar:\/\/(\d+)\/(\d+)/),z=+m[1],y=+m[2],n=Math.pow(2,z),S=256,
+    lat=function(py){return Math.atan(Math.sinh(Math.PI*(1-2*(y*S+py)/(S*n))))*180/Math.PI},
+    top=Math.abs(lat(0)),bot=Math.abs(lat(S)),key=Math.max(top,bot)<79?"empty":z+"/"+y;
+  if(polarCache[key])return Promise.resolve({data:polarCache[key].slice(0)});
+  var cv=document.createElement("canvas");cv.width=cv.height=S;var cx=cv.getContext("2d");
+  if(key!=="empty"){var im=cx.createImageData(1,S);
+    for(var py=0;py<S;py++){var a=lat(py+0.5),t=Math.max(0,Math.min(1,(Math.abs(a)-80)/(84.8-80))),q=py*4;t=t*t*(3-2*t);
+      if(a>0){im.data[q]=221;im.data[q+1]=230;im.data[q+2]=238;}else{im.data[q]=232;im.data[q+1]=237;im.data[q+2]=241;}im.data[q+3]=Math.round(255*t);}
+    var c1=document.createElement("canvas");c1.width=1;c1.height=S;c1.getContext("2d").putImageData(im,0,0);cx.drawImage(c1,0,0,S,S);}
+  return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){polarCache[key]=ab;res({data:ab.slice(0)})})},"image/png")})}
+function polarInit(){if(!satMap)return;if(!window.__polarProto){maplibregl.addProtocol("polar",polarTile);window.__polarProto=true;}
+  if(!satMap.getSource("polar")){satMap.addSource("polar",{type:"raster",tiles:["polar://{z}/{y}/{x}"],tileSize:256,maxzoom:5});
+    satMap.addLayer({id:"polar",type:"raster",source:"polar",paint:{"raster-fade-duration":0,"raster-resampling":"linear"}},"ref");}
+  else if(satMap.getLayer("polar"))satMap.moveLayer("polar","ref");}
 function setClouds(on){CLOUDS=on;document.getElementById("cloud").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-clouds",on?"on":"off")}catch(e){}
   if(on&&!SAT){setSat(true);return;}
   if(!satMap||!satReady)return;
@@ -1425,7 +1443,7 @@ function satInit(){
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
-  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
+  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
    built the first time someone zooms in far enough to see them */
