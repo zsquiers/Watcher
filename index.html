@@ -1935,7 +1935,7 @@ function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap()
 
 /* keep the org chart and timeline on screen: a small margin past each edge, plus room for the details panel when it's open */
 function clampPan(){var r=vpR(),b=dims();if(!b||!b.w)return;var cw=b.w*k,chh=b.h*k,po=panel.classList.contains("open"),
-    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,mx=Math.max(60,vw*0.45),my=Math.max(60,vh*0.45);
+    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,sl=mode==="tree"?0.12:0.45,mx=Math.max(mode==="tree"?24:60,vw*sl),my=Math.max(mode==="tree"?24:60,vh*sl);
   if(cw<=vw-2*mx)tx=Math.min(vw-cw-mx,Math.max(mx,tx));else tx=Math.min(mx,Math.max(vw-cw-mx,tx));
   if(mode==="timeline"){var t0=tlTop();ty=Math.min(t0,Math.max(Math.min(t0,vh-chh-20),ty));return;}
   if(chh<=vh-2*my)ty=Math.min(vh-chh-my,Math.max(my,ty));else ty=Math.min(my,Math.max(vh-chh-my,ty));}
@@ -1949,7 +1949,7 @@ function tlAxis(){var el=document.getElementById("tlaxis");if(!el||mode!=="timel
 function apply(){if(mode==="map"){gQueue();return;}clampPan();var el={tree:world,timeline:document.getElementById("tlw")}[mode];el.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";
   var g=40*k;vp.style.backgroundSize=g+"px "+g+"px";vp.style.backgroundPosition=tx+"px "+ty+"px";tlAxis();}
 function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBounds}
-function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),duration:RM?0:800});return;}if(mode==="map"){cancelAnimationFrame(gAnim);k=1;gox=0;goy=0;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
+function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),duration:RM?0:800});return;}if(mode==="map"){cancelAnimationFrame(gAnim);k=1;gox=0;goy=0;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
 /* the org chart can't zoom out past the whole-chart view that Fit shows */
 /* Fit on the timeline shows all of it, 1940 to now */
 function tlFitK(){var r=vpR(),b=dims();return Math.max(0.05,Math.min(r.width/b.w,(r.height-20)/b.h,1))}
@@ -1958,7 +1958,7 @@ function zoomAt(f,cx,cy){if(mode==="map"&&SAT&&satMap){satMap.zoomTo(satMap.getZ
 function center(){var r=vpR();return [r.width/2,r.height/2]}
 /* the org chart opens zoomed in on AARO and its Pentagon branch rather than the whole chart (Fit still shows everything) */
 function homeTree(){var p=pos.aaro,r=vpR();if(!p||!r.width){fit();return;}
-  k=Math.max(treeFitK(),r.width<640?0.75:1);tx=r.width*(r.width<640?0.5:0.36)-(p.x+W/2)*k;ty=r.height*0.52-(p.y+40)*k;apply();}
+  k=Math.max(treeFitK(),r.width<640?0.75:1);tx=r.width*(r.width<640?0.5:0.36)-(p.x+W/2)*k;ty=r.height*(r.width<640?0.36:0.52)-(p.y+40)*k;apply();}
 /* the timeline opens on the modern era of UAP offices, from AATIP and AAWSAP to AARO, with "Now" near the right edge */
 /* the viewport's real size, unaffected by the squash of the TV-off transition (which scales the page while views swap) */
 function vpR(){var b=vp.getBoundingClientRect();return {left:b.left,top:b.top,right:b.left+vp.clientWidth,bottom:b.top+vp.clientHeight,width:vp.clientWidth,height:vp.clientHeight}}
