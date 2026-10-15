@@ -1363,6 +1363,15 @@ function cloudsWanted(){try{return localStorage.getItem("watcher-clouds")!=="off
 function cloudPixels(d){for(var i=0;i<d.length;i+=4){var r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),lum=(r*0.3+g*0.59+b*0.11)/255,sat=mx?(mx-mn)/mx:0;
     var a=Math.max(0,Math.min(1,(lum-0.24)/0.66)),w=Math.max(0,Math.min(1,(0.42-sat)/0.26));a=Math.pow(a,1.6)*w;
     var t=Math.round(255*(0.8+0.2*Math.min(1,lum*1.15)));d[i]=t;d[i+1]=t;d[i+2]=Math.min(255,t+4);d[i+3]=Math.round(Math.min(1,a)*215);}}
+/* where NASA has no imagery at all (polar night, or a gap no day could fill) the clouds would stop at a hard edge, so
+   they thin out over about 6 degrees before it */
+function cloudFeather(d,W,H,src,z){var R=Math.max(8,Math.min(64,4.3*Math.pow(2,z))),B=4,w=W/B,h=H/B,D=new Float32Array(w*h),x,y,k,any=false;
+  /* only solid no-data areas count (a 4x4 block that is mostly black), not stray dark specks */
+  for(y=0;y<h;y++)for(x=0;x<w;x++){var n=0;for(var dy=0;dy<B;dy++)for(var dx=0;dx<B;dx++){var q=((y*B+dy)*W+x*B+dx)*4;if(src[q]+src[q+1]+src[q+2]<=12)n++}
+    k=y*w+x;if(n>=12){D[k]=0;any=true}else D[k]=1e4}if(!any)return;
+  for(y=0;y<h;y++)for(x=0;x<w;x++){k=y*w+x;var v=D[k];if(x>0)v=Math.min(v,D[k-1]+1);if(y>0){v=Math.min(v,D[k-w]+1);if(x>0)v=Math.min(v,D[k-w-1]+1.41);if(x<w-1)v=Math.min(v,D[k-w+1]+1.41)}D[k]=v}
+  for(y=h-1;y>=0;y--)for(x=w-1;x>=0;x--){k=y*w+x;var u=D[k];if(x<w-1)u=Math.min(u,D[k+1]+1);if(y<h-1){u=Math.min(u,D[k+w]+1);if(x<w-1)u=Math.min(u,D[k+w+1]+1.41);if(x>0)u=Math.min(u,D[k+w-1]+1.41)}D[k]=u}
+  for(y=0;y<H;y++)for(x=0;x<W;x++){var e=D[((y/B)|0)*w+((x/B)|0)]*B;if(e<R){var t=e/R;k=(y*W+x)*4;d[k+3]=Math.round(d[k+3]*t*t*(3-2*t))}}}
 /* NASA posts a day's imagery in pieces as each satellite pass is processed, and leaves black where it has no data yet
    (or between passes near the equator), so each tile is patched from the other satellite and the day before */
 var cloudSrcs=[];
@@ -1380,7 +1389,7 @@ function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)
         for(y=0;y<H;y++)for(x=0;x<W;x++){var hit=g[y*W+x];for(dy=-2;dy<=2&&!hit;dy++)for(dx=-2;dx<=2&&!hit;dx++){var yy=y+dy,xx=x+dx;if(yy>=0&&yy<H&&xx>=0&&xx<W&&g[yy*W+xx])hit=1;}
           var q=(y*W+x)*4;if(hit&&o[q]+o[q+1]+o[q+2]>12){d[q]=o[q];d[q+1]=o[q+1];d[q+2]=o[q+2];}}}
       if(gaps(img.data)>0.01)return next();},function(e){if(e&&e.name==="AbortError")throw e;return next();});}
-  return next().then(function(){if(!cx)throw new Error("no cloud imagery");cloudPixels(img.data);cx.putImageData(img,0,0);
+  return next().then(function(){if(!cx)throw new Error("no cloud imagery");var raw=img.data.slice(0);cloudPixels(img.data);cloudFeather(img.data,cv.width,cv.height,raw,+m[1]);cx.putImageData(img,0,0);
     return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){res({data:ab})})},"image/png")})})}
 function cloudsLoad(){if(cloudBusy)return;cloudBusy=true;
   /* newest first: today's passes once NASA has posted them, then yesterday's, then older days to fill what's left;
@@ -1400,22 +1409,23 @@ function cloudsLoad(){if(cloudBusy)return;cloudBusy=true;
     var nd=cloudSrcs[0].match(/\d{4}-\d\d-\d\d/)[0];
     document.getElementById("cloud").title="Clouds from NASA satellites (VIIRS imagery via NASA GIBS), newest from "+new Date(nd+"T12:00:00Z").toLocaleDateString(undefined,{month:"long",day:"numeric",timeZone:"UTC"})+", with gaps filled from the days before. They fade out as you zoom in.";});}
 /* the poles: web map tiles stop at 85.05 degrees, and the globe fills the rest by stretching each tile's last row of
-   pixels into a cap, which turns any detail there into a pinwheel. This layer fades the high Arctic and Antarctic into
-   an even ice color by the tile edge, so the stretched cap comes out as one smooth color */
+   pixels into a cap, which turns any detail there into a pinwheel. This layer fades the last few degrees into one even
+   color by the tile edge (Esri's own average there: Arctic Ocean blue in the north, ice in the south), with the same
+   color adjustments as the photos, so the stretched cap blends in */
 var polarCache={};
 function polarTile(params){var m=params.url.match(/polar:\/\/(\d+)\/(\d+)/),z=+m[1],y=+m[2],n=Math.pow(2,z),S=256,
     lat=function(py){return Math.atan(Math.sinh(Math.PI*(1-2*(y*S+py)/(S*n))))*180/Math.PI},
-    top=Math.abs(lat(0)),bot=Math.abs(lat(S)),key=Math.max(top,bot)<79?"empty":z+"/"+y;
+    top=Math.abs(lat(0)),bot=Math.abs(lat(S)),key=Math.max(top,bot)<81?"empty":z+"/"+y;
   if(polarCache[key])return Promise.resolve({data:polarCache[key].slice(0)});
   var cv=document.createElement("canvas");cv.width=cv.height=S;var cx=cv.getContext("2d");
   if(key!=="empty"){var im=cx.createImageData(1,S);
-    for(var py=0;py<S;py++){var a=lat(py+0.5),t=Math.max(0,Math.min(1,(Math.abs(a)-80)/(84.8-80))),q=py*4;t=t*t*(3-2*t);
-      if(a>0){im.data[q]=221;im.data[q+1]=230;im.data[q+2]=238;}else{im.data[q]=232;im.data[q+1]=237;im.data[q+2]=241;}im.data[q+3]=Math.round(255*t);}
+    for(var py=0;py<S;py++){var a=lat(py+0.5),t=Math.max(0,Math.min(1,(Math.abs(a)-82)/(84.9-82))),q=py*4;t=t*t*(3-2*t);
+      if(a>0){im.data[q]=15;im.data[q+1]=70;im.data[q+2]=88;}else{im.data[q]=242;im.data[q+1]=245;im.data[q+2]=253;}im.data[q+3]=Math.round(255*t);}
     var c1=document.createElement("canvas");c1.width=1;c1.height=S;c1.getContext("2d").putImageData(im,0,0);cx.drawImage(c1,0,0,S,S);}
   return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){polarCache[key]=ab;res({data:ab.slice(0)})})},"image/png")})}
 function polarInit(){if(!satMap)return;if(!window.__polarProto){maplibregl.addProtocol("polar",polarTile);window.__polarProto=true;}
   if(!satMap.getSource("polar")){satMap.addSource("polar",{type:"raster",tiles:["polar://{z}/{y}/{x}"],tileSize:256,maxzoom:5});
-    satMap.addLayer({id:"polar",type:"raster",source:"polar",paint:{"raster-fade-duration":0,"raster-resampling":"linear"}},"ref");}
+    satMap.addLayer({id:"polar",type:"raster",source:"polar",paint:{"raster-fade-duration":0,"raster-resampling":"linear","raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},"ref");}
   else if(satMap.getLayer("polar"))satMap.moveLayer("polar","ref");}
 function setClouds(on){CLOUDS=on;document.getElementById("cloud").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-clouds",on?"on":"off")}catch(e){}
   if(on&&!SAT){setSat(true);return;}
