@@ -130,7 +130,7 @@ body.sat #sat{display:block}
 body.sat.mode-map .hint{bottom:40px}
 #sat .maplibregl-ctrl-attrib{font-size:11px}
 #compass{position:absolute;top:12px;right:12px;width:60px;height:60px;padding:0;border-radius:50%;border:1px solid rgba(239,230,210,.35);background:rgba(12,17,28,.85);display:none;z-index:2;cursor:pointer}
-body.sat #compass{display:block}
+#compass{display:block}
 #compass svg{width:100%;height:100%;display:block}
 #compass:hover{border-color:var(--amber)}
 #cneedle{transition:transform .15s linear;transform-origin:26px 26px}
@@ -298,6 +298,9 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .srcs .sty.doc{color:var(--civ)}
 .nocite{font-size:13.5px;color:var(--ink2);margin:0 0 8px}
 @media (min-width:641px){
+  /* the compass moves out from under the open details panel */
+  #compass{transition:right .22s ease}
+  body.dossier #compass{right:calc(min(var(--pw),100%) + 12px)}
   body.dossier #world .node,body.dossier #edges,body.dossier #tlitems .tlb,body.dossier #tlitems .tle,body.dossier #pins .pin{transition:opacity .25s ease}
   body.dossier #world .node:not(.sel){opacity:.35}
   body.dossier #edges{opacity:.35}
@@ -1489,11 +1492,11 @@ function setSat(on){var bm=document.getElementById("stMap"),bs=document.getEleme
        globe takes the same offset and nothing jumps when switching */
     if(satMap){var c=satMap.getCenter(),pd=satMap.getPadding();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,zToK(satMap.getZoom())));
       gox=((pd.left||0)-(pd.right||0))/2;goy=((pd.top||0)-(pd.bottom||0))/2;}
-    PINS.forEach(function(o){o.v=null});gQueue();return;}
+    PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();return;}
   mark(true);bs.textContent="Loading…";cancelAnimationFrame(gAnim);
   satLib().then(function(){bs.textContent="Satellite";SAT=true;document.body.classList.add("sat");
     if(!satMap)satInit();else{satMap.resize();satMap.jumpTo({center:[gLon,gLat],zoom:kToZ(k),padding:{left:Math.max(0,2*gox),right:Math.max(0,-2*gox),top:Math.max(0,2*goy),bottom:Math.max(0,-2*goy)}});}
-    PINS.forEach(function(o){o.v=null});gQueue();if(selId&&mode==="map")focusItem(selId);if(TERR)setTerrain(true);
+    PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();if(selId&&mode==="map")focusItem(selId);if(TERR)setTerrain(true);
   }).catch(function(){bs.textContent="Satellite";mark(false);try{localStorage.setItem("watcher-mapstyle","map")}catch(e){}
     hint.textContent="Satellite view needs an internet connection. Showing the regular map.";});}
 /* 3D terrain on the satellite globe: free AWS Terrain Tiles elevation, raised a little so relief reads well */
@@ -1552,7 +1555,8 @@ function setTerrain(on){TERR=on;document.getElementById("terr").setAttribute("ar
     var z=satMap.getZoom();satMap.easeTo({pitch:Math.max(satMap.getPitch(),60),zoom:z<6.5?6.5:z,duration:RM?0:1400});}
   else{satMap.setTerrain(null);if(satMap.getLayer("hillshade")){satMap.setLayoutProperty("hillshade","visibility","none");satMap.setLayoutProperty("bldg","visibility","none");satMap.setLayoutProperty("pyr","visibility","none");}satMap.easeTo({pitch:0,duration:RM?0:800});}}
 /* compass: the needle points north as the map turns; click to face north again (keeps any 3D tilt) */
-function compassUpdate(){if(!satMap)return;document.getElementById("cneedle").style.transform="rotate("+(-satMap.getBearing())+"deg)"}
+function compassUpdate(){var c=document.getElementById("compass");document.getElementById("cneedle").style.transform="rotate("+(SAT&&satMap?-satMap.getBearing():0)+"deg)";
+  c.title=SAT?"Click to turn north up and level the view":"North is always up on this map";}
 function satWanted(){try{var v=localStorage.getItem("watcher-mapstyle");return v?v==="sat":true}catch(e){return true}}
 /* the real night sky behind the globe: stars, constellations, and the Milky Way, placed for the current time
    and for where the camera sits, so they swing past as the Earth turns */
@@ -1966,7 +1970,7 @@ document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
   if(b.dataset.k)filt[b.dataset.k]=!filt[b.dataset.k];else MAPKEYS.forEach(function(r){filt[r[0]]=b.dataset.all==="1"});mapFilter();});mapKeySync();
 /* compass: turn back to north; outside 3D terrain it also levels the view, so the whole Earth sits upright again */
-document.getElementById("compass").onclick=function(){if(satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setSat(false)};document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
+document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setSat(false)};compassUpdate();document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
