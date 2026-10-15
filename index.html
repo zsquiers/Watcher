@@ -276,7 +276,7 @@ header>.tb{min-height:36px}
 .ph .eb{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin:0 0 2px}
 .ph h2{font-size:28px}
 .pb{padding:16px 22px 26px}
-.pb .facts{font-size:15.5px;line-height:1.6;max-width:66ch}
+.pb .facts{font-size:15.5px;line-height:1.6;max-width:none}
 .pb .facts p{margin:0 0 12px}
 .kf{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:4px 0 18px;padding:12px 14px;border:1px solid var(--hair);border-radius:10px;background:var(--card);font-size:14px}
 .kf dt{color:var(--ink2);font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;letter-spacing:.05em;text-transform:uppercase;font-size:12.5px;padding-top:2px}
@@ -342,7 +342,16 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .wled:hover{border-color:var(--focus);border-left-color:var(--amber)}
 .wled b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:20px}
 .wled span{font-size:14px;color:var(--ink2);flex:1 1 300px}
-.wled em{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}</style>
+.wled em{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+/* drag the panel's left edge to resize it */
+.pgrip{position:absolute;left:0;top:0;bottom:0;width:10px;margin-left:-5px;cursor:col-resize;z-index:5;touch-action:none}
+.pgrip::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--focus);opacity:0;transition:opacity .15s}
+.pgrip::before{content:"";position:absolute;left:2px;top:50%;width:6px;height:36px;margin-top:-18px;border-radius:3px;background:var(--line);opacity:.55;transition:opacity .15s}
+.pgrip:hover::after,.pgrip:focus-visible::after,.pgrip.drag::after{opacity:1}.pgrip:hover::before,.pgrip.drag::before{opacity:.9}
+.pgrip:focus-visible{outline:none}
+body.pdrag,body.pdrag *{cursor:col-resize!important;user-select:none!important}
+body.pdrag #panel{transition:none}
+@media (max-width:640px){.pgrip{display:none}}</style>
 </head>
 <body>
 <script id="state" type="application/json">{"rev":0,"notes":{},"custom":[],"pins":[]}</script>
@@ -647,6 +656,7 @@ var SRC={
 "rand-popsci":["UFO-type sightings happen more often near military airspace","Popular Science","July 2023","https://www.popsci.com/technology/rand-report-uap-military-operations-areas/","news"],
 "rand-comment":["UFO Research Is Only Harmed by Antigovernment Rhetoric","RAND Corporation","Sept. 2023","https://www.rand.org/pubs/commentary/2023/09/ufo-research-is-only-harmed-by-antigovernment-rhetoric.html","news"],
 "rand-wiki":["RAND Corporation","Wikipedia","","https://en.wikipedia.org/wiki/RAND_Corporation","ref"],
+"serpo-wiki":["Planetary objects proposed in ufology: Serpo","Wikipedia","","https://en.wikipedia.org/wiki/Planetary_objects_proposed_in_religion,_astrology,_ufology_and_pseudoscience#Serpo","ref"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -809,6 +819,8 @@ var CITE={
 "cl-petrozavodsk":[[0,"In September 1977","wk-petrozavodsk-phenomenon"],[1,"Kosmos satellite","wk-petrozavodsk-phenomenon"]],
 "cl-jal1628":[[0,"In November 1986","wk-japan-air-lines-cargo-flight-1628-incide"],[1,"dismissed the radar","wk-japan-air-lines-cargo-flight-1628-incide"],[1,"Jupiter and Mars","wk-japan-air-lines-cargo-flight-1628-incide"]],
 "cl-westall":[[0,"In April 1966","wk-westall-ufo"],[1,"weather balloon","wk-westall-ufo"]],
+"cl-serpo":[[0,"The story says","serpo-wiki"],[1,"no physical evidence","serpo-wiki"],[1,"Richard Doty","serpo-wiki doty-wiki"]],
+"tl-serpo":[[0,"Anonymous emails","serpo-wiki"],[0,"Linda Moulton Howe","serpo-wiki"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -851,6 +863,10 @@ var CLST={confirmed:["Confirmed","The core claim is backed by official records."
   unverified:["Unverified","No public evidence either way."],denied:["Officially denied","The government says it is not true."],
   explained:["Officially explained","An official investigation gave an ordinary explanation."],false:["Shown false","The evidence for it was shown to be fake or mistaken."]};
 var CLAIMS=[
+{id:"cl-serpo",t:"Project Serpo: a secret exchange program with an alien planet",by:"",byt:"Anonymous emails, promoted online by Bill Ryan",yr:2005,venue:"Emails to a UFO discussion group, then a website",st:"unverified",
+ c:"The story says an alien who survived a crash near Roswell in the late 1940s was repatriated, and that twelve U.S. military personnel later traveled to its home planet, Serpo, in the Zeta Reticuli system, staying from 1965 to 1978.",
+ r:"There is no physical evidence or official record of the program. Richard Doty, a known source of Air Force disinformation, offered similar material in 1983 and then backed out, and even the story's main promoter later said the releases contained disinformation.",
+ L:[["timeline","tl-serpo","The 2005 emails"],["timeline","tl-moore89","The Aviary"],["tree","mj12","Majestic 12"]]},
 {id:"cl-socorro",t:"An egg-shaped craft landed at Socorro",by:"",byt:"Police officer Lonnie Zamora",yr:1964,venue:"Police report, investigated by Project Blue Book",st:"unverified",
  c:"Socorro police officer Lonnie Zamora reported in April 1964 that he saw an egg-shaped craft on the ground and two small figures beside it before it took off with a roar and flame.",
  r:"Project Blue Book investigated and listed the case as unknown, one of its best-known unexplained landings. Some researchers have suggested a student hoax, but no explanation has been confirmed.",
@@ -1567,6 +1583,7 @@ var TLM=[["tl-condon",1968,"Condon Report","bluebook",null,"The University of Co
 ["tl-starfish",1962,"Starfish Prime","dod","m-johnston","On July 9, 1962, a 1.4-megaton warhead launched from Johnston Atoll exploded about 400 km (250 miles) above the Pacific, the largest nuclear test ever conducted in space. Its electromagnetic pulse knocked out about 300 streetlights and set off burglar alarms in Hawaii, 1,450 km away. The artificial radiation belts it created disabled six or more satellites over the following months, including Telstar 1 and Britain's Ariel 1. Some UAP researchers link these tests to Harald Malmgren's claim of a 1962 shootdown; the tests are documented, the shootdown is not."],
 ["tl-bluegill",1962,"Bluegill Triple Prime","dod","m-johnston","The fourth attempt at the Bluegill high-altitude test, after a rocket failure, a launch-pad explosion that spread plutonium on Johnston Atoll, and another failed launch. It detonated a warhead officially described as submegaton, believed to be about 400 kilotons, high above the Pacific on October 26, 1962, during the Cuban Missile Crisis."],
 ["tl-rand23",2023,"RAND maps UAP reports","rand",null,"RAND's study Not the X-Files analyzed 101,151 public UAP reports made to the National UFO Reporting Center from 1998 to 2022 and found sightings were more common within about 30 km of military operations areas. It suggested many reports may be authorized military flights and recommended outreach to nearby residents."],
+["tl-serpo",2005,"Project Serpo emails","mj12",null,"Anonymous emails to a UFO discussion group run by Victor Martinez described Project Serpo, an alleged secret exchange in which twelve U.S. military personnel traveled to a planet called Serpo in the Zeta Reticuli system between 1965 and 1978. The story echoed one Air Force agent Richard Doty had offered journalist Linda Moulton Howe in 1983. No evidence has ever been produced.","civ"],
 ["tl-mj12",1984,"Majestic 12 papers surface","mj12",null,"Documents claiming a secret 1947 UFO committee began circulating in the 1980s. The FBI later concluded they were fake."],
 ["tl-nyt",2017,"AATIP revealed","aatip",null,"In December 2017, The New York Times reported on the Pentagon's secret UFO program and published two Navy videos."],
 ["tl-videos",2020,"Navy videos released","navy",null,"In April 2020, the Pentagon officially released the FLIR1, Gimbal, and GoFast videos."],
@@ -1800,7 +1817,10 @@ function up(e){if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(ptrs
     if(mode==="map"&&placing&&downPt&&!e.target.closest(".legend")){var r=vpR(),ll=gInv(downPt.x-r.left,downPt.y-r.top);if(!ll)return;placePin(ll[0],ll[1]);}
     else if(downTarget)open(downTarget.dataset.id);}}}
 vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
-vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;if(mode==="map"&&SAT)return;e.preventDefault();var r=vpR(),cx=e.clientX-r.left,cy=e.clientY-r.top;
+vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
+  /* in Satellite view the pins sit on a layer above the map, so a scroll over a pin is passed on to the map to zoom */
+  if(mode==="map"&&SAT){if(satMap&&e.target.closest&&e.target.closest("#pins")){e.preventDefault();satMap.getCanvas().dispatchEvent(new WheelEvent("wheel",{deltaX:e.deltaX,deltaY:e.deltaY,deltaZ:e.deltaZ,deltaMode:e.deltaMode,
+    clientX:e.clientX,clientY:e.clientY,screenX:e.screenX,screenY:e.screenY,ctrlKey:e.ctrlKey,shiftKey:e.shiftKey,altKey:e.altKey,metaKey:e.metaKey,bubbles:true,cancelable:true}));}return;}e.preventDefault();var r=vpR(),cx=e.clientX-r.left,cy=e.clientY-r.top;
   if(e.ctrlKey){var d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);d=Math.max(-25,Math.min(25,d));zoomAt(Math.exp(-d*0.008),cx,cy);}
   else if(e.deltaMode===0&&(Math.abs(e.deltaX)>0||Math.abs(e.deltaY)<50)){if(mode==="map")gRot(-e.deltaX,-e.deltaY);else{tx-=e.deltaX;ty-=e.deltaY;apply();}}
   else{zoomAt(Math.exp(-Math.sign(e.deltaY)*0.15),cx,cy);}},{passive:false});
@@ -1908,7 +1928,7 @@ var PEOPLE=[
 {id:"pp-mace",t:"Nancy Mace",a:"",s:"U.S. Representative from South Carolina",d:["Chaired the House Oversight subcommittee that co-hosted the November 2024 UAP hearing, where she entered the Immaculate Constellation report into the record."],L:[["timeline","tl-hearing24","Led the 2024 hearing"],["tree","immcon","Entered the report"]]},
 {id:"pp-mbrown",t:"Matthew Brown",a:"",s:"Former Pentagon official",d:["Identified as the author of the Immaculate Constellation report. He says he came across evidence of the program while working in government. His claims are unverified, and the Pentagon denies the program exists."],L:[["tree","immcon","Wrote the report"]]},
 {id:"pp-ysmith",t:"Yvonne Smith",a:"Yvonne R. Smith",s:"Hypnotherapist and abduction researcher",d:["A certified hypnotherapist who began working with trauma clients in the early 1990s and says patterns of alien abduction experiences surfaced in their sessions. She founded the Close Encounter Resource Organization (CERO) as a support group for experiencers, in the tradition of Budd Hopkins and John Mack.","She wrote Chosen, about claimed alien hybrid programs, and Coronado, transcripts of hypnosis sessions with people who reported a shared experience at a 1994 conference at the Hotel del Coronado in San Diego. Critics of hypnotic regression warn that it can create false memories."],L:[["timeline","tl-cero","Founded CERO"]]},
-{id:"pp-doty",t:"Richard Doty",a:"Richard C. Doty",s:"Former Air Force intelligence agent",d:["A special agent with the Air Force Office of Special Investigations at Kirtland Air Force Base in the late 1970s and 1980s. He has acknowledged feeding UFO disinformation to researchers, most notably to Paul Bennewitz, an Albuquerque businessman who had been recording signals near the base and came to believe in an alien underground base at Dulce, New Mexico. The campaign contributed to Bennewitz's breakdown.","Researchers identified him as Falcon, the disguised informant in the 1988 TV special UFO Cover-Up? Live!, and Bill Moore named him as a key contact. He has told shifting stories, sometimes claiming the alien material was real, and appears in the 2013 documentary Mirage Men."],L:[["map","m-kirtland","Stationed at Kirtland AFB"],["timeline","tl-bennewitz","The Bennewitz affair"],["timeline","tl-coverup88","Identified as Falcon"],["timeline","tl-moore89","Named by Bill Moore"],["tree","mj12","Helped spread Majestic 12 material"]]},
+{id:"pp-doty",t:"Richard Doty",a:"Richard C. Doty",s:"Former Air Force intelligence agent",d:["A special agent with the Air Force Office of Special Investigations at Kirtland Air Force Base in the late 1970s and 1980s. He has acknowledged feeding UFO disinformation to researchers, most notably to Paul Bennewitz, an Albuquerque businessman who had been recording signals near the base and came to believe in an alien underground base at Dulce, New Mexico. The campaign contributed to Bennewitz's breakdown.","Researchers identified him as Falcon, the disguised informant in the 1988 TV special UFO Cover-Up? Live!, and Bill Moore named him as a key contact. He has told shifting stories, sometimes claiming the alien material was real, and appears in the 2013 documentary Mirage Men."],L:[["map","m-kirtland","Stationed at Kirtland AFB"],["timeline","tl-bennewitz","The Bennewitz affair"],["timeline","tl-coverup88","Identified as Falcon"],["timeline","tl-moore89","Named by Bill Moore"],["tree","mj12","Helped spread Majestic 12 material"],["timeline","tl-serpo","Linked to the Project Serpo story"]]},
 {id:"pp-pandolfi",t:"Ron Pandolfi",a:"Ronald Pandolfi",s:"CIA scientist",d:["A physicist in the CIA's Directorate of Science and Technology, described by journalists and researchers as running an informal \"weird desk\" that tracked UFO, paranormal, and exotic-technology claims in the 1990s. He was in contact with researchers, TV producers, and Silicon Valley entrepreneur Joseph Firmage's UFO projects.","UNVERIFIED: Some secondary sources claim he was \"Pelican\" in the Aviary group of insiders, and that he talked about an antigravity device. TV producer Robert Kiviat later sued Firmage, Pandolfi, and others over an unpaid antigravity documentary. None of these claims has been confirmed, and the CIA has not commented."],L:[["tree","cia","CIA Directorate of Science and Technology"],["tree","mj12","Linked to the Aviary insiders"]]},
 {id:"pp-basiago",t:"Andrew Basiago",a:"Andrew D. Basiago",s:"Lawyer and time-travel claimant",d:["A Washington state lawyer who says that as a child in the late 1960s and 1970s he took part in a secret DARPA program called Project Pegasus that used teleportation and time travel, and that in the early 1980s he was teleported to Mars, along with a young Barack Obama.","UNVERIFIED: no documents or witnesses support the claims. DARPA has said it has no record of the program, and a White House spokesman denied that Obama had been to Mars. Basiago ran a long-shot campaign for president in 2016."],L:[["tree","darpa","Claims a DARPA program"]]},
 {id:"pp-bennewitz",t:"Paul Bennewitz",a:"Paul Frederick Bennewitz",s:"Physicist and businessman, 1927 to 2003",d:["Ran Thunder Scientific Corporation, an electronics firm next to Kirtland Air Force Base in Albuquerque. From 1979 he filmed lights and recorded signals near the base and became convinced they came from alien craft, and reported this to the Air Force in 1980.","Air Force intelligence agents, including Richard Doty, and researcher Bill Moore fed him forged documents and false stories, apparently to protect classified projects at the base. He came to believe in an alien underground base at Dulce, New Mexico, and in a coming invasion, and was hospitalized after a breakdown in the mid-1980s. Greg Bishop's 2005 book Project Beta tells the story."],L:[["timeline","tl-bennewitz","The Bennewitz affair"],["map","m-kirtland","Watched the base"],["map","m-dulce","Originated the Dulce Base story"]]},
@@ -2154,6 +2174,34 @@ renderTree();requestAnimationFrame(function(){homeTree();var m=null;try{m=sessio
 window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(function(){})},800)});
 
 
+
+/* resizable panel: drag the left edge (or use the arrow keys on it); the chosen width is remembered, never covers the
+   legend in the bottom-left corner, and double-click resets it */
+(function(){var KEY="watcher-panelw",R=document.documentElement,pref=null;
+  function maxW(){var r=vpR(),lim=r.width-160;document.querySelectorAll("#vp .legend").forEach(function(l){
+      if(l.offsetParent===null||!l.offsetWidth)return;lim=Math.min(lim,r.width-(l.offsetLeft+l.offsetWidth)-20)});return Math.max(360,lim)}
+  function apply(){var g=panel.querySelector(".pgrip");if(pref==null){R.style.removeProperty("--pw");}
+    else R.style.setProperty("--pw",Math.round(Math.max(360,Math.min(pref,maxW())))+"px");if(g){g.setAttribute("aria-valuenow",panel.offsetWidth);g.setAttribute("aria-valuemax",Math.round(maxW()))}}
+  function setW(w,save){pref=w==null?null:Math.max(360,Math.min(w,maxW()));apply();
+    try{if(pref==null)localStorage.removeItem(KEY);else if(save)localStorage.setItem(KEY,String(Math.round(pref)))}catch(e){}}
+  try{var sw=+localStorage.getItem(KEY);if(sw)pref=sw}catch(e){}apply();
+  function refocus(){if(selId)focusItem(selId)}
+  function grip(){apply();if(panel.querySelector(".pgrip"))return;
+    panel.insertAdjacentHTML("afterbegin",'<div class="pgrip" role="separator" aria-orientation="vertical" aria-label="Resize details panel. Use the arrow keys, or double-click to reset." tabindex="0" aria-valuemin="360"></div>');
+    var g=panel.querySelector(".pgrip");apply();
+    g.addEventListener("pointerdown",function(e){if(e.button!==0)return;e.preventDefault();g.setPointerCapture(e.pointerId);g.classList.add("drag");document.body.classList.add("pdrag");
+      var r=vpR(),right=r.left+r.width;
+      function mv(ev){setW(right-ev.clientX,false)}
+      function up(){g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up);g.removeEventListener("pointercancel",up);
+        g.classList.remove("drag");document.body.classList.remove("pdrag");setW(panel.offsetWidth,true);refocus();}
+      g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up);g.addEventListener("pointercancel",up);});
+    g.addEventListener("dblclick",function(){setW(null);refocus()});
+    g.addEventListener("keydown",function(e){var d=e.key==="ArrowLeft"?40:e.key==="ArrowRight"?-40:0;if(!d)return;e.preventDefault();setW(panel.offsetWidth+d,true);});
+    g.addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="ArrowRight")refocus()});}
+  grip();new MutationObserver(grip).observe(panel,{childList:true});
+  /* switching views changes which legend is showing, so the limit is checked again */
+  new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("resize",apply);})();
 /* claims ledger page */
 function claimsFor(id){return CLAIMS.filter(function(c){return c.by===id||c.L.some(function(l){return l[1]===id})})}
 function claimsHtml(id){var cs=claimsFor(id);if(!cs.length)return "";return '<h3>Claims on the record</h3><div class="clx">'+cs.map(function(c){
