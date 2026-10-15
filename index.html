@@ -1316,6 +1316,16 @@ function satLib(){if(window.maplibregl)return Promise.resolve();if(satLoad)retur
   return satLoad;}
 function kToZ(kk){return Math.log2(2*Math.PI*Math.min(gW,gH)*0.42*kk/512)}
 function zToK(z){return 512*Math.pow(2,z)/(2*Math.PI)/(Math.min(gW,gH)*0.42)}
+/* MapLibre's globe isn't a fixed size for a zoom level: it grows toward the poles and its perspective camera shrinks it,
+   so switching styles measures the satellite globe's real radius on screen (the farthest point of a sweep east from the
+   center to the edge) and matches the drawn globe to it, or the other way round */
+function satRadius(){var m=satMap,c=m.getCenter(),phi=c.lat*Math.PI/180,o=m.project(c),best=0;
+  for(var a=0;a<=90;a+=0.5){var ar=a*Math.PI/180,la=Math.asin(Math.sin(phi)*Math.cos(ar)),lo=c.lng+Math.atan2(Math.sin(ar),Math.cos(phi)*Math.cos(ar))*180/Math.PI,
+    p=m.project([lo,la*180/Math.PI]),d=Math.abs(p.x-o.x);if(d>best)best=d;}return best}
+function satPad(){return {left:Math.max(0,2*gox),right:Math.max(0,-2*gox),top:Math.max(0,2*goy),bottom:Math.max(0,-2*goy)}}
+function satMatch(){var target=Math.min(gW,gH)*0.42*k,z=kToZ(k);
+  for(var i=0;i<5;i++){satMap.jumpTo({center:[gLon,gLat],zoom:z,padding:satPad()});var r=satRadius();if(!r||Math.abs(r-target)<0.5)break;
+    z=Math.max(satMap.getMinZoom(),Math.min(satMap.getMaxZoom(),z+Math.log2(target/r)));}}
 /* the sun: where it is overhead right now (a standard low-precision solar formula, good to a fraction of a degree) */
 /* the Moon: a standard low-precision formula (good to about a degree) for its place in the sky and its phase */
 function moonPos(t){var d=t/864e5-10957.5,R=DEG,L=218.316+13.176396*d,M=(134.963+13.064993*d)*R,F=(93.272+13.22935*d)*R,
@@ -1457,7 +1467,7 @@ function satInit(){
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
-  satMap.setPadding({left:Math.max(0,2*gox),right:Math.max(0,-2*gox),top:Math.max(0,2*goy),bottom:Math.max(0,-2*goy)});
+  satMatch();
   satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
@@ -1490,12 +1500,12 @@ function setSat(on){var bm=document.getElementById("stMap"),bs=document.getEleme
   if(!on){SAT=false;mark(false);document.body.classList.remove("sat");if(TERR){TERR=false;document.getElementById("terr").setAttribute("aria-pressed",false);try{localStorage.setItem("watcher-terrain","off")}catch(e){}if(satMap){satMap.setTerrain(null);satMap.setPitch(0);}}
     /* the satellite map keeps its center inside any padding it was given (room for the details panel), so the drawn
        globe takes the same offset and nothing jumps when switching */
-    if(satMap){var c=satMap.getCenter(),pd=satMap.getPadding();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,zToK(satMap.getZoom())));
+    if(satMap){var c=satMap.getCenter(),pd=satMap.getPadding();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,satRadius()/(Math.min(gW,gH)*0.42)));
       gox=((pd.left||0)-(pd.right||0))/2;goy=((pd.top||0)-(pd.bottom||0))/2;}
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();return;}
   mark(true);bs.textContent="Loading…";cancelAnimationFrame(gAnim);
   satLib().then(function(){bs.textContent="Satellite";SAT=true;document.body.classList.add("sat");
-    if(!satMap)satInit();else{satMap.resize();satMap.jumpTo({center:[gLon,gLat],zoom:kToZ(k),padding:{left:Math.max(0,2*gox),right:Math.max(0,-2*gox),top:Math.max(0,2*goy),bottom:Math.max(0,-2*goy)}});}
+    if(!satMap)satInit();else{satMap.resize();satMatch();}
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();if(selId&&mode==="map")focusItem(selId);if(TERR)setTerrain(true);
   }).catch(function(){bs.textContent="Satellite";mark(false);try{localStorage.setItem("watcher-mapstyle","map")}catch(e){}
     hint.textContent="Satellite view needs an internet connection. Showing the regular map.";});}
