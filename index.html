@@ -276,7 +276,7 @@ header>.tb{min-height:36px}
 .ph .eb{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin:0 0 2px}
 .ph h2{font-size:28px}
 .pb{padding:16px 22px 26px}
-.pb .facts{font-size:15.5px;line-height:1.6;max-width:66ch}
+.pb .facts{font-size:15.5px;line-height:1.6;max-width:none}
 .pb .facts p{margin:0 0 12px}
 .kf{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:4px 0 18px;padding:12px 14px;border:1px solid var(--hair);border-radius:10px;background:var(--card);font-size:14px}
 .kf dt{color:var(--ink2);font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;letter-spacing:.05em;text-transform:uppercase;font-size:12.5px;padding-top:2px}
@@ -2167,16 +2167,20 @@ window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(
 
 
 
-/* resizable panel: drag the left edge (or use the arrow keys on it); the width is remembered, and double-click resets it */
-(function(){var KEY="watcher-panelw",R=document.documentElement;
-  function lim(w){var r=vpR();return Math.round(Math.max(360,Math.min(w,Math.max(420,r.width-160),1400)))}
-  function setW(w,save){if(w==null){R.style.removeProperty("--pw");try{localStorage.removeItem(KEY)}catch(e){}return;}
-    w=lim(w);R.style.setProperty("--pw",w+"px");var g=panel.querySelector(".pgrip");if(g)g.setAttribute("aria-valuenow",w);if(save)try{localStorage.setItem(KEY,String(w))}catch(e){}}
-  try{var sw=+localStorage.getItem(KEY);if(sw)setW(sw)}catch(e){}
+/* resizable panel: drag the left edge (or use the arrow keys on it); the chosen width is remembered, never covers the
+   legend in the bottom-left corner, and double-click resets it */
+(function(){var KEY="watcher-panelw",R=document.documentElement,pref=null;
+  function maxW(){var r=vpR(),lim=r.width-160;document.querySelectorAll("#vp .legend").forEach(function(l){
+      if(l.offsetParent===null||!l.offsetWidth)return;lim=Math.min(lim,r.width-(l.offsetLeft+l.offsetWidth)-20)});return Math.max(360,lim)}
+  function apply(){var g=panel.querySelector(".pgrip");if(pref==null){R.style.removeProperty("--pw");}
+    else R.style.setProperty("--pw",Math.round(Math.max(360,Math.min(pref,maxW())))+"px");if(g){g.setAttribute("aria-valuenow",panel.offsetWidth);g.setAttribute("aria-valuemax",Math.round(maxW()))}}
+  function setW(w,save){pref=w==null?null:Math.max(360,Math.min(w,maxW()));apply();
+    try{if(pref==null)localStorage.removeItem(KEY);else if(save)localStorage.setItem(KEY,String(Math.round(pref)))}catch(e){}}
+  try{var sw=+localStorage.getItem(KEY);if(sw)pref=sw}catch(e){}apply();
   function refocus(){if(selId)focusItem(selId)}
-  function grip(){if(panel.querySelector(".pgrip"))return;
+  function grip(){apply();if(panel.querySelector(".pgrip"))return;
     panel.insertAdjacentHTML("afterbegin",'<div class="pgrip" role="separator" aria-orientation="vertical" aria-label="Resize details panel. Use the arrow keys, or double-click to reset." tabindex="0" aria-valuemin="360"></div>');
-    var g=panel.querySelector(".pgrip");g.setAttribute("aria-valuenow",panel.offsetWidth);
+    var g=panel.querySelector(".pgrip");apply();
     g.addEventListener("pointerdown",function(e){if(e.button!==0)return;e.preventDefault();g.setPointerCapture(e.pointerId);g.classList.add("drag");document.body.classList.add("pdrag");
       var r=vpR(),right=r.left+r.width;
       function mv(ev){setW(right-ev.clientX,false)}
@@ -2187,7 +2191,9 @@ window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(
     g.addEventListener("keydown",function(e){var d=e.key==="ArrowLeft"?40:e.key==="ArrowRight"?-40:0;if(!d)return;e.preventDefault();setW(panel.offsetWidth+d,true);});
     g.addEventListener("keyup",function(e){if(e.key==="ArrowLeft"||e.key==="ArrowRight")refocus()});}
   grip();new MutationObserver(grip).observe(panel,{childList:true});
-  window.addEventListener("resize",function(){var cur=parseFloat(R.style.getPropertyValue("--pw"));if(cur)setW(cur,false)});})();
+  /* switching views changes which legend is showing, so the limit is checked again */
+  new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:["class"]});
+  window.addEventListener("resize",apply);})();
 /* claims ledger page */
 function claimsFor(id){return CLAIMS.filter(function(c){return c.by===id||c.L.some(function(l){return l[1]===id})})}
 function claimsHtml(id){var cs=claimsFor(id);if(!cs.length)return "";return '<h3>Claims on the record</h3><div class="clx">'+cs.map(function(c){
