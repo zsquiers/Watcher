@@ -659,8 +659,13 @@ var SRC={
 "serpo-wiki":["Planetary objects proposed in ufology: Serpo","Wikipedia","","https://en.wikipedia.org/wiki/Planetary_objects_proposed_in_religion,_astrology,_ufology_and_pseudoscience#Serpo","ref"],
 "prasad-wiki":["Deep Prasad","Wikipedia","","https://en.wikipedia.org/wiki/Deep_Prasad","ref"],
 "prasad-pod":["Deep Prasad: AI, Quantum Computing and Non-Human Intelligence","Podcast UFO, episode 756","","https://www.iheart.com/podcast/1270-podcast-ufo-31106216/episode/756-deep-prasad-ai-quantum-computing-335943718/","news"],
+"serpo-kasten":["Secret Journey to Planet Serpo","Simon and Schuster (Bear and Company)","2013","https://www.simonandschuster.ca/books/Secret-Journey-to-Planet-Serpo/Len-Kasten/9781591431466","pub"],
+"serpo-dempsey":["Project Serpo, by Richard J. Dempsey","Audible","","https://www.audible.com/pd/Project-Serpo-Audiobook/B097J5MBJQ","pub"],
+"serpo-gn":["Serpo","Goodreads","","https://www.goodreads.com/book/show/6993604","pub"],
+"serpo-gn-news":["Vin Di Bona's Invisible Hand Studios teams with Devil's Due","Animation Magazine","2008","https://dev.animationmagazine.net/?p=4631","news"],
+"serpo-gilbert":["Project Serpo: Debunking an Alleged Interstellar Exchange Program","Amazon","Feb. 2025","https://www.amazon.com/Project-Serpo-Debunking-Interstellar-Exchange/dp/B0DWDGTYZL","pub"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
-var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive"};
+var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
 var CITE={
 "congress":[[0,"Creates and funds","aaro-wiki"],[1,"FY2022 NDAA","aaro-memo aaro-wiki"]],
@@ -826,6 +831,10 @@ var CITE={
 "cl-prasad":[[0,"Deep Prasad says","prasad-wiki prasad-pod"],[1,"no independent evidence","prasad-wiki"]],
 "tl-prasad":[[0,"Deep Prasad said","prasad-wiki prasad-pod"]],
 "pp-prasad":[[0,"University of Toronto","prasad-wiki"],[0,"GenMat","prasad-wiki"],[1,"Pentagon UFO videos","prasad-wiki"],[1,"In 2019","prasad-wiki"]],
+"tl-b-serpokasten":[[0,"presents Project Serpo","serpo-kasten"],[0,"no such documents","serpo-wiki"]],
+"tl-b-serpodempsey":[[0,"narrative retelling","serpo-dempsey"]],
+"tl-b-serpogn":[[0,"Devil's Due","serpo-gn-news serpo-gn"]],
+"tl-b-serpogilbert":[[0,"independently published","serpo-gilbert"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -875,7 +884,7 @@ var CLAIMS=[
 {id:"cl-serpo",t:"Project Serpo: a secret exchange program with an alien planet",by:"",byt:"Anonymous emails, promoted online by Bill Ryan",yr:2005,venue:"Emails to a UFO discussion group, then a website",st:"unverified",
  c:"The story says an alien who survived a crash near Roswell in the late 1940s was repatriated, and that twelve U.S. military personnel later traveled to its home planet, Serpo, in the Zeta Reticuli system, staying from 1965 to 1978.",
  r:"There is no physical evidence or official record of the program. Richard Doty, a known source of Air Force disinformation, offered similar material in 1983 and then backed out, and even the story's main promoter later said the releases contained disinformation.",
- L:[["timeline","tl-serpo","The 2005 emails"],["timeline","tl-moore89","The Aviary"],["tree","mj12","Majestic 12"]]},
+ L:[["timeline","tl-serpo","The 2005 emails"],["timeline","tl-moore89","The Aviary"],["tree","mj12","Majestic 12"],["timeline","tl-b-serpokasten","Kasten's book, 2013"],["timeline","tl-b-serpogilbert","A critical book, 2025"]]},
 {id:"cl-socorro",t:"An egg-shaped craft landed at Socorro",by:"",byt:"Police officer Lonnie Zamora",yr:1964,venue:"Police report, investigated by Project Blue Book",st:"unverified",
  c:"Socorro police officer Lonnie Zamora reported in April 1964 that he saw an egg-shaped craft on the ground and two small figures beside it before it took off with a roar and flame.",
  r:"Project Blue Book investigated and listed the case as unknown, one of its best-known unexplained landings. Some researchers have suggested a student hoax, but no explanation has been confirmed.",
@@ -1615,7 +1624,7 @@ function buildTL(){
   TLP.forEach(function(r){var n=bid[r[0]];if(!n)return;TL.push({id:"tl-p-"+r[0],type:"bar",y1:r[1],y2:r[2],tid:r[0],pid:r[3],t:n.t,kind:n.k||"closed",ongoing:r[2]===NOWY})});
   TLE.forEach(function(r){var p=pid[r[0]];if(!p)return;TL.push({id:"tl-e-"+r[0],type:"ev",yr:r[1],pid:r[0],tid:r[2]||null,t:p.t,kind:p.c})});
   TLM.forEach(function(r){TL.push({id:r[0],type:"ev",yr:r[1],t:r[2],tid:r[3],pid:r[4],kind:r[6]||"gov",own:true,s:String(r[1]),st:r[6]==="civ"?"Civilian or media milestone":undefined,d:[r[5]]})});
-  TLBK.forEach(function(r){var by=r[3].map(function(a){return PBy[a]?PBy[a].t:""}).filter(Boolean).join(" and ");TL.push({id:"tl-b-"+r[0],type:"ev",yr:r[1],t:r[2],au:r[3],tid:r[6]||null,pid:r[5]||null,kind:"book",own:true,st:"Book",s:"By "+by+", "+r[1],d:[r[4]]})});
+  TLBK.forEach(function(r){var by=r[3].map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(" and ");TL.push({id:"tl-b-"+r[0],type:"ev",yr:r[1],t:r[2],au:r[3],tid:r[6]||null,pid:r[5]||null,kind:"book",own:true,st:"Book",s:"By "+by+", "+r[1],d:[r[4]]})});
   TL.forEach(function(e){TLById[e.id]=e;if(e.tid&&!TLByTid[e.tid]&&!e.own)TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid]&&!e.own)TLByPid[e.pid]=e.id;});
   TL.forEach(function(e){if(e.tid&&!TLByTid[e.tid])TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid])TLByPid[e.pid]=e.id;});
 }
@@ -1879,11 +1888,11 @@ function open(id,editName){
   var d=(Array.isArray(n.d)?n.d:[n.d]).filter(Boolean),cb=citeBlock(cid,d);
   var eb=isPin(cid)?"Place":isTree(cid)?(n.k==="secret"?"Secret program":n.k==="closed"?"Closed program":n.k==="active"?"Active office":"Organization"):tl?(tl.kind==="book"?"Book":tl.own?"Milestone":"Event")+" \u00b7 "+(tl.yr||""):"";
   var par=isTree(cid)&&n.p?findItem(n.p):null,kf=isTree(cid)?kfHtml([["Part of",par&&par.t],["Status",n.st],["Assessment",n.v]]):isPin(cid)?kfHtml([["Where",n.s],["Coordinates",fmtLL(n.lat,n.lon)],["Type",CATS[n.c]]]):
-    kfHtml([["Year",tl&&tl.yr?String(tl.yr):""],["Office",tl&&tl.tid&&findItem(tl.tid)?findItem(tl.tid).t:""],["Place",tl&&tl.pid&&findItem(tl.pid)?findItem(tl.pid).t:""],["By",(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:""}).filter(Boolean).join(", ")]]);
+    kfHtml([["Year",tl&&tl.yr?String(tl.yr):""],["Office",tl&&tl.tid&&findItem(tl.tid)?findItem(tl.tid).t:""],["Place",tl&&tl.pid&&findItem(tl.pid)?findItem(tl.pid).t:""],["By",(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(", ")]]);
   var edit=n.custom?'<h3>Name and description</h3><input id="en" maxlength="60" value="'+esc(n.t)+'" aria-label="Name"><input id="es" maxlength="60" style="margin-top:8px" value="'+esc(n.s||"")+'" placeholder="Short description (optional)" aria-label="Description"><div class="err" id="ee"></div><div class="row"><button id="eb">Save name</button></div>':'';
   var branch=!isTree(n.id)||n.custom==="pin"||n.c?'':'<h3>Add a branch under this box</h3><input id="cn" placeholder="Name, such as Senate Intelligence Committee" maxlength="60"><input id="cs" placeholder="Short description (optional)" maxlength="60" style="margin-top:8px"><div class="err" id="ce"></div><div class="row"><button id="ca">Add branch</button></div>';
   panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div><button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
-  '<div class="pb">'+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:""}).join(" "),cb.urls))+edit+
+  '<div class="pb">'+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
@@ -2015,6 +2024,10 @@ var TLBK=[
 ["inplainsight",2021,"In Plain Sight",["pp-coulthart"],"Australian investigative journalist Ross Coulthart's book on UFOs and alleged secret crash-retrieval programs. Two years later he conducted David Grusch's first television interview."],
 ["graff",2023,"UFO: The Inside Story of the US Government's Search for Alien Life",["pp-graff"],"Journalist and historian Garrett Graff's history of how the U.S. government has handled UFOs, from the first Air Force projects to AARO, written as a skeptical but open-minded account.",null,"aaro"],
 ["fingerprints",1995,"Fingerprints of the Gods",["pp-hancock"],"Graham Hancock's bestseller argued that an advanced lost civilization, wiped out at the end of the last Ice Age, left its mark on monuments such as Giza and Tiwanaku. Unlike von Däniken he did not invoke aliens. Archaeologists reject the theory as pseudoarchaeology.","a-giza"],
+["serpokasten",2013,"Secret Journey to Planet Serpo",["Len Kasten"],"Len Kasten's book presents Project Serpo as a true story, retelling the alleged 1965 to 1978 mission of twelve U.S. military personnel to a planet in the Zeta Reticuli system. It draws on the anonymous Serpo releases, which claimed to come from Defense Intelligence Agency files and the team commander's diary; no such documents have ever been authenticated."],
+["serpodempsey",2018,"Project Serpo: A Top-Secret Human Exchange Program",["Richard J. Dempsey"],"A narrative retelling of the Serpo story, later released as an audiobook, covering the alleged 13-year exchange program and the team's debriefings. Like the story itself, it rests on the unverified anonymous releases."],
+["serpogn",2008,"Serpo (graphic novel)",["Jason M. Burns","Joe Eisma"],"A Devil's Due Publishing graphic novel that fictionalizes the premise: a newspaper reporter uncovers a secret interplanetary exchange program and investigates why only eight of the twelve Americans sent to the planet Serpo came back."],
+["serpogilbert",2025,"Project Serpo: Debunking an Alleged Interstellar Exchange Program",["Horace D. Gilbert"],"An independently published critical look at the Serpo story that tries to separate internet lore and the social dynamics around it from anything that can be verified."],
 ["keyhoe",1950,"The Flying Saucers Are Real",["pp-keyhoe"],"Argued that flying saucers were real and that the Air Force was hiding what it knew. It grew out of Keyhoe's popular article in True magazine the same year."],
 ["adamski",1953,"Flying Saucers Have Landed",["pp-adamski"],"Co-written with Desmond Leslie. Adamski said he had met a man from Venus in the California desert in 1952, launching the \"contactee\" movement. His photos are widely considered hoaxes."],
 ["jessup",1955,"The Case for the UFO",["pp-jessup"],"Argued that UFOs could explain disappearances and other mysteries. A copy annotated by unknown writers reached the Office of Naval Research and fed the Philadelphia Experiment legend.",null,"navy"],
