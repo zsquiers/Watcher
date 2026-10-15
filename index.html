@@ -1476,6 +1476,9 @@ function setNight(on){NIGHT=on;
   if(on&&!SAT){setSat(true);return;}
   if(satMap&&satMap.getLayer("night"))satMap.setLayoutProperty("night","visibility",on?"visible":"none");
   if(satMap&&satReady)satMap.setLight(satLight());gQueue();}
+/* the imagery credit must stay available, but it starts folded into its (i) button instead of a wide banner across the
+   bottom of the map; tapping the button shows it */
+function satAttribCollapse(){var a=document.querySelector("#sat .maplibregl-ctrl-attrib.maplibregl-compact-show");if(a){a.classList.remove("maplibregl-compact-show");a.removeAttribute("open");}}
 function satInit(){
   function esri(path,att){return {type:"raster",tiles:[ESRI+path+"/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:19,attribution:att}}
   satMap=new maplibregl.Map({container:"sat",center:[gLon,gLat],zoom:kToZ(k),maxPitch:85,attributionControl:{compact:true},
@@ -1492,7 +1495,7 @@ function satInit(){
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
   satMatch();
-  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
+  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satAttribCollapse();satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
    built the first time someone zooms in far enough to see them */
