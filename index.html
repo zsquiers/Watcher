@@ -2402,6 +2402,11 @@ vp.addEventListener("scroll",function(){if(vp.scrollLeft||vp.scrollTop){vp.scrol
 renderTree();requestAnimationFrame(function(){homeTree();var m=null;try{m=sessionStorage.getItem("uap-mode")}catch(e){}if(m==="map"||m==="timeline")setMode(m);});
 /* fetch the map's outlines quietly once the page is up, so the Map is usually ready before it's clicked */
 window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(function(){})},800)});
+/* hosts that inject the page with document.write (htmlpreview does) leave the tab on the host's own blank icon, because the
+   browser only reads icon links that exist when the page first loads or that change later; swapping in fresh copies makes
+   it pick up Watcher's eye */
+(function(){function re(){document.querySelectorAll('link[rel~="icon"],link[rel="apple-touch-icon"]').forEach(function(l){var n=l.cloneNode(true);l.parentNode.replaceChild(n,l)})}
+  if(document.readyState==="complete")setTimeout(re,0);else window.addEventListener("load",function(){setTimeout(re,0)});})();
 
 
 
