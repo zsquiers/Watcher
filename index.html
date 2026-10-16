@@ -125,6 +125,7 @@ body:not(.mode-tree) .treeonly,body:not(.mode-map) .maponly,body:not(.mode-timel
 #sat{position:absolute;inset:0;display:none;background:transparent}
 #haze{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}body.sat.mode-map #haze{display:block}
 #cloud[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
+body.street #cloud{display:none}
 #terr[aria-pressed="true"],#sun[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
 body.sat #sat{display:block}
 body.sat.mode-map .hint{bottom:40px}
@@ -1334,12 +1335,27 @@ function gDrawLabels(){var B=gLbl(),c=gx,l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=
     if(n>700)break;}
   if(hasLS)c.letterSpacing="0px";}
 /* satellite view: a MapLibre globe with Esri imagery, loaded only when someone picks Satellite */
-var SAT=false,satMap=null,satLoad=null,SATV="5.24.0",SATLIB="https://cdn.jsdelivr.net/npm/maplibre-gl@"+SATV+"/dist/";
+var SAT=false,STREET=(function(){try{return localStorage.getItem("watcher-mapstyle")!=="sat"}catch(e){return true}})(),LIB=null,LIBIDS={},satMap=null,satLoad=null,SATV="5.24.0",SATLIB="https://cdn.jsdelivr.net/npm/maplibre-gl@"+SATV+"/dist/";
 var ESRI="https://server.arcgisonline.com/ArcGIS/rest/services/";
 function satLib(){if(window.maplibregl)return Promise.resolve();if(satLoad)return satLoad;
   satLoad=new Promise(function(res,rej){var l=document.createElement("link");l.rel="stylesheet";l.href=SATLIB+"maplibre-gl.css";document.head.appendChild(l);
-    var s=document.createElement("script");s.src=SATLIB+"maplibre-gl.js";s.onload=res;s.onerror=function(){satLoad=null;s.remove();rej();};document.head.appendChild(s);});
+    var s=document.createElement("script");s.src=SATLIB+"maplibre-gl.js";s.onload=res;s.onerror=function(){satLoad=null;s.remove();rej();};document.head.appendChild(s);})
+    .then(function(){return fetch(LIBURL).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){LIB=j;j.layers.forEach(function(l){LIBIDS[l.id]=1})}).catch(function(){})});
   return satLoad;}
+/* the Map style: OpenFreeMap's "Liberty" street map, built from OpenStreetMap; it shares the globe with the satellite
+   imagery, and the two buttons only switch which set of layers shows */
+var LIBURL="https://tiles.openfreemap.org/styles/liberty",SATONLY={img:1,ref:1,night:1,clouds:1,polar:1,towns:1};
+function layerVis(id){if(LIBIDS[id])return STREET?"visible":"none";if(!SATONLY[id])return null;if(STREET)return "none";
+  if(id==="clouds")return CLOUDS?"visible":"none";if(id==="night")return NIGHT?"visible":"none";return "visible"}
+function streetApply(){if(!satMap)return;document.body.classList.toggle("street",SAT&&STREET);
+  var sty=satMap.getStyle();if(!sty||!sty.layers){satMap.once("styledata",streetApply);return;}
+  satMap.setSky(satSky());
+  sty.layers.forEach(function(l){var v=layerVis(l.id);if(v&&(satMap.getLayoutProperty(l.id,"visibility")||"visible")!==v)satMap.setLayoutProperty(l.id,"visibility",v)});}
+function markStyle(){var sat=SAT&&!STREET;document.getElementById("stMap").setAttribute("aria-pressed",!sat);document.getElementById("stSat").setAttribute("aria-pressed",sat);}
+function setMapStyle(st){STREET=st!=="sat";try{localStorage.setItem("watcher-mapstyle",STREET?"map":"sat")}catch(e){}
+  if(SAT&&STREET&&!LIB){setSat(false);return;}
+  if(!SAT){setSat(true);return;}
+  streetApply();markStyle();if(!STREET&&satReady){if(!nightTimer)nightInit();if(CLOUDS&&!satMap.getLayer("clouds"))setClouds(true);}}
 function kToZ(kk){return Math.log2(2*Math.PI*Math.min(gW,gH)*0.42*kk/512)}
 function zToK(z){return 512*Math.pow(2,z)/(2*Math.PI)/(Math.min(gW,gH)*0.42)}
 /* switching styles matches the two globes by their scale at the center of the view (pixels per radian), measured from
@@ -1468,34 +1484,45 @@ function polarInit(){if(!satMap)return;if(!window.__polarProto){maplibregl.addPr
 function setClouds(on){CLOUDS=on;document.getElementById("cloud").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-clouds",on?"on":"off")}catch(e){}
   if(on&&!SAT){setSat(true);return;}
   if(!satMap||!satReady)return;
-  if(satMap.getLayer("clouds"))satMap.setLayoutProperty("clouds","visibility",on?"visible":"none");else if(on)cloudsLoad(0);
+  if(satMap.getLayer("clouds"))satMap.setLayoutProperty("clouds","visibility",layerVis("clouds"));else if(on)cloudsLoad(0);
   if(on&&satMap.getZoom()>5){satMap.easeTo({zoom:3,pitch:0,duration:RM?0:1200});}}
 function nightInit(){nightDraw();nightLightsLoad(0);clearInterval(nightTimer);nightTimer=setInterval(nightDraw,5*60*1000);}
 /* day and night is always on; the old toggle is gone */
 function setNight(on){NIGHT=on;
   if(on&&!SAT){setSat(true);return;}
-  if(satMap&&satMap.getLayer("night"))satMap.setLayoutProperty("night","visibility",on?"visible":"none");
+  if(satMap&&satMap.getLayer("night"))satMap.setLayoutProperty("night","visibility",layerVis("night"));
   if(satMap&&satReady)satMap.setLight(satLight());gQueue();}
 /* the imagery credit must stay available, but it starts folded into its (i) button instead of a wide banner across the
    bottom of the map; tapping the button shows it */
-function satAttribCollapse(){var a=document.querySelector("#sat .maplibregl-ctrl-attrib.maplibregl-compact-show");if(a){a.classList.remove("maplibregl-compact-show");a.removeAttribute("open");}}
-function satInit(){
-  function esri(path,att){return {type:"raster",tiles:[ESRI+path+"/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:19,attribution:att}}
-  satMap=new maplibregl.Map({container:"sat",center:[gLon,gLat],zoom:kToZ(k),maxPitch:85,attributionControl:{compact:true},
-    style:{version:8,projection:{type:"globe"},
-      sky:{"sky-color":["interpolate",["linear"],["zoom"],10,"#000207",13,"#4F86C6"],
+var attribOpened=false;document.addEventListener("click",function(e){if(e.target.closest&&e.target.closest("#sat .maplibregl-ctrl-attrib-button"))attribOpened=true},true);
+function satAttribCollapse(){if(attribOpened)return;var a=document.querySelector("#sat .maplibregl-ctrl-attrib.maplibregl-compact-show");if(a){a.classList.remove("maplibregl-compact-show");a.removeAttribute("open");}}
+/* merges the street map into the globe's starting style: its fonts, icons, sources and layers go between the satellite
+   photos and the place-name overlay, each shown or hidden for the current look */
+/* the atmosphere glow suits the dark satellite photos; over the light street map it would wash the globe out, so it is
+   much fainter there */
+function satSky(){return {"sky-color":["interpolate",["linear"],["zoom"],10,"#000207",13,"#4F86C6"],
         "horizon-color":["interpolate",["linear"],["zoom"],4,"#1B2B45",6,"#8DB3EE",10,"#A9C7F2",13,"#CFE0F0"],
         "fog-color":["interpolate",["linear"],["zoom"],4,"#0B1629",6,"#7C9FDA",10,"#8EAEDF",13,"#C3D5E6"],
         "sky-horizon-blend":["interpolate",["linear"],["zoom"],4,0.05,6.5,0.2,10,0.22,13,0.6],
         "horizon-fog-blend":["interpolate",["linear"],["zoom"],5,0.2,10,0.3,13,0.45],
         "fog-ground-blend":["interpolate",["linear"],["zoom"],5,0.3,10,0.45,13,0.55],
-        "atmosphere-blend":["interpolate",["linear"],["zoom"],0,0.38,4.5,0.38,6.5,0]},
+        "atmosphere-blend":["interpolate",["linear"],["zoom"],0,STREET?0.1:0.38,4.5,STREET?0.1:0.38,6.5,0]}}
+function satStyleWith(st){if(LIB){st.glyphs=LIB.glyphs;st.sprite=LIB.sprite;Object.keys(LIB.sources).forEach(function(k){st.sources[k]=LIB.sources[k]});
+    var ref=st.layers.pop();st.layers=st.layers.concat(JSON.parse(JSON.stringify(LIB.layers)),[ref]);}
+  st.layers.forEach(function(l){var v=layerVis(l.id);if(v){l.layout=l.layout||{};l.layout.visibility=v;}});return st}
+/* layers added later (clouds, night lights, the polar cap, town lines) follow the current look as they arrive */
+function satWatchLayers(){var add=satMap.addLayer.bind(satMap);satMap.addLayer=function(l,before){var v=layerVis(l.id);if(v){l.layout=l.layout||{};l.layout.visibility=v;}return add(l,before)}}
+function satInit(){
+  function esri(path,att){return {type:"raster",tiles:[ESRI+path+"/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:19,attribution:att}}
+  satMap=new maplibregl.Map({container:"sat",center:[gLon,gLat],zoom:kToZ(k),maxPitch:85,attributionControl:{compact:true},
+    style:satStyleWith({version:8,projection:{type:"globe"},
+      sky:satSky(),
       light:satLight(),
       sources:{img:esri("World_Imagery","Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community"),
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
-      layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]}});
-  satMatch();
-  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("load",function(){satReady=true;satAttribCollapse();satZones();gQueue();satLines();nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
+      layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]})});
+  satWatchLayers();satMatch();
+  satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("sourcedata",satAttribCollapse);satMap.on("load",function(){satReady=true;satAttribCollapse();satZones();gQueue();satLines();if(!STREET)nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS&&!STREET)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
    built the first time someone zooms in far enough to see them */
@@ -1521,21 +1548,20 @@ function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(
       if(on||o.sel){boxes.push(r);on=true;}}
     if(on!==o.l){o.l=on;o.el.classList.toggle("lbon",on);}}}
 function setSat(on){var bm=document.getElementById("stMap"),bs=document.getElementById("stSat");
-  function mark(v){bm.setAttribute("aria-pressed",!v);bs.setAttribute("aria-pressed",v);}
-  try{localStorage.setItem("watcher-mapstyle",on?"sat":"map")}catch(e){}
-  if(on===SAT){mark(on);return;}
-  if(!on){SAT=false;mark(false);document.body.classList.remove("sat");if(TERR){TERR=false;document.getElementById("terr").setAttribute("aria-pressed",false);try{localStorage.setItem("watcher-terrain","off")}catch(e){}if(satMap){satMap.setTerrain(null);satMap.setPitch(0);}}
+  function mark(){markStyle();}
+  if(on===SAT){if(on)streetApply();mark();return;}
+  if(!on){SAT=false;mark();document.body.classList.remove("sat","street");if(TERR){TERR=false;document.getElementById("terr").setAttribute("aria-pressed",false);try{localStorage.setItem("watcher-terrain","off")}catch(e){}if(satMap){satMap.setTerrain(null);satMap.setPitch(0);}}
     /* the satellite map keeps its center inside any padding it was given (room for the details panel), so the drawn
        globe takes the same offset and nothing jumps when switching */
     if(satMap){var c=satMap.getCenter(),pd=satMap.getPadding();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,kFromScale(satScale())));
       gox=((pd.left||0)-(pd.right||0))/2;goy=((pd.top||0)-(pd.bottom||0))/2;}
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();return;}
-  mark(true);bs.textContent="Loading…";cancelAnimationFrame(gAnim);
-  satLib().then(function(){bs.textContent="Satellite";SAT=true;document.body.classList.add("sat");
-    if(!satMap)satInit();else{satMap.resize();satMatch();}
+  var lb=STREET?bm:bs,lt=lb.textContent;lb.textContent="Loading…";cancelAnimationFrame(gAnim);
+  satLib().then(function(){lb.textContent=lt;if(STREET&&!LIB){setSat(false);return;}SAT=true;document.body.classList.add("sat");
+    if(!satMap)satInit();else{satMap.resize();satMatch();}streetApply();mark();
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();if(selId&&mode==="map")focusItem(selId);if(TERR)setTerrain(true);
-  }).catch(function(){bs.textContent="Satellite";mark(false);try{localStorage.setItem("watcher-mapstyle","map")}catch(e){}
-    hint.textContent="Satellite view needs an internet connection. Showing the regular map.";});}
+  }).catch(function(){lb.textContent=lt;satFailed=true;SAT=false;mark();
+    hint.textContent="The map needs an internet connection. Showing the offline globe.";});}
 /* 3D terrain on the satellite globe: free AWS Terrain Tiles elevation, raised a little so relief reads well */
 var TERR=false,satReady=false;
 function terrWanted(){try{return localStorage.getItem("watcher-terrain")==="on"}catch(e){return false}}
@@ -1594,7 +1620,7 @@ function setTerrain(on){TERR=on;document.getElementById("terr").setAttribute("ar
 /* compass: the needle points north as the map turns; click to face north again (keeps any 3D tilt) */
 function compassUpdate(){var c=document.getElementById("compass");document.getElementById("cneedle").style.transform="rotate("+(SAT&&satMap?-satMap.getBearing():0)+"deg)";
   c.title=SAT?"Click to turn north up and level the view":"North is always up on this map";}
-function satWanted(){try{var v=localStorage.getItem("watcher-mapstyle");return v?v==="sat":true}catch(e){return true}}
+function satWanted(){return !satFailed}var satFailed=false;
 /* the real night sky behind the globe: stars, constellations, and the Milky Way, placed for the current time
    and for where the camera sits, so they swing past as the Earth turns */
 var SKY=null;
@@ -1849,7 +1875,7 @@ var views={tree:null,map:null},tx=0,ty=0,k=1;
 var filt={};MAPKEYS.forEach(function(r){filt[r[0]]=true});
 try{var mf0=JSON.parse(localStorage.getItem("watcher-mapkeys")||"{}");Object.keys(mf0).forEach(function(k){if(k in filt)filt[k]=!!mf0[k]})}catch(e){}
 var SUBS={tree:"Who runs UAP work in the U.S. government",map:"Bases, sightings, and secret sites around the world",timeline:"Programs, incidents, and books since 1940"};
-var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details and notes.",map:"Drag to spin the globe, scroll or pinch to zoom. Place names, then U.S. county, township, and town lines, appear as you zoom in. Switch to Satellite for real imagery, and try 3D terrain (right-drag or two-finger drag to tilt). Pins mark major sites and notable cases, not every one.",timeline:"Drag sideways to travel through time. Tap any bar or event for details and links to the org chart and map."};
+var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details and notes.",map:"Drag to spin the globe, scroll or pinch to zoom in to street level. Switch to Satellite for real imagery, and try 3D terrain (right-drag or two-finger drag to tilt). Pins mark major sites and notable cases, not every one.",timeline:"Drag sideways to travel through time. Tap any bar or event for details and links to the org chart and map."};
 
 function treeAll(){return BASE.concat(state.custom.map(function(c){return {id:c.id,p:c.p,t:c.t,s:c.s||"",k:"custom",d:[],custom:"tree"}}))}
 function pinAll(){return MAP.pins.concat(state.pins.map(function(p){return {id:p.id,c:"mine",t:p.t,s:p.s||"",lat:p.lat,lon:p.lon,d:[],custom:"pin"}}))}
@@ -2008,7 +2034,7 @@ document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
   if(b.dataset.k)filt[b.dataset.k]=!filt[b.dataset.k];else MAPKEYS.forEach(function(r){filt[r[0]]=b.dataset.all==="1"});mapFilter();});mapKeySync();
 /* compass: turn back to north; outside 3D terrain it also levels the view, so the whole Earth sits upright again */
-document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setSat(false)};compassUpdate();document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setSat(true)};
+document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setMapStyle("map")};compassUpdate();document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=true;document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setMapStyle("sat")};
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
