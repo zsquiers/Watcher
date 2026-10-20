@@ -2193,9 +2193,13 @@ function TPmap(){return {cia:"m-cia",odni:"m-odni",dia:"m-dia",nasa:"m-nasahq",d
 function isTree(id){return treeAll().some(function(x){return x.id===id})}
 function isPin(id){return pinAll().some(function(x){return x.id===id})}
 function goTo(m,id){if(m==="map"&&!mapWait(function(){goTo(m,id)}))return;if(m==="map"){var p=pinAll().find(function(x){return x.id===id});if(p&&!visible(p)){filt[pinKey(p)]=true;mapFilter();}}if(m===mode){open(id);return;}blink(function(){setMode(m);open(id);});}
+/* the timeline entry last opened: a place or office shared by several events links back to that one, so Bluegill Triple
+   Prime -> Johnston Atoll -> timeline returns to Bluegill rather than the atoll's first event */
+var lastTl=null;
 function open(id,editName){
   var tl=TLById[id];var n=tl?(tl.own?tl:findItem(tl.pid&&!tl.tid?tl.pid:(tl.type==="ev"&&tl.pid?tl.pid:tl.tid))):findItem(id);if(!n)return;
-  var cid=n.id,rel=tl||TLById[TLByTid[cid]]||TLById[TLByPid[cid]]||null;
+  if(tl)lastTl=tl;
+  var cid=n.id,back=!tl&&lastTl&&(lastTl.pid===cid||lastTl.tid===cid)?lastTl:null,rel=tl||back||TLById[TLByTid[cid]]||TLById[TLByPid[cid]]||null;
   var TP=TPmap(),PT={};for(var q in TP)if(!PT[TP[q]])PT[TP[q]]=q;
   var treeId=isTree(cid)?cid:(PT[cid]&&!tl?PT[cid]:(rel&&rel.tid)||PT[cid]||null),pinId=isPin(cid)?cid:(TP[cid]&&!tl?TP[cid]:(rel&&!(rel.own&&!tl)&&rel.pid)||TP[cid]||null),tlId=rel?rel.id:null;
   selId=mode==="tree"?treeId:mode==="map"?pinId:tlId;render();
@@ -2487,7 +2491,8 @@ function sAct(i){qAct=i;qrEl.querySelectorAll(".qrow").forEach(function(r){var o
   if(i>=0)qEl.setAttribute("aria-activedescendant","qo"+i);else qEl.removeAttribute("aria-activedescendant");}
 function sClose(){qrEl.hidden=true;qEl.setAttribute("aria-expanded","false");}
 function sGo(e,v){sClose();qEl.blur();
-  if(!v){if(e.k==="person"){openPerson(e.id);return;}v=e.v[mode]?mode:["tree","map","timeline"].filter(function(m){return e.v[m]})[0];}
+  if(!v){if(e.k==="person"){openPerson(e.id);return;}/* a result opens its own entry, in its own view: a timeline event or book on the timeline, a pin on the map */
+    v=e.k==="book"?"timeline":e.k;}
   if(v&&e.v[v])goTo(v,e.v[v]);}
 function sInit(){qEl=document.getElementById("q");qrEl=document.getElementById("qr");
   qEl.addEventListener("input",sRender);
