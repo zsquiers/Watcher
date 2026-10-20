@@ -2487,7 +2487,8 @@ function sAct(i){qAct=i;qrEl.querySelectorAll(".qrow").forEach(function(r){var o
   if(i>=0)qEl.setAttribute("aria-activedescendant","qo"+i);else qEl.removeAttribute("aria-activedescendant");}
 function sClose(){qrEl.hidden=true;qEl.setAttribute("aria-expanded","false");}
 function sGo(e,v){sClose();qEl.blur();
-  if(!v){if(e.k==="person"){openPerson(e.id);return;}v=e.v[mode]?mode:["tree","map","timeline"].filter(function(m){return e.v[m]})[0];}
+  if(!v){if(e.k==="person"){openPerson(e.id);return;}/* a result opens its own entry, in its own view: a timeline event or book on the timeline, a pin on the map */
+    v=e.k==="book"?"timeline":e.k;}
   if(v&&e.v[v])goTo(v,e.v[v]);}
 function sInit(){qEl=document.getElementById("q");qrEl=document.getElementById("qr");
   qEl.addEventListener("input",sRender);
