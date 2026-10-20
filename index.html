@@ -372,6 +372,9 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .qzr p{margin:6px 0 0}
 .qzact{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin:16px 0 0}
 .qzact .go{margin-right:auto}
+.qzact .pv{margin-right:0}
+.qzact .pv+.go{margin-left:0}
+.qzact .pv:only-child{margin-right:auto}
 .qzact .nx{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;padding:8px 18px}
 .qzend{text-align:center;padding:28px 20px;margin-top:16px}
 .qzend .big{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:64px;line-height:1;margin:6px 0}
@@ -2584,29 +2587,34 @@ var QZRANK=[[0,"Curious Witness","Everyone starts somewhere. The record is full 
   [4,"Field Investigator","A solid grip on the basics. A few more cases and you'll be writing the reports."],
   [7,"Blue Book Analyst","You know your cases, your dates, and which claims hold up."],
   [9,"Majestic Clearance","Near total recall. Whatever they're hiding, you probably already read the file."]];
+function qzScore(){var n=0;QZ.qs.forEach(function(q,i){if(QZ.picks[i]!==undefined&&String(QZ.picks[i])===String(q.ans))n++});return n}
 function qzRank(sc){var r=QZRANK[0];QZRANK.forEach(function(x){if(sc>=x[0])r=x});return r}
 function openQuiz(){var Z=document.getElementById("quiz");
   if(!Z){document.body.insertAdjacentHTML("beforeend",'<div id="quiz" role="dialog" aria-modal="true" aria-labelledby="qzt" hidden></div>');Z=document.getElementById("quiz");
     Z.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeQuiz()}});}
-  var qs=qzClaims(4).concat(qzWhen(3),qzWhere(3));QZ={qs:qzShuffle(qs),i:0,sc:0,picked:null};
+  var qs=qzClaims(4).concat(qzWhen(3),qzWhere(3));QZ={qs:qzShuffle(qs),i:0,picks:[]};
   Z.hidden=false;document.body.style.overflow="hidden";qzRender();}
 function closeQuiz(){var Z=document.getElementById("quiz");if(Z){Z.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 function qzRender(){var Z=document.getElementById("quiz"),n=QZ.qs.length,head='<div class="qz"><div class="lgh"><div style="flex:1"><p class="eb">Watcher quiz</p><h2 id="qzt">How well do you know the record?</h2></div><button class="sq" id="qzx" aria-label="Close quiz">&times;</button></div>';
-  if(QZ.i>=n){var r=qzRank(QZ.sc);Z.innerHTML=head+'<div class="qzcard qzend"><p class="qzk">Your score</p><div class="big">'+QZ.sc+' / '+n+'</div><p class="rank">'+r[1]+'</p><p>'+r[2]+'</p><div class="qzact"><button id="qzshare">Share result</button><button class="nx" id="qzagain">Play again</button></div></div></div>';
+  var sc=qzScore();
+  if(QZ.i>=n){var r=qzRank(sc);Z.innerHTML=head+'<div class="qzcard qzend"><p class="qzk">Your score</p><div class="big">'+sc+' / '+n+'</div><p class="rank">'+r[1]+'</p><p>'+r[2]+'</p><div class="qzact"><button id="qzrev">Review answers</button><button id="qzshare">Share result</button><button class="nx" id="qzagain">Play again</button></div></div></div>';
+    document.getElementById("qzrev").onclick=function(){QZ.i=0;qzRender();Z.scrollTop=0;};
     document.getElementById("qzagain").onclick=openQuiz;
-    document.getElementById("qzshare").onclick=function(){var b=this,t="I scored "+QZ.sc+"/"+n+" on the Watcher UAP quiz: "+r[1]+".";
+    document.getElementById("qzshare").onclick=function(){var b=this,t="I scored "+sc+"/"+n+" on the Watcher UAP quiz: "+r[1]+".";
       if(navigator.share)navigator.share({title:"Watcher quiz",text:t,url:location.href}).catch(function(){});
       else if(navigator.clipboard)navigator.clipboard.writeText(t+" "+location.href).then(function(){b.textContent="Copied"},function(){});};
     document.getElementById("qzx").onclick=closeQuiz;document.getElementById("qzagain").focus();return;}
-  var q=QZ.qs[QZ.i],done=QZ.picked!==null,right=done&&String(QZ.picked)===String(q.ans);
-  Z.innerHTML=head+'<div class="qzbar"><span>Question '+(QZ.i+1)+' of '+n+'</span><span class="qzprog"><i style="width:'+(100*QZ.i/n)+'%"></i></span><span>Score '+QZ.sc+'</span></div>'+
+  var q=QZ.qs[QZ.i],pk=QZ.picks[QZ.i],done=pk!==undefined,right=done&&String(pk)===String(q.ans);
+  Z.innerHTML=head+'<div class="qzbar"><span>Question '+(QZ.i+1)+' of '+n+'</span><span class="qzprog"><i style="width:'+(100*QZ.i/n)+'%"></i></span><span>Score '+sc+'</span></div>'+
     '<div class="qzcard"><p class="qzk">'+q.k+'</p><h3 class="qzq">'+esc(q.q)+'</h3><p class="qzsub">'+esc(q.sub)+'</p><div class="qzo" role="group" aria-label="Answers">'+
-    q.opts.map(function(o,j){var cls=done?(String(o.v)===String(q.ans)?"ok":String(o.v)===String(QZ.picked)?"no":""):"";
+    q.opts.map(function(o,j){var cls=done?(String(o.v)===String(q.ans)?"ok":String(o.v)===String(pk)?"no":""):"";
       return '<button data-j="'+j+'" class="'+cls+'"'+(done?" disabled":"")+'>'+(o.st?'<span class="std" style="--sc:var(--st-'+o.st+')"></span>':"")+esc(o.l)+'</button>'}).join("")+'</div>'+
-    (done?'<div class="qzr" role="status"><b class="'+(right?"y":"n")+'">'+(right?"Correct.":"Not quite.")+'</b> '+q.why+'</div><div class="qzact"><button class="go" id="qzgo">'+q.gol+' \u2192</button><button class="nx" id="qznext">'+(QZ.i+1<n?"Next question":"See your score")+'</button></div>':'')+'</div></div>';
+    (done?'<div class="qzr" role="status"><b class="'+(right?"y":"n")+'">'+(right?"Correct.":"Not quite.")+'</b> '+q.why+'</div>':'')+
+    '<div class="qzact">'+(QZ.i>0?'<button class="pv" id="qzprev">\u2190 Previous</button>':'')+(done?'<button class="go" id="qzgo">'+q.gol+' \u2192</button><button class="nx" id="qznext">'+(QZ.i+1<n?"Next question":"See your score")+'</button>':'')+'</div></div></div>';
   document.getElementById("qzx").onclick=closeQuiz;
-  Z.querySelectorAll(".qzo button").forEach(function(b){b.onclick=function(){QZ.picked=q.opts[+b.dataset.j].v;if(String(QZ.picked)===String(q.ans))QZ.sc++;qzRender();}});
-  if(done){document.getElementById("qznext").onclick=function(){QZ.i++;QZ.picked=null;qzRender();Z.scrollTop=0;};
+  Z.querySelectorAll(".qzo button").forEach(function(b){b.onclick=function(){QZ.picks[QZ.i]=q.opts[+b.dataset.j].v;qzRender();}});
+  var pv=document.getElementById("qzprev");if(pv)pv.onclick=function(){QZ.i--;qzRender();Z.scrollTop=0;};
+  if(done){document.getElementById("qznext").onclick=function(){QZ.i++;qzRender();Z.scrollTop=0;};
     document.getElementById("qzgo").onclick=function(){closeQuiz();if(q.go[0]==="claim")openLedger(q.go[1]);else goTo(q.go[0],q.go[1]);};
     document.getElementById("qznext").focus();}
   else{var f=Z.querySelector(".qzo button");if(f)f.focus();}}
