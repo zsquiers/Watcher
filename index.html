@@ -349,6 +349,42 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 .wled b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:20px}
 .wled span{font-size:14px;color:var(--ink2);flex:1 1 300px}
 .wled em{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+/* quiz */
+#quiz{position:fixed;inset:0;z-index:40;background:var(--bg);overflow-y:auto;display:block}
+#quiz[hidden]{display:none}
+.qz{max-width:760px;margin:0 auto;padding:22px 24px 60px}
+.qzbar{display:flex;align-items:center;gap:12px;margin:10px 0 18px;font-size:14px;color:var(--ink2)}
+.qzprog{flex:1;height:6px;border-radius:3px;background:var(--hair);overflow:hidden}
+.qzprog i{display:block;height:100%;background:var(--amber);transition:width .25s ease}
+.qzcard{border:1px solid var(--hair);border-radius:12px;background:var(--card);padding:20px 20px 18px}
+.qzk{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:500;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin:0 0 6px}
+.qzq{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:27px;line-height:1.15;margin:0 0 4px}
+.qzsub{color:var(--ink2);font-size:15px;margin:0 0 16px}
+.qzo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qzo button{text-align:left;min-height:52px;padding:10px 14px;border-radius:10px;font-size:16px;line-height:1.3;display:flex;align-items:center;gap:10px}
+.qzo button:hover:not(:disabled){border-color:var(--focus)}
+.qzo button:disabled{cursor:default;opacity:.55}
+.qzo button.ok{opacity:1;border:2px solid var(--st-confirmed);background:color-mix(in srgb,var(--st-confirmed) 14%,var(--card))}
+.qzo button.no{opacity:1;border:2px solid var(--st-false);background:color-mix(in srgb,var(--st-false) 12%,var(--card))}
+.qzo .std{flex:none}
+.qzr{margin:16px 0 0;padding:14px 16px;border-radius:10px;background:var(--bg);border:1px solid var(--hair);font-size:15.5px;line-height:1.5}
+.qzr b.y{color:var(--st-confirmed)}.qzr b.n{color:var(--st-false)}
+.qzr p{margin:6px 0 0}
+.qzact{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin:16px 0 0}
+.qzact .go{margin-right:auto}
+.qzact .pv{margin-right:0}
+.qzact .pv+.go{margin-left:0}
+.qzact .pv:only-child{margin-right:auto}
+.qzact .nx{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600;padding:8px 18px}
+.qzend{text-align:center;padding:28px 20px;margin-top:16px}
+.qzend .big{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:64px;line-height:1;margin:6px 0}
+.qzend .rank{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:26px;color:var(--amber);margin:0 0 6px}
+.qzend p{color:var(--ink2);max-width:520px;margin:6px auto 18px}
+.qzend .qzact{justify-content:center}
+.wquiz{border-left-color:var(--st-confirmed)}
+.lgquiz{align-self:center;border-color:var(--amber);color:var(--amber);font-weight:600}
+@media (max-width:640px){.qz{padding:16px 16px 50px}.qzo{grid-template-columns:1fr}.qzq{font-size:23px}.qzcard{padding:16px 14px}}
+
 /* drag the panel's left edge to resize it */
 .pgrip{position:absolute;left:0;top:0;bottom:0;width:10px;margin-left:-5px;cursor:col-resize;z-index:5;touch-action:none}
 .pgrip::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--focus);opacity:0;transition:opacity .15s}
@@ -737,6 +773,10 @@ var SRC={
 "wsmith-wiki":["Wilbert Brockhouse Smith","Wikipedia","","https://en.wikipedia.org/wiki/Wilbert_Brockhouse_Smith","ref"],
 "dick-wiki":["Steven J. Dick","Wikipedia","","https://en.wikipedia.org/wiki/Steven_J._Dick","ref"],
 "bioluniverse-cat":["The Biological Universe (catalog record and contents)","National Astronomical Observatory of Japan Library","","https://libopac.mtk.nao.ac.jp/opac/opac_link/bibid/B000008615","ref"],
+"libtimes-bluegill":["The Hidden Truth Behind a 1960s Nuclear Test: A Non-Human Craft Fell Down To Earth","Liberation Times (opinion by Geoff Cruickshank)","Dec. 21, 2024","https://www.liberationtimes.com/home/the-hidden-truth-behind-a-1960s-nuclear-test-a-non-human-craft-fell-down-to-earth","news"],
+"johnson-bluegill":["Did 1962 nuclear test knock down a UFO? The mystery solved.","Douglas Dean Johnson","May 21, 2025","https://douglasjohnson.ghost.io/bluegill-triple-prime-nuclear-ufo/","news"],
+"optphen-report":["Optical Phenomenology of High-Altitude Nuclear Detonations (declassified report)","U.S. Department of Defense, via Douglas Dean Johnson","","https://douglasjohnson.ghost.io/content/files/2025/05/Optical-phenomenology-ADA995489.pdf","doc"],
+"jtf8-film":["Starfish Prime Interim Report by Commander JTF-8 (test film)","Internet Archive","","https://archive.org/details/StarfishPrimeInterimReportByCommanderJTF8","arch"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -778,7 +818,7 @@ var CITE={
 "nara":[[0,"UAP Records Collection","nara-uap disclosure-wiki"]],
 "fbi":[[0,"J. Edgar Hoover","fbi-ufo"]],
 "tl-starfish":[[0,"On July 9, 1962","starfish-wiki"],[0,"300 streetlights","starfish-wiki"],[0,"six or more satellites","starfish-wiki fishbowl-wiki"]],
-"tl-bluegill":[[0,"launch-pad explosion","fishbowl-wiki"],[0,"October 26, 1962","fishbowl-wiki"]],
+"tl-bluegill":[[0,"launch-pad explosion","fishbowl-wiki"],[0,"knocked down a UFO","libtimes-bluegill johnson-bluegill"],[0,"October 26, 1962","fishbowl-wiki"]],
 "m-johnston":[[0,"southwest of Hawaii","johnston-wiki"],[0,"Operation Fishbowl","fishbowl-wiki"],[0,"contaminated the island","fishbowl-wiki johnston-wiki"]],
 "w-malmgren":[[0,"no nuclear tests in the Marshall Islands","dominic-wiki"]],
 "m-area51":[[0,"A classified Air Force test ","wk-area-51"],[0,"The U-2 and later stealth ai","wk-area-51"]],
@@ -940,6 +980,7 @@ var CITE={
 "tl-b-bioluniverse":[[0,"limits of science","dick-wiki"],[0,"extraterrestrial hypothesis","bioluniverse-cat"]],
 "tl-b-impactlife":[[0,"beyond Earth","dick-wiki"]],
 "cl-bush":[[0,"hydrogen bomb","wsmith-wiki"],[1,"until 1969","wsmith-wiki"],[1,"considered fake","fbi-mj12"],[1,"letter to Bush","mj12-wiki"]],
+"cl-bluegill":[[0,"tumbling away from the fireball","jtf8-film"],[0,"non-human origin","libtimes-bluegill"],[0,"recovery crews","libtimes-bluegill"],[1,"warhead, which","johnson-bluegill"],[1,"below the burst","optphen-report"],[1,"redaction mask","johnson-bluegill"],[1,"badge film packs","johnson-bluegill"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -982,6 +1023,10 @@ var CLST={confirmed:["Confirmed","The core claim is backed by official records."
   unverified:["Unverified","No public evidence either way."],denied:["Officially denied","The government says it is not true."],
   explained:["Officially explained","An official investigation gave an ordinary explanation."],false:["Shown false","The evidence for it was shown to be fake or mistaken."]};
 var CLAIMS=[
+{id:"cl-bluegill",t:"The Bluegill Triple Prime blast knocked down a non-human craft",by:"",byt:"Geoff Cruickshank, Australian intelligence officer",yr:2024,venue:"Liberation Times article and an interview with Ross Coulthart",st:"false",
+ c:"Geoff Cruickshank argues that declassified films of the October 1962 test show a smoking object tumbling away from the fireball, which he believes was a craft of non-human origin, and that a white triangle on one film was added to hide it. He also points to ship logs and high radiation readings among recovery crews.",
+ r:"No official body has addressed the claim. Researcher Douglas Dean Johnson traced the films through the declassified test reports and concluded the falling object is very likely the 65-foot Thor booster that carried the warhead, which a 1960s report describes as a small white dot below the burst. Nuclear-film experts he consulted said the triangle was on the original film, from an object inside the camera, not a redaction mask. The high radiation readings turned up on 16 ships and were blamed at the time on faulty seals in the badge film packs.",
+ L:[["timeline","tl-bluegill","Bluegill Triple Prime, 1962"],["map","m-johnston","Johnston Atoll"]]},
 {id:"cl-bush",t:"Vannevar Bush led a secret U.S. study of flying saucers",by:"",byt:"Robert Sarbacher, as reported by Wilbert Smith",yr:1950,venue:"Canadian government memo, November 21, 1950",st:"unverified",
  c:"Canadian engineer Wilbert Smith wrote that U.S. scientist Robert Sarbacher told him Americans believed flying saucers were real, and that their investigation, led by Vannevar Bush, was more highly classified than the hydrogen bomb.",
  r:"The memo is a genuine Canadian document, classified Top Secret until 1969, but it records a secondhand conversation. No U.S. document confirms a study led by Bush. The Majestic 12 papers later named him too, but they are considered fake, and one carried a photocopied Truman signature lifted from a real 1947 letter to Bush.",
@@ -1800,7 +1845,7 @@ var TLM=[["tl-condon",1968,"Condon Report","bluebook",null,"The University of Co
 ["tl-apro",1952,"APRO founded",null,"m-apro","Jim and Coral Lorenzen founded the Aerial Phenomena Research Organization in Sturgeon Bay, Wisconsin. It moved to Tucson in 1960, ran field investigations with a network of scientific consultants, and lasted until 1988, making it one of the longest-running civilian UFO groups.","civ"],
 ["tl-bennewitz",1980,"The Bennewitz affair","af","m-kirtland","Albuquerque physicist Paul Bennewitz told Kirtland Air Force Base that he had filmed lights and recorded signals he believed came from alien craft. Instead of dismissing him, Air Force Office of Special Investigations agents, including Richard Doty, with help from researcher Bill Moore, fed him fake documents and stories, apparently to steer attention away from classified work at the base. He came to believe in an alien base at Dulce and suffered a breakdown in the mid-1980s."],
 ["tl-starfish",1962,"Starfish Prime","dod","m-johnston","On July 9, 1962, a 1.4-megaton warhead launched from Johnston Atoll exploded about 400 km (250 miles) above the Pacific, the largest nuclear test ever conducted in space. Its electromagnetic pulse knocked out about 300 streetlights and set off burglar alarms in Hawaii, 1,450 km away. The artificial radiation belts it created disabled six or more satellites over the following months, including Telstar 1 and Britain's Ariel 1. Some UAP researchers link these tests to Harald Malmgren's claim of a 1962 shootdown; the tests are documented, the shootdown is not."],
-["tl-bluegill",1962,"Bluegill Triple Prime","dod","m-johnston","The fourth attempt at the Bluegill high-altitude test, after a rocket failure, a launch-pad explosion that spread plutonium on Johnston Atoll, and another failed launch. It detonated a warhead officially described as submegaton, believed to be about 400 kilotons, high above the Pacific on October 26, 1962, during the Cuban Missile Crisis."],
+["tl-bluegill",1962,"Bluegill Triple Prime","dod","m-johnston","The fourth attempt at the Bluegill high-altitude test, after a rocket failure, a launch-pad explosion that spread plutonium on Johnston Atoll, and another failed launch. It detonated a warhead officially described as submegaton, believed to be about 400 kilotons, about 48 km (30 miles) above Johnston Island on October 26, 1962, during the Cuban Missile Crisis. Films of the blast later became the center of a claim that it knocked down a UFO."],
 ["tl-rand23",2023,"RAND maps UAP reports","rand",null,"RAND's study Not the X-Files analyzed 101,151 public UAP reports made to the National UFO Reporting Center from 1998 to 2022 and found sightings were more common within about 30 km of military operations areas. It suggested many reports may be authorized military flights and recommended outreach to nearby residents."],
 ["tl-serpo",2005,"Project Serpo emails","mj12",null,"Anonymous emails to a UFO discussion group run by Victor Martinez described Project Serpo, an alleged secret exchange in which twelve U.S. military personnel traveled to a planet called Serpo in the Zeta Reticuli system between 1965 and 1978. The story echoed one Air Force agent Richard Doty had offered journalist Linda Moulton Howe in 1983. No evidence has ever been produced.","civ"],
 ["tl-prasad",2019,"Deep Prasad's abduction account",null,null,"Canadian technology entrepreneur Deep Prasad said that sometime between 2017 and 2019 he was taken aboard a craft by non-human beings in an experience he compared to a kundalini awakening, and that it turned him toward UFO research. The account rests on his own statements and has not been independently verified.","civ"],
@@ -2492,7 +2537,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
   if(focus)LGF="all";
   var counts={};CLAIMS.forEach(function(c){counts[c.st]=(counts[c.st]||0)+1});
   var list=CLAIMS.filter(function(c){return LGF==="all"||c.st===LGF}).slice().sort(function(a,b){return b.yr-a.yr});
-  L.innerHTML='<div class="lg"><div class="lgh"><div style="flex:1"><p class="eb">Claims ledger</p><h2 id="lgt">What was claimed, and what the record says</h2></div><button class="sq" id="lgx" aria-label="Close claims ledger">&times;</button></div>'+
+  L.innerHTML='<div class="lg"><div class="lgh"><div style="flex:1"><p class="eb">Claims ledger</p><h2 id="lgt">What was claimed, and what the record says</h2></div><button class="lgquiz" id="lgquiz">Take the quiz</button><button class="sq" id="lgx" aria-label="Close claims ledger">&times;</button></div>'+
     '<p class="lgi">Each entry sets a public claim next to the official response, with sources for both sides. Statuses describe the public record, not a final verdict, and change as new records are released.</p>'+
     '<div class="lgf" role="group" aria-label="Filter by status"><button data-f="all" aria-pressed="'+(LGF==="all")+'">All <span class="n">'+CLAIMS.length+'</span></button>'+
     Object.keys(CLST).filter(function(k){return counts[k]}).map(function(k){return '<button data-f="'+k+'" aria-pressed="'+(LGF===k)+'" title="'+esc(CLST[k][1])+'" style="--sc:var(--st-'+k+')"><span class="std"></span>'+CLST[k][0]+' <span class="n">'+counts[k]+'</span></button>'}).join("")+'</div>'+
@@ -2503,7 +2548,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
         '<div class="clg"><div><h4>The claim</h4>'+cb.paras[0]+'</div><div><h4>The official record</h4>'+cb.paras[1]+'</div></div>'+
         (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>';
   L.hidden=false;document.body.style.overflow="hidden";
-  document.getElementById("lgx").onclick=closeLedger;
+  document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
   L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){closeLedger();goTo(b.dataset.go,b.dataset.id)}});
   L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(){closeLedger();openPerson(b.dataset.person)}});
@@ -2513,6 +2558,76 @@ function openLedger(focus){var L=document.getElementById("ledger");
   else{L.scrollTop=0;document.getElementById("lgx").focus();}}
 function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 document.getElementById("ledgerBtn").onclick=function(){openLedger()};
+/* quiz: ten questions built fresh each round from the site's own data (the claims ledger, the timeline, and the map),
+   so it grows as entries are added; every answer links back to its entry */
+var QZ=null;
+function qzShuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function qzFirst(t){t=String(t||"").replace(/\s+/g," ").trim();var m=t.match(/^.*?[.!?](?=\s+[A-Z"]|$)/);return m?m[0]:t}
+function qzPlace(p){var segs=String(p.s||"").split(/,\s*/).filter(function(x){return x&&!/\d/.test(x)&&!/^(late|early|mid|near|about|around)\b/i.test(x)&&!/\b(January|February|March|April|May|June|July|August|September|October|November|December|century|era|today|now)\b/i.test(x)});
+  segs=segs.slice(-2);if(segs.length>1&&/[A-Z]{3,}/.test(segs[0])&&!/^[A-Z]{2}$/.test(segs[0]))segs=segs.slice(1);return segs.join(", ")}
+/* statuses that are easy to confuse never appear together, so a claim question has one clearly best answer */
+var QZGRP=[["disputed","contested","unverified"],["confirmed","partly"],["explained","false","denied"]];
+function qzClaims(n){return qzShuffle(CLAIMS.slice()).slice(0,n).map(function(c){
+  var others=QZGRP.filter(function(g){return g.indexOf(c.st)<0}),pick=[];
+  others.forEach(function(g){pick.push(qzShuffle(g.slice())[0])});
+  var rest=qzShuffle([].concat.apply([],others).filter(function(k){return pick.indexOf(k)<0&&CLST[k]}));
+  var opts=qzShuffle([c.st].concat(pick.filter(function(k){return CLST[k]}),rest).slice(0,4));
+  var who=c.by&&PBy[c.by]?PBy[c.by].t:(c.byt||"");
+  return {k:"Claim or record?",q:c.t,sub:"Claimed by "+who+", "+c.yr+". What does the public record say?",opts:opts.map(function(k){return {v:k,l:CLST[k][0],st:k}}),ans:c.st,
+    why:"<b>"+esc(CLST[c.st][0])+"</b> \u2014 "+esc(CLST[c.st][1])+"<p>"+esc(qzFirst(c.r))+"</p>",go:["claim",c.id],gol:"Read the full entry"}})}
+function qzWhen(n){var now=new Date().getFullYear(),pool=TL.filter(function(e){return e.type==="ev"&&e.kind!=="book"&&e.kind!=="tech"&&e.yr>=1900&&e.yr<=now&&e.t});
+  return qzShuffle(pool).slice(0,n).map(function(e){var d=Math.floor(e.yr/10)*10,cands=[];for(var x=d-30;x<=d+30;x+=10)if(x!==d&&x>=1900&&x<=Math.floor(now/10)*10)cands.push(x);
+    var opts=qzShuffle([d].concat(qzShuffle(cands).slice(0,3))).sort(function(a,b){return a-b});
+    var desc=e.d?e.d[0]:(e.pid&&MAP.pins.find(function(p){return p.id===e.pid})||{}).d;
+    return {k:"When did it happen?",q:e.t,sub:"Pick the decade.",opts:opts.map(function(x){return {v:x,l:x+"s"}}),ans:d,
+      why:"<b>"+e.yr+".</b>"+(desc?"<p>"+esc(qzFirst(desc))+"</p>":""),go:["timeline",e.id],gol:"Show it on the timeline"}})}
+function qzWhere(n){var pool=MAP.pins.filter(function(p){var pl=qzPlace(p);if(!pl||!p.t||p.c==="mine")return false;
+    var words=pl.toLowerCase().split(/[^a-z\u00c0-\u024f]+/).filter(function(w){return w.length>=4&&!/^(county|state|island|islands|north|south|east|west|near|base|region|province|valley|river|lake|mount|desert|ocean)$/.test(w)});
+    var tl=p.t.toLowerCase();return !words.some(function(w){return tl.indexOf(w)>=0})});
+  var out=[];qzShuffle(pool.slice()).some(function(p){var pl=qzPlace(p),last=pl.split(", ").pop(),seen={},opts=[{v:pl,l:pl}];seen[last]=1;
+    qzShuffle(pool.slice()).some(function(o){var ol=qzPlace(o),ol2=ol.split(", ").pop();if(seen[ol2])return false;
+      /* no place that contains, or sits inside, another choice ("Washington" next to "Washington, DC") */
+      if(opts.some(function(x){var a=x.l.toLowerCase(),b=ol.toLowerCase();return a.indexOf(b)>=0||b.indexOf(a)>=0||a.split(", ").some(function(w){return b.split(", ").indexOf(w)>=0})}))return false;
+      seen[ol2]=1;opts.push({v:ol,l:ol});return opts.length===4});
+    if(opts.length===4)out.push({k:"Where did it happen?",q:p.t,sub:"Pick the place.",opts:qzShuffle(opts),ans:pl,
+      why:"<b>"+esc(p.s||pl)+".</b>"+(p.d?"<p>"+esc(qzFirst(p.d))+"</p>":""),go:["map",p.id],gol:"Show it on the map"});
+    return out.length===n});return out}
+var QZRANK=[[0,"Curious Witness","Everyone starts somewhere. The record is full of surprises, so take a look around and try again."],
+  [4,"Field Investigator","A solid grip on the basics. A few more cases and you'll be writing the reports."],
+  [7,"Blue Book Analyst","You know your cases, your dates, and which claims hold up."],
+  [9,"Majestic Clearance","Near total recall. Whatever they're hiding, you probably already read the file."]];
+function qzScore(){var n=0;QZ.qs.forEach(function(q,i){if(QZ.picks[i]!==undefined&&String(QZ.picks[i])===String(q.ans))n++});return n}
+function qzRank(sc){var r=QZRANK[0];QZRANK.forEach(function(x){if(sc>=x[0])r=x});return r}
+function openQuiz(){var Z=document.getElementById("quiz");
+  if(!Z){document.body.insertAdjacentHTML("beforeend",'<div id="quiz" role="dialog" aria-modal="true" aria-labelledby="qzt" hidden></div>');Z=document.getElementById("quiz");
+    Z.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeQuiz()}});}
+  var qs=qzClaims(4).concat(qzWhen(3),qzWhere(3));QZ={qs:qzShuffle(qs),i:0,picks:[]};
+  Z.hidden=false;document.body.style.overflow="hidden";qzRender();}
+function closeQuiz(){var Z=document.getElementById("quiz");if(Z){Z.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
+function qzRender(){var Z=document.getElementById("quiz"),n=QZ.qs.length,head='<div class="qz"><div class="lgh"><div style="flex:1"><p class="eb">Watcher quiz</p><h2 id="qzt">How well do you know the record?</h2></div><button class="sq" id="qzx" aria-label="Close quiz">&times;</button></div>';
+  var sc=qzScore();
+  if(QZ.i>=n){var r=qzRank(sc);Z.innerHTML=head+'<div class="qzcard qzend"><p class="qzk">Your score</p><div class="big">'+sc+' / '+n+'</div><p class="rank">'+r[1]+'</p><p>'+r[2]+'</p><div class="qzact"><button id="qzrev">Review answers</button><button id="qzshare">Share result</button><button class="nx" id="qzagain">Play again</button></div></div></div>';
+    document.getElementById("qzrev").onclick=function(){QZ.i=0;qzRender();Z.scrollTop=0;};
+    document.getElementById("qzagain").onclick=openQuiz;
+    document.getElementById("qzshare").onclick=function(){var b=this,t="I scored "+sc+"/"+n+" on the Watcher UAP quiz: "+r[1]+".";
+      if(navigator.share)navigator.share({title:"Watcher quiz",text:t,url:location.href}).catch(function(){});
+      else if(navigator.clipboard)navigator.clipboard.writeText(t+" "+location.href).then(function(){b.textContent="Copied"},function(){});};
+    document.getElementById("qzx").onclick=closeQuiz;document.getElementById("qzagain").focus();return;}
+  var q=QZ.qs[QZ.i],pk=QZ.picks[QZ.i],done=pk!==undefined,right=done&&String(pk)===String(q.ans);
+  Z.innerHTML=head+'<div class="qzbar"><span>Question '+(QZ.i+1)+' of '+n+'</span><span class="qzprog"><i style="width:'+(100*QZ.i/n)+'%"></i></span><span>Score '+sc+'</span></div>'+
+    '<div class="qzcard"><p class="qzk">'+q.k+'</p><h3 class="qzq">'+esc(q.q)+'</h3><p class="qzsub">'+esc(q.sub)+'</p><div class="qzo" role="group" aria-label="Answers">'+
+    q.opts.map(function(o,j){var cls=done?(String(o.v)===String(q.ans)?"ok":String(o.v)===String(pk)?"no":""):"";
+      return '<button data-j="'+j+'" class="'+cls+'"'+(done?" disabled":"")+'>'+(o.st?'<span class="std" style="--sc:var(--st-'+o.st+')"></span>':"")+esc(o.l)+'</button>'}).join("")+'</div>'+
+    (done?'<div class="qzr" role="status"><b class="'+(right?"y":"n")+'">'+(right?"Correct.":"Not quite.")+'</b> '+q.why+'</div>':'')+
+    '<div class="qzact">'+(QZ.i>0?'<button class="pv" id="qzprev">\u2190 Previous</button>':'')+(done?'<button class="go" id="qzgo">'+q.gol+' \u2192</button><button class="nx" id="qznext">'+(QZ.i+1<n?"Next question":"See your score")+'</button>':'')+'</div></div></div>';
+  document.getElementById("qzx").onclick=closeQuiz;
+  Z.querySelectorAll(".qzo button").forEach(function(b){b.onclick=function(){QZ.picks[QZ.i]=q.opts[+b.dataset.j].v;qzRender();}});
+  var pv=document.getElementById("qzprev");if(pv)pv.onclick=function(){QZ.i--;qzRender();Z.scrollTop=0;};
+  if(done){document.getElementById("qznext").onclick=function(){QZ.i++;qzRender();Z.scrollTop=0;};
+    document.getElementById("qzgo").onclick=function(){closeQuiz();if(q.go[0]==="claim")openLedger(q.go[1]);else goTo(q.go[0],q.go[1]);};
+    document.getElementById("qznext").focus();}
+  else{var f=Z.querySelector(".qzo button");if(f)f.focus();}}
+
 if(window.matchMedia&&matchMedia("(max-width:640px)").matches)document.getElementById("q").placeholder="Search";
 document.getElementById("keyBtn").onclick=function(){var o=document.body.classList.toggle("keyopen");this.setAttribute("aria-expanded",o);this.lastChild.textContent=o?"Hide key":"Key";};
 /* welcome: shown once per visit (and whenever the logo is clicked); each door opens its view */
@@ -2534,6 +2649,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     '<p class="wnote">Sourced facts sit next to disputed claims, and anything unconfirmed is labeled.</p>'+
     '<div class="went">'+doors.map(function(d){return '<button data-door="'+d[0]+'">'+ico[d[0]]+'<b>'+d[1]+'</b><span>'+d[2]+'</span><em>'+d[3]+'</em></button>'}).join("")+'</div>'+
     '<button class="wled" id="wled"><b>Claims ledger</b><span>'+CLAIMS.length+' major claims set side by side with the official record, with sources for both.</span><em>Open the ledger \u2192</em></button>'+
+    '<button class="wled wquiz" id="wquiz"><b>Quiz</b><span>Ten questions drawn from the site: which claims hold up, when things happened, and where.</span><em>Take the quiz \u2192</em></button>'+
     '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
     '</div></div>');
   var W=document.getElementById("welcome"),last=null;
@@ -2545,7 +2661,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
     goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
   document.getElementById("wx").onclick=function(){shut()};
-  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};
+  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};
   W.addEventListener("click",function(e){if(e.target===W)shut()});
   W.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();shut();return;}
     if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button")),a=f.indexOf(document.activeElement);
