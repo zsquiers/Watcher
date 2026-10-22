@@ -78,6 +78,8 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
 .pill.a{background:var(--amber-bg);border-color:var(--amber);color:var(--ink)}
 .facts{margin:0 0 18px;max-width:62ch}
 .facts p{margin:0 0 10px}
+a.ilink{color:inherit;text-decoration:underline;text-decoration-color:var(--focus);text-decoration-thickness:1.5px;text-underline-offset:3px}
+a.ilink:hover{color:var(--focus)}
 h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:17px;margin:18px 0 6px}
 textarea,input{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--hair);border-radius:6px;padding:8px 10px}
 textarea{min-height:120px;resize:vertical}
@@ -1317,6 +1319,36 @@ function citeBlock(id,paras,pre){pre=pre||"src-";var C=CITE[id]||[],ord=[],num={
   return {html:html,paras:paraHtml,n:ord.length,src:src,chip:chip,urls:ord.map(function(k){return SRC[k][3]})};}
 function kfHtml(rows){rows=rows.filter(function(r){return r[1]});return rows.length?'<dl class="kf">'+rows.map(function(r){return '<dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd>'}).join("")+'</dl>':""}
 function fmtLL(lat,lon){if(lat==null)return "";return Math.abs(lat).toFixed(3)+"°"+(lat>=0?"N":"S")+", "+Math.abs(lon).toFixed(3)+"°"+(lon>=0?"E":"W")}
+/* inline links: names of offices, people, places and books mentioned in an entry's text become links to their own
+   entries, each linked the first time it appears. Generic service names (Air Force, Navy, Army) are skipped after
+   another country's name, such as "Royal Air Force" */
+var LNK=null,LNKRE=null,TALIAS={uaptf:["UAPTF"],navy:["Navy","Office of Naval Intelligence"],af:["Air Force"],army:["Army"],bluebook:["Project Blue Book","Blue Book","Project Sign","Project Grudge"],
+  stargate:["Stargate"],odni:["Office of the Director of National Intelligence"],dia:["DIA"],mj12:["MJ-12","MJ12"],oversight:["House Oversight"],nara:["National Archives"],
+  dod:["The Pentagon","Pentagon","Defense Department"],aatip:["Advanced Aerospace Threat Identification Program"],aawsap:["Advanced Aerospace Weapon System Applications Program"],
+  aaro:["All-domain Anomaly Resolution Office"],darpa:["ARPA"],doe:["Energy Department"],nasastudy:[],interagency:[],pres:[],nasadir:[]},
+  /* other names for places, and timeline entries that are often mentioned by name */
+  PALIAS={"m-skunkworks":["Skunk Works"]},XLNK={"Project Serpo":{go:"timeline",id:"tl-serpo"}};
+/* single words that are also book titles but usually appear as ordinary words, as in "Aerial Phenomena Research" */
+var LNKSKIP={"Phenomena":1};
+function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*\([^)]*\)\s*$/,"").trim();if(name.length<3||LNK[name]||LNKSKIP[name])return;LNK[name]=v};
+  treeAll().forEach(function(n){if(n.custom)return;var al=TALIAS[n.id];if(!al||al.length)add(n.t,{go:"tree",id:n.id});(al||[]).forEach(function(a){add(a,{go:"tree",id:n.id})})});
+  PEOPLE.forEach(function(q){add(q.t,{person:q.id});(q.a||"").split(",").forEach(function(a){if(/\s/.test(a.trim()))add(a,{person:q.id})})});
+  Object.keys(XLNK).forEach(function(k){if(TLById[XLNK[k].id]||findItem(XLNK[k].id))add(k,XLNK[k])});
+  pinAll().forEach(function(q){if(q.custom)return;add(q.t,{go:"map",id:q.id});(PALIAS[q.id]||[]).forEach(function(a){add(a,{go:"map",id:q.id})})});
+  TL.forEach(function(e){var t=e.t.replace(/\s*\([^)]*\)\s*$/,"");if(e.kind==="book"&&(/\s/.test(t)||t.length>=9))add(t,{go:"timeline",id:e.id})});
+  var ks=Object.keys(LNK).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")});
+  LNKRE=new RegExp("(^|[^\\w-])("+ks.join("|")+")(?![\\w-])","g");}
+var LNKGEN={"Air Force":1,"Navy":1,"Army":1};
+function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={};(self||[]).forEach(function(x){if(x)done[x]=1});
+  root.querySelectorAll("p").forEach(function(pe){var w=document.createTreeWalker(pe,NodeFilter.SHOW_TEXT,null),nodes=[],t;while((t=w.nextNode()))if(!t.parentNode.closest("a,button,sup"))nodes.push(t);
+    nodes.forEach(function(tn){var s=tn.nodeValue,m,last=0,frag=null;LNKRE.lastIndex=0;
+      while((m=LNKRE.exec(s))){var name=m[2],v=LNK[name],key=v.person||v.id,st=m.index+m[1].length;
+        if(done[key])continue;
+        if(LNKGEN[name]){var before=s.slice(0,st);if(/[A-Z][a-z]+\s$/.test(before)&&!/U\.S\.\s$/.test(before))continue;if(name==="Army"&&/^ Air/.test(s.slice(st+name.length)))continue;}
+        done[key]=1;frag=frag||document.createDocumentFragment();frag.appendChild(document.createTextNode(s.slice(last,st)));
+        var a=document.createElement("a");a.href="#";a.className="ilink";a.textContent=name;
+        if(v.person)a.dataset.person=v.person;else{a.dataset.go=v.go;a.dataset.id=v.id;}frag.appendChild(a);last=st+name.length;}
+      if(frag){frag.appendChild(document.createTextNode(s.slice(last)));tn.parentNode.replaceChild(frag,tn);}});});}
 function wireCites(root){(root||panel).querySelectorAll("sup.cn a").forEach(function(a){a.onclick=function(e){e.preventDefault();var li=document.getElementById(a.dataset.ref);if(!li)return;
   li.scrollIntoView({block:"center",behavior:RM?"auto":"smooth"});li.classList.add("flash");setTimeout(function(){li.classList.remove("flash")},900);var l=li.querySelector("a");if(l)l.focus({preventScroll:true});}});}
 function linksHtml(n,byline,skip){var q=encodeURIComponent,list=(LINKS[n.id]||[]).filter(function(l){return !(skip||[]).includes(l[1])});
@@ -2276,9 +2308,10 @@ function open(id,editName){
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
+  linkNames(panel.querySelector(".facts"),[cid,tl&&tl.id]);
   panel.classList.add("open");panel.scrollTop=0;var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;wireCites();wireClaimLinks(panel);document.body.classList.toggle("dossier",!!selId);
-  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){goTo(b.dataset.go,b.dataset.id)}});
-  panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(){openPerson(b.dataset.person)}});
+  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
+  panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   document.getElementById("pc").onclick=function(){closePanel()};
   document.getElementById("ns").onclick=function(){var v=document.getElementById("nt").value.trim();if(v)state.notes[id]=v;else delete state.notes[id];save("Notes saved");render();};
   var eb=document.getElementById("eb");
@@ -2570,8 +2603,10 @@ function openPerson(id){var p=PBy[id];if(!p)return;selId=null;render();
   (conn?'<h3>Where to find them</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div></div>';
+  linkNames(panel.querySelector(".facts"),[id]);
   panel.classList.add("open");var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;wireCites();wireClaimLinks(panel);document.body.classList.remove("dossier");
-  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){goTo(b.dataset.go,b.dataset.id)}});
+  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
+  panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   document.getElementById("pc").onclick=function(){closePanel()};
   document.getElementById("ns").onclick=function(){var v=document.getElementById("nt").value.trim();if(v)state.notes[id]=v;else delete state.notes[id];save("Notes saved");};}
 function msg(t){var m=document.getElementById("sm");if(m)m.textContent=t;}
@@ -2690,8 +2725,9 @@ function openLedger(focus){var L=document.getElementById("ledger");
   document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
   document.getElementById("lgsort").onchange=function(){LGS=this.value;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
-  L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){closeLedger();goTo(b.dataset.go,b.dataset.id)}});
-  L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(){closeLedger();openPerson(b.dataset.person)}});
+  L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by])});
+  L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();closeLedger();goTo(b.dataset.go,b.dataset.id)}});
+  L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();closeLedger();openPerson(b.dataset.person)}});
   L.querySelectorAll("sup.cn a").forEach(function(a){a.onclick=function(e){e.preventDefault();var li=document.getElementById(a.dataset.ref);if(!li)return;var d=li.closest("details");if(d)d.open=true;
     li.scrollIntoView({block:"center",behavior:RM?"auto":"smooth"});li.classList.add("flash");setTimeout(function(){li.classList.remove("flash")},900);}});
   if(focus){var el=document.getElementById(focus);if(el){el.scrollIntoView({block:"start"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1400);el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}}
