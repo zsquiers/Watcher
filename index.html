@@ -113,7 +113,7 @@ html.crt-dot body{transform:scale(.004,.006);filter:brightness(6) saturate(0)}
 body.mode-map{--bg:#05070D;--grid:transparent;--ink:#EFE6D2;--ink2:#B3A88F;--card:#121826;--line:#8C7A56;--hair:rgba(239,230,210,.16);--panel:#0C111C;--focus:#F2C46D;--land:#D8C6A0;--mil:#6F9CC4;--civ:#5ED3C3;--amber:#FF7A45;--amber-bg:rgba(255,122,69,.15);--sec:#B98CFF;--sec-bg:#221A33}
 .mode-map h1,.mode-map .ph h2{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:600;letter-spacing:0}
 .mode-map h1{font-size:25px}
-.mode-map .pin .lb{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;background:rgba(12,17,28,.86);border-color:rgba(239,230,210,.22)}
+.mode-map .pin .lb{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:12px;letter-spacing:.05em;text-transform:uppercase;background:rgba(12,17,28,.95);border-color:rgba(239,230,210,.28)}
 .mode-map .pin .mk{box-shadow:0 1px 3px rgba(0,0,0,.6)}
 .mode-map .pin.gov .mk,.mode-map .pin.uap .mk{border-color:#1B1409}
 .mode-map .pin.mil .mk{border-color:#0C111C}
@@ -304,11 +304,11 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
   /* the compass moves out from under the open details panel */
   #compass{transition:right .22s ease}
   body.dossier #compass{right:calc(min(var(--pw),100%) + 12px)}
-  body.dossier #world .node,body.dossier #edges,body.dossier #tlitems .tlb,body.dossier #tlitems .tle,body.dossier #pins .pin{transition:opacity .25s ease}
+  body.dossier #world .node,body.dossier #edges,body.dossier #tlitems .tlb,body.dossier #tlitems .tle,body.dossier #pins .pin .mk,body.dossier #pins .pin .lb{transition:opacity .25s ease}
   body.dossier #world .node:not(.sel){opacity:.35}
   body.dossier #edges{opacity:.35}
   body.dossier #tlitems .tlb:not(.sel),body.dossier #tlitems .tle:not(.sel){opacity:.3}
-  body.dossier #pins .pin:not(.sel){opacity:.45}}
+  body.dossier #pins .pin:not(.sel) .mk{opacity:.45}body.dossier #pins .pin:not(.sel) .lb{opacity:.9}}
 @media (max-width:640px){.ph{padding:14px 16px 10px}.pb{padding:14px 16px 20px}.ph h2{font-size:24px}#panel{box-shadow:0 -10px 30px rgba(10,20,35,.14)}}
 /* claims ledger */
 :root{--st-confirmed:#0E7C74;--st-partly:#3C8C6E;--st-disputed:#B86E0E;--st-contested:#9A6A12;--st-unverified:#6B7785;--st-denied:#6A4BA6;--st-explained:#2F6FB3;--st-false:#B23A3A}
@@ -812,6 +812,7 @@ var SRC={
 "belfer-stateofmind":["A State of Mind: Faith and the CIA","Belfer Center, Harvard Kennedy School","May 28, 2020","https://www.belfercenter.org/publication/state-mind-faith-and-cia","ref"],
 "wippl-stateofmind":["HUMINT with Spiritual Awareness (review of A State of Mind)","Joseph Wippl, Boston University","Sept. 4, 2020","https://www.bu.edu/pardeeschool/?p=44991","news"],
 "alchemy-mowatt":["CIA Chief Breaks Silence on Time Travel Abilities","American Alchemy with Jesse Michels","Feb. 14, 2026","https://pod.wave.co/podcast/american-alchemy/cia-chief-i-know-how-to-time-travel","news"],
+"kripal-wiki":["Jeffrey J. Kripal","Wikipedia","","https://en.wikipedia.org/wiki/Jeffrey_J._Kripal","ref"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -1053,6 +1054,7 @@ var CITE={
 "pp-mowatt":[[0,"weapons of mass destruction department","belfer-stateofmind"],[0,"in 2009","belfer-stateofmind"],[1,"religious conversion","wippl-stateofmind"],[1,"medieval monk","alchemy-mowatt"],[1,"than the CIA","alchemy-mowatt"]],
 "tl-b-stateofmind":[[0,"9/11","belfer-stateofmind"],[0,"conversion","wippl-stateofmind"],[0,"attributes to God","alchemy-mowatt"]],
 "tl-mowatt26":[[0,"physically real","alchemy-mowatt"],[0,"beyond the CIA's","alchemy-mowatt"]],
+"pp-kripal":[[0,"Rice University in Houston","kripal-wiki"],[0,"in 2014","kripal-wiki"],[1,"rather than dismissal","kripal-wiki"],[1,"with Whitley Strieber","kripal-wiki"],[1,"Love & Saucers","appletv-saucers"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -1481,7 +1483,7 @@ function gLbl(){if(LB)return LB;var L=MAP.labels||{};
   function mk(a,t){var st=LST[t];return a.map(function(r){var ph=r[2]*DEG;return {n:st.up?r[0].toUpperCase():r[0],lon:r[1],lat:r[2],l:r[1]*DEG,s:Math.sin(ph),c:Math.cos(ph),k:r[3],x:r[4]||0,w:0}})}
   LB=[["o",mk(L.o||[],"o")],["c",mk(L.c||[],"c")],["s",mk(L.s||[],"s")],["y",mk(L.y||[],"y")],["p",mk(L.p||[],"p")],["t",null],["k",mk(L.k||[],"k")]];
   LB.mk=mk;return LB}
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(LB)LB.forEach(function(b){if(b[1])b[1].forEach(function(i){i.w=0})});gQueue();});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(LB)LB.forEach(function(b){if(b[1])b[1].forEach(function(i){i.w=0})});PINS.forEach(function(o){o.mw=0});gQueue();});
 function gDrawLabels(){var B=gLbl(),c=gx,l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=Math.cos(gLat*DEG),G=new Map(),CS=64,n=0,font="",ls="";
   function cells(r,fn){for(var x=Math.floor(r[0]/CS);x<=Math.floor(r[2]/CS);x++)for(var y=Math.floor(r[1]/CS);y<=Math.floor(r[3]/CS);y++)if(fn(x*8192+y))return true;return false}
   function hit(r){return cells(r,function(key){var a=G.get(key);if(a)for(var i=0;i<a.length;i++){var q=a[i];if(r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1])return true}return false})}
@@ -1707,7 +1709,7 @@ function satLines(){if(satLinesDone||!satMap||!satReady||satMap.getZoom()<7)retu
   satMap.addSource("towns",{type:"geojson",data:satLinesFC(),tolerance:0.5});
   satMap.addLayer({id:"towns",type:"line",source:"towns",minzoom:8,paint:{"line-color":"rgba(255,248,230,.6)","line-width":["interpolate",["linear"],["zoom"],8,0.4,12,0.9,15,1.4]}});}
 function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(),l0=c.lng*DEG,sp0=Math.sin(c.lat*DEG),cp0=Math.cos(c.lat*DEG),
-    T=satMap.transform,occ=T&&T.isLocationOccluded,dep=T&&T.lngLatToCameraDepth,boxes=[],lab=satMap.getZoom()>=kToZ(1.4);
+    T=satMap.transform,occ=T&&T.isLocationOccluded,dep=T&&T.lngLatToCameraDepth,shown=[],lab=satMap.getZoom()>=kToZ(1.4);
   for(var i=0;i<PINS.length;i++){var o=PINS[i],ph=o.p.lat*DEG,dl=o.p.lon*DEG-l0,front=sp0*Math.sin(ph)+cp0*Math.cos(ph)*Math.cos(dl)>0.05;
     var hidden=occ?T.isLocationOccluded({lng:o.p.lon,lat:o.p.lat}):!front;
     /* tilted low, places behind the camera or past the far edge of the view still project onto the screen, bunched up
@@ -1716,12 +1718,9 @@ function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(
     var pt=hidden?null:satMap.project([o.p.lon,o.p.lat]);
     var X=pt&&pt.x,Y=pt&&pt.y,vis=!!pt&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
     if(vis!==o.v){o.v=vis;o.el.classList.toggle("off",!vis);}
-    if(!vis)continue;boxes.push([X-8,Y-8,X+8,Y+8]);
-    o.el.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";
-    var on=false;if(lab||o.sel){var r=[X+9,Y-10,X+16+o.w,Y+10];on=true;
-      for(var j=0;j<boxes.length-1;j++){var q=boxes[j];if(r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]){on=false;break;}}
-      if(on||o.sel){boxes.push(r);on=true;}}
-    if(on!==o.l){o.l=on;o.el.classList.toggle("lbon",on);}}}
+    if(!vis)continue;shown.push([o,X,Y]);
+    o.el.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";}
+  pinLabels(shown,lab);}
 function setSat(on){var bm=document.getElementById("stMap"),bs=document.getElementById("stSat");
   function mark(){markStyle();}
   if(on===SAT){if(on)streetApply();mark();return;}
@@ -1912,18 +1911,24 @@ function gDraw(){gQueued=false;if(mode!=="map"||!gW)return;
   c.fillStyle=sg;c.fillRect(0,0,gW,gH);c.restore();
   if(!big){c.beginPath();c.arc(gcx,gcy,gR,0,TAU);c.strokeStyle="rgba(175,210,255,.4)";c.lineWidth=1;c.stroke();}
   gPins();gDrawLabels();}
+/* pin labels: measured in their own font, then placed in priority order (the selected pin first) wherever they cover
+   neither another label nor any pin marker on screen */
+var PLC=null;function pinLabW(o){if(!o.mw){PLC=PLC||document.createElement("canvas").getContext("2d");
+    PLC.font='600 12px "Barlow Condensed","Arial Narrow",sans-serif';o.mw=PLC.measureText(o.p.t.toUpperCase()).width+o.p.t.length*0.6+12;}return o.mw}
+function pinLabels(shown,lab){var boxes=shown.map(function(s){return [s[1]-8,s[2]-8,s[1]+8,s[2]+8]}),labs=[];
+  shown.forEach(function(s,i){var o=s[0],on=false;
+    if(lab||o.sel){var r=[s[1]+10,s[2]-10,s[1]+14+pinLabW(o),s[2]+10],hit=function(q){return r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]};
+      on=o.sel||!(labs.some(hit)||boxes.some(function(q,j){return j!==i&&hit(q)}));if(on)labs.push(r);}
+    if(on!==o.l){o.l=on;o.el.classList.toggle("lbon",on);}});
+  return boxes.concat(labs);}
 /* pins sit in an HTML layer on top; labels show wherever they fit without overlapping */
-function gPins(){var l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=Math.cos(gLat*DEG),boxes=[],lab=k>=1.4;
+function gPins(){var l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=Math.cos(gLat*DEG),shown=[],lab=k>=1.4;
   for(var i=0;i<PINS.length;i++){var o=PINS[i],ph=o.p.lat*DEG,dl=o.p.lon*DEG-l0,sp=Math.sin(ph),cp=Math.cos(ph),cd=Math.cos(dl);
     var q=gPt(sp,cp,Math.sin(dl),cd,sp0,cp0,0.03),X=q?q[0]:-999,Y=q?q[1]:-999,vis=!!q&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
     if(vis!==o.v){o.v=vis;o.el.classList.toggle("off",!vis);}
-    if(!vis)continue;boxes.push([X-8,Y-8,X+8,Y+8]);
-    o.el.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";
-    var on=false;if(lab||o.sel){var r=[X+9,Y-10,X+16+o.w,Y+10];on=true;
-      for(var j=0;j<boxes.length;j++){var q=boxes[j];if(r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]){on=false;break;}}
-      if(on||o.sel){boxes.push(r);on=true;}}
-    if(on!==o.l){o.l=on;o.el.classList.toggle("lbon",on);}}
-  gBoxes=boxes;}
+    if(!vis)continue;shown.push([o,X,Y]);
+    o.el.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";}
+  gBoxes=pinLabels(shown,lab);}
 function gRot(dx,dy){var R=Math.min(gW,gH)*0.42*k;gLon=gWrap(gLon-dx/(R*Math.max(0.2,Math.cos(gLat*DEG)))/DEG);gLat=gClampLat(gLat+dy/R/DEG);gQueue();}
 function gZoom(f,cx,cy){var a=gInv(cx,cy);k=Math.min(KMAX,Math.max(KMIN,k*f));
   if(a)for(var i=0;i<3;i++){var b=gInv(cx,cy);if(!b)break;gLon=gWrap(gLon+gWrap(a[0]-b[0]));gLat=gClampLat(gLat+a[1]-b[1]);}
@@ -2064,7 +2069,7 @@ var pos={},bounds={w:0,h:0},showLin=false,selId=null,mode="tree",placing=false;
 var views={tree:null,map:null},tx=0,ty=0,k=1;
 var filt={};MAPKEYS.forEach(function(r){filt[r[0]]=true});
 try{var mf0=JSON.parse(localStorage.getItem("watcher-mapkeys")||"{}");Object.keys(mf0).forEach(function(k){if(k in filt)filt[k]=!!mf0[k]})}catch(e){}
-var SUBS={tree:"Who runs UAP work in the U.S. government",map:"Bases, sightings, and secret sites around the world",timeline:"Programs, incidents, and books since 1940"};
+var SUBS={tree:"Who runs UAP work in the U.S. government",map:"Bases, sightings, and secret sites around the world",timeline:"Programs, incidents, and books since 1900"};
 var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details and notes.",map:"Drag to spin the globe, scroll or pinch to zoom in to street level. Switch to Satellite for real imagery, and try 3D terrain (right-drag or two-finger drag to tilt). Pins mark major sites and notable cases, not every one.",timeline:"Drag sideways to travel through time. Tap any bar or event for details and links to the org chart and map."};
 
 function treeAll(){return BASE.concat(state.custom.map(function(c){return {id:c.id,p:c.p,t:c.t,s:c.s||"",k:"custom",d:[],custom:"tree"}}))}
@@ -2144,7 +2149,7 @@ function renderMap(){
   pinAll().forEach(function(p){if(!visible(p)||p.lat==null)return;list.push(p);
     h+='<div class="pin off '+p.c+(p.u?' u':'')+(p.id===selId?' sel':'')+'" data-id="'+p.id+'" tabindex="0" role="button" aria-label="'+esc(p.t+", "+p.s)+'"><span class="pk"><i class="mk"></i><span class="lb">'+esc(p.t)+'</span></span></div>';});
   pinsEl.innerHTML=h;var els=pinsEl.children,pr={mine:1,uap:2,gov:3,civ:3.5,anc:3.8,sec:4,mil:5};
-  PINS=list.map(function(p,i){var sel=p.id===selId;return {p:p,el:els[i],v:false,l:false,sel:sel,w:p.t.length*6.9+10,r:sel?0:p.c==="mil"&&p.u?4.5:pr[p.c]||6}}).sort(function(a,b){return a.r-b.r});
+  PINS=list.map(function(p,i){var sel=p.id===selId;return {p:p,el:els[i],v:false,l:false,sel:sel,r:sel?0:p.c==="mil"&&p.u?4.5:pr[p.c]||6}}).sort(function(a,b){return a.r-b.r});
   gQueue();
 }
 function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap();else renderTimeline();}
@@ -2352,7 +2357,7 @@ var PEOPLE=[
 {id:"pp-bledsoe",t:"Chris Bledsoe",a:"Christopher Bledsoe",s:"North Carolina UFO experiencer and author",d:["A former home builder from Hope Mills, North Carolina, who says a 2007 encounter on the Cape Fear River healed his Crohn's disease and began years of contact with orbs and beings. He says the experiences are tied to his Christian faith and to certain dates such as Easter.","He wrote UFO of God (2023) and has been featured in documentaries and podcasts. He says scientists, a general, and members of Congress have visited him, including NASA mission controller Tim Taylor. His claims are unverified, and critics question the circle of officials around him."],L:[["map","m-bledsoe","The 2007 Cape Fear encounter"],["timeline","tl-b-bledsoe","Wrote UFO of God"],["timeline","tl-e-m-bledsoe","2007"]]},
 {id:"pp-ttaylor",t:"Tim Taylor",a:"Timothy Taylor",s:"NASA mission controller",d:["A NASA mission controller, Taylor appears prominently in Diana Walsh Pasulka's 2019 book American Cosmic and is closely tied to Chris Bledsoe, whom he has visited and studied. He has claimed involvement with military and intelligence programs and has said he briefed senior officials on UAP.","UNVERIFIED: his claimed military and intelligence work and briefings have not been independently confirmed, and some researchers have criticized how readily they have been accepted. Not to be confused with Travis Taylor, the engineer who served as chief scientist for the Pentagon's UAP Task Force."],L:[["timeline","tl-b-cosmic","Featured in American Cosmic"],["map","m-bledsoe","Works with Chris Bledsoe"]]},
 {id:"pp-strieber",t:"Whitley Strieber",a:"Louis Whitley Strieber",s:"Novelist and abduction experiencer",d:["A horror novelist (The Wolfen, The Hunger) whose 1987 book Communion described being taken by beings he called \"the visitors\" from his New York cabin in December 1985. It became a No. 1 bestseller and was made into a 1989 film.","He has written many more books on his experiences and hosts the long-running Dreamland podcast. His claims are unverified; skeptics point to sleep paralysis."],L:[["map","m-strieber","His 1985 experience"],["timeline","tl-b-communion","Wrote Communion"],["timeline","tl-b-superanatural","Co-wrote The Super Natural"]]},
-{id:"pp-kripal",t:"Jeffrey Kripal",a:"Jeffrey J. Kripal",s:"Religion scholar at Rice University",d:["A historian of religion who studies paranormal and anomalous experiences, and who co-wrote The Super Natural with Whitley Strieber."],L:[["timeline","tl-b-superanatural","Co-wrote The Super Natural"],["timeline","tl-saucers","Appears in Love & Saucers"]]},
+{id:"pp-kripal",t:"Jeffrey Kripal",a:"Jeffrey J. Kripal",s:"Religion scholar at Rice University",d:["A historian of religion who holds the J. Newton Rayzor Chair in Philosophy and Religious Thought at Rice University in Houston, where he founded the Archives of the Impossible in 2014.","His books, including Authors of the Impossible, treat paranormal and anomalous experiences as worth serious study rather than dismissal. He co-wrote The Super Natural (2016) with Whitley Strieber and appears in the documentary Love & Saucers."],L:[["timeline","tl-b-superanatural","Co-wrote The Super Natural"],["timeline","tl-saucers","Appears in Love & Saucers"]]},
 {id:"pp-chall",t:"Charles Hall",a:"Charles James Hall",s:"Former Air Force weather observer",d:["Says that as a young Air Force weather observer in Nevada in the mid-1960s he repeatedly met tall, pale beings he calls the \"Tall Whites,\" and wrote about them in his Millennial Hospitality books.","UNVERIFIED: his service details and encounters have not been independently confirmed."],L:[["map","m-hall","Where he says the encounters happened"],["timeline","tl-b-millennial","Wrote Millennial Hospitality"]]},
 {id:"pp-stephenson",t:"William Stephenson",a:"Intrepid, Sir William Stephenson, William Samuel Stephenson",s:"Canadian spymaster, code name Intrepid, 1897 to 1989",d:["A Canadian World War I fighter pilot and inventor-turned-industrialist who ran British Security Coordination in New York during World War II under the code name Intrepid. He worked closely with William Donovan and helped shape the OSS, the forerunner of the CIA.","Ian Fleming, who worked in British naval intelligence, named him as one of the real spies behind James Bond. The 1976 bestseller A Man Called Intrepid made him famous, but historians say it exaggerated his role."],L:[["map","m-bsc","Ran British Security Coordination"],["tree","oss","Helped shape the OSS"],["timeline","tl-bsc","Arrived in New York, 1940"]]},
 {id:"pp-donovan",t:"William Donovan",a:"Wild Bill Donovan, William J. Donovan",s:"Founder of the OSS, 1883 to 1959",d:["A World War I Medal of Honor recipient and New York lawyer whom President Roosevelt chose to lead U.S. intelligence. He headed the OSS from 1942 to 1945 and is often called the father of American intelligence."],L:[["tree","oss","Led the OSS"],["map","m-bsc","Worked with William Stephenson"]]},
