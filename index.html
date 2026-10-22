@@ -807,6 +807,9 @@ var SRC={
 "satnews-chase":["Momentus adds seasoned industry executives","SatNews","May 9, 2022","https://satnews.com/2022/05/09/momentus-adds-seasoned-industry-executives/","news"],
 "chase-cv":["Charles Chase résumé","Charles Chase (self-published)","","https://s3images.coroflot.com/user_files/individual_files/original_pdf_221275_yt0tmfma8phjpr74gf8ohtfzy.pdf","doc"],
 "sbir-chase":["SBIR Phase I: Fluctuation Flow Propulsion","National Science Foundation","2024","https://www.sbir.gov/awards/208420","doc"],
+"belfer-stateofmind":["A State of Mind: Faith and the CIA","Belfer Center, Harvard Kennedy School","May 28, 2020","https://www.belfercenter.org/publication/state-mind-faith-and-cia","ref"],
+"wippl-stateofmind":["HUMINT with Spiritual Awareness (review of A State of Mind)","Joseph Wippl, Boston University","Sept. 4, 2020","https://www.bu.edu/pardeeschool/?p=44991","news"],
+"alchemy-mowatt":["CIA Chief Breaks Silence on Time Travel Abilities","American Alchemy with Jesse Michels","Feb. 14, 2026","https://pod.wave.co/podcast/american-alchemy/cia-chief-i-know-how-to-time-travel","news"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -1045,6 +1048,9 @@ var CITE={
 "tl-richucla":[[0,"flying saucer","merlin-et"],[0,"take E.T. home","merlin-et"],[0,"since at least 1983","merlin-et"]],
 "m-skunkworks":[[0,"F-117 stealth fighter","skunkworks-wiki"]],
 "cl-richet":[[0,"take E.T. home","merlin-et"],[1,"retelling to the next","merlin-et"],[1,"E.T. back home","merlin-et"]],
+"pp-mowatt":[[0,"weapons of mass destruction department","belfer-stateofmind"],[0,"in 2009","belfer-stateofmind"],[1,"religious conversion","wippl-stateofmind"],[1,"medieval monk","alchemy-mowatt"],[1,"than the CIA","alchemy-mowatt"]],
+"tl-b-stateofmind":[[0,"9/11","belfer-stateofmind"],[0,"conversion","wippl-stateofmind"],[0,"attributes to God","alchemy-mowatt"]],
+"tl-mowatt26":[[0,"physically real","alchemy-mowatt"],[0,"beyond the CIA's","alchemy-mowatt"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -1669,9 +1675,13 @@ function satLines(){if(satLinesDone||!satMap||!satReady||satMap.getZoom()<7)retu
   satMap.addSource("towns",{type:"geojson",data:satLinesFC(),tolerance:0.5});
   satMap.addLayer({id:"towns",type:"line",source:"towns",minzoom:8,paint:{"line-color":"rgba(255,248,230,.6)","line-width":["interpolate",["linear"],["zoom"],8,0.4,12,0.9,15,1.4]}});}
 function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(),l0=c.lng*DEG,sp0=Math.sin(c.lat*DEG),cp0=Math.cos(c.lat*DEG),
-    occ=satMap.transform&&satMap.transform.isLocationOccluded,boxes=[],lab=satMap.getZoom()>=kToZ(1.4);
+    T=satMap.transform,occ=T&&T.isLocationOccluded,dep=T&&T.lngLatToCameraDepth,boxes=[],lab=satMap.getZoom()>=kToZ(1.4);
   for(var i=0;i<PINS.length;i++){var o=PINS[i],ph=o.p.lat*DEG,dl=o.p.lon*DEG-l0,front=sp0*Math.sin(ph)+cp0*Math.cos(ph)*Math.cos(dl)>0.05;
-    var hidden=occ?satMap.transform.isLocationOccluded({lng:o.p.lon,lat:o.p.lat}):!front,pt=hidden?null:satMap.project([o.p.lon,o.p.lat]);
+    var hidden=occ?T.isLocationOccluded({lng:o.p.lon,lat:o.p.lat}):!front;
+    /* tilted low, places behind the camera or past the far edge of the view still project onto the screen, bunched up
+       along the horizon, so pins whose depth falls outside the camera's view are hidden too */
+    if(!hidden&&dep){var d=T.lngLatToCameraDepth({lng:o.p.lon,lat:o.p.lat},0);hidden=!(d>-1&&d<1);}
+    var pt=hidden?null:satMap.project([o.p.lon,o.p.lat]);
     var X=pt&&pt.x,Y=pt&&pt.y,vis=!!pt&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
     if(vis!==o.v){o.v=vis;o.el.classList.toggle("off",!vis);}
     if(!vis)continue;boxes.push([X-8,Y-8,X+8,Y+8]);
@@ -1963,6 +1973,7 @@ var TLM=[["tl-condon",1968,"Condon Report","bluebook",null,"The University of Co
 ["tl-hellyer",2005,"Ex-defence minister backs UFOs",null,"w-stpaul","Paul Hellyer, Canada's defence minister in the 1960s, said publicly that he believed UFOs were real, and later urged governments to disclose alien technology. He became one of the most senior former officials to make such claims.","civ"],
 ["tl-saucers",2017,"Love & Saucers",null,null,"Brad Abrahams's documentary about David Huggins, a Hoboken painter who says he has had encounters with otherworldly beings since childhood and has painted them for decades. Religion scholar Jeffrey Kripal appears in it. The film leaves viewers to judge whether the experiences are dreams, hallucinations or real.","civ"],
 ["tl-richucla",1993,"Ben Rich's \"take E.T. home\" talk",null,"m-skunkworks","Retired Skunk Works director Ben Rich ended a talk to UCLA engineering alumni with a slide of a flying saucer. Attendee Jan Harzan, later head of MUFON, recalled him saying the U.S. now had the technology to take E.T. home, and the line became one of the most quoted in UFO lore. Rich had used the same closing joke since at least 1983.","civ"],
+["tl-mowatt26",2026,"Ex-CIA chief describes time travel","cia",null,"On Jesse Michels's American Alchemy podcast, former CIA official Rolf Mowatt-Larssen said that in 1991, at the monasteries of Mount Athos in Greece, he went back in time and lived for months as a medieval monk, and that it felt physically real. He also hinted that the Energy Department holds secrets beyond the CIA's.","civ"],
 ["tl-mj12",1984,"Majestic 12 papers surface","mj12",null,"Documents claiming a secret 1947 UFO committee began circulating in the 1980s. The FBI later concluded they were fake."],
 ["tl-nyt",2017,"AATIP revealed","aatip",null,"In December 2017, The New York Times reported on the Pentagon's secret UFO program and published two Navy videos."],
 ["tl-videos",2020,"Navy videos released","navy",null,"In April 2020, the Pentagon officially released the FLIR1, Gimbal, and GoFast videos."],
@@ -1987,6 +1998,9 @@ function buildTL(){
   TLBK.forEach(function(r){var by=r[3].map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(" and ");TL.push({id:"tl-b-"+r[0],type:"ev",yr:r[1],t:r[2],au:r[3],tid:r[6]||null,pid:r[5]||null,kind:"book",own:true,st:"Book",s:"By "+by+", "+r[1],d:[r[4]]})});
   TL.forEach(function(e){TLById[e.id]=e;if(e.tid&&!TLByTid[e.tid]&&!e.own)TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid]&&!e.own)TLByPid[e.pid]=e.id;});
   TL.forEach(function(e){if(e.tid&&!TLByTid[e.tid])TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid])TLByPid[e.pid]=e.id;});
+  /* the axis starts just before the earliest entry, on a multiple of five, so early events like Tesla's 1901
+     article can be scrolled to */
+  var y0=Math.min.apply(null,TL.map(function(e){return e.type==="bar"?e.y1:e.yr}));if(isFinite(y0))TL_START=Math.min(1940,Math.floor((y0-1)/5)*5);
 }
 function tw(s){return s.length*7.3+34}
 function layoutTL(){tlPos={};
@@ -2121,7 +2135,7 @@ function apply(){if(mode==="map"){gQueue();return;}clampPan();var el={tree:world
 function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBounds}
 function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),duration:RM?0:800});return;}if(mode==="map"){cancelAnimationFrame(gAnim);k=1;gox=0;goy=0;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
 /* the org chart can't zoom out past the whole-chart view that Fit shows */
-/* Fit on the timeline shows all of it, 1940 to now */
+/* Fit on the timeline shows all of it, from the earliest entry to now */
 function tlFitK(){var r=vpR(),b=dims();return Math.max(0.05,Math.min(r.width/b.w,(r.height-20)/b.h,1))}
 function treeFitK(){var r=vpR();return Math.max(0.15,Math.min(r.width/bounds.w,r.height/bounds.h,1.2))}
 function zoomAt(f,cx,cy){if(mode==="map"&&SAT&&satMap){satMap.zoomTo(satMap.getZoom()+Math.log2(f),{duration:RM?0:250});return;}if(mode==="map"){cancelAnimationFrame(gAnim);gZoom(f,cx,cy);return;}var nk=Math.min(mode==="map"?40:3,Math.max(mode==="tree"?treeFitK():Math.min(0.15,tlFitK()),k*f));f=nk/k;tx=cx-(cx-tx)*f;ty=cy-(cy-ty)*f;k=nk;apply();}
@@ -2346,6 +2360,7 @@ var PEOPLE=[
 {id:"pp-aspin",t:"Steve Aspin",a:"Steve Aspin",s:"Experiencer and abduction researcher",d:["He says he has had unusual experiences all his life, including coming across a mutilated cow in Ireland in 1970 and seeing a UFO in 1972, at 16, after a stretch of missing time. He spent some 15 years researching abductions and met researchers including Budd Hopkins and David Jacobs.","His self-published book Out of Time argues that abductions run in families across generations and that the program almost certainly dates back to the 1890s. Abduction researchers such as Jacobs and Robert Hastings praised it, but it has had little independent review, and its evidence rests on personal accounts."],L:[["timeline","tl-b-outoftime","Wrote Out of Time"]]},
 {id:"pp-rich",t:"Ben Rich",a:"Benjamin R. Rich",s:"Skunk Works director, 1925 to 1995",d:["An engineer who succeeded founder Kelly Johnson as head of Lockheed's Skunk Works from 1975 to 1991. Often called the father of stealth, he oversaw the F-117 stealth fighter, and he later wrote the memoir Skunk Works with Leo Janos.","UFO writers often quote him as saying in a 1993 talk at UCLA that the U.S. already had the technology \"to take E.T. home.\" Aerospace historian Peter Merlin found that the line was a closing joke Rich had used in talks since at least 1983, and no recording of the UCLA talk is known."],L:[["map","m-skunkworks","Led the Skunk Works"],["timeline","tl-richucla","UCLA talk, 1993"]]},
 {id:"pp-chase",t:"Charles Chase",a:"Charles Chase",s:"Aerospace engineer, Skunk Works veteran",d:["He worked at Lockheed Martin's Skunk Works from 1986 to 2018, apart from a few years in the early 1990s, where he founded and led its Revolutionary Technology Programs, the group at the front end of its new technology. An expert in plasma systems, he became vice president of engineering at the space company Momentus in 2022.","He has pursued an unproven idea for propulsion: drawing a push from the fluctuations of the quantum vacuum, the restless energy of empty space. A 2024 National Science Foundation grant funded his attempt at what would be the first measurement of such a force. UFO podcasts tie him to secret breakthroughs, but no public evidence supports those claims."],L:[["map","m-skunkworks","Worked at the Skunk Works"]]},
+{id:"pp-mowatt",t:"Rolf Mowatt-Larssen",a:"Rolf Mowatt-Larssen, RML",s:"CIA officer and Energy Department intelligence chief",d:["He spent 23 years as a CIA officer, rising to chief of its Europe Division and of its weapons of mass destruction department, then served three years as director of intelligence and counterintelligence at the Department of Energy. He became a senior fellow at Harvard's Belfer Center in 2009.","His 2020 memoir ties his spy career to his religious conversion. In a 2026 interview on the American Alchemy podcast he described a 1991 experience at Mount Athos in Greece in which he says he went back in time and lived for months as a medieval monk, and he suggested the Energy Department holds deeper secrets than the CIA. He offered these as personal experiences, not documented evidence."],L:[["tree","cia","CIA officer for 23 years"],["tree","doe","Energy Department intelligence director"],["timeline","tl-b-stateofmind","Wrote A State of Mind"],["timeline","tl-mowatt26","American Alchemy interview, 2026"]]},
 {id:"pp-keyhoe",t:"Donald Keyhoe",a:"Donald E. Keyhoe, Major Keyhoe",s:"Marine Corps aviator and author, 1897 to 1988",d:["A retired Marine Corps major whose 1950 book The Flying Saucers Are Real argued that the Air Force was hiding what it knew.","He led NICAP from 1957 to 1969 and pressed Congress to hold open UFO hearings."],L:[["map","m-nicap","Led NICAP from 1957 to 1969"],["timeline","tl-nicap","NICAP's founding"]]},
 {id:"pp-hynek",t:"J. Allen Hynek",a:"Josef Allen Hynek, Allen Hynek",s:"Astronomer, 1910 to 1986",d:["The Air Force's scientific consultant on Projects Sign, Grudge, and Blue Book from 1948 to 1969. He began as a skeptic but came to argue that some cases deserved serious study.","He coined the \"close encounters\" categories and founded the Center for UFO Studies in 1973."],L:[["tree","bluebook","Scientific consultant to Blue Book"],["map","m-wpafb","Blue Book was run from Wright-Patterson"],["map","m-socorro","Investigated the 1964 Socorro landing"],["timeline","tl-p-bluebook","Sign, Grudge, and Blue Book, 1948 to 1969"]]},
 {id:"pp-condon",t:"Edward Condon",a:"Edward U. Condon",s:"Physicist, 1902 to 1974",d:["Led the Air Force-funded University of Colorado UFO study. Its report concluded that further study was unlikely to be productive, and Project Blue Book closed soon after."],L:[["timeline","tl-condon","The Condon Report"],["tree","bluebook","Led to Blue Book's closing"]]},
@@ -2418,6 +2433,7 @@ var TLBK=[
 ["timeloops",2018,"Time Loops",["pp-wargo"],"Subtitled Precognition, Retrocausation, and the Unconscious. It draws on lab experiments, dreams and writers' accounts to argue that we can sense our own future, as J.W. Dunne proposed in the 1920s, and that effects from the future can shape the past without paradox."],
 ["flightreality",1975,"Flight Towards Reality",["pp-goddard"],"Victor Goddard's memoir of his spiritual and paranormal experiences, including his 1935 vision of a working airfield at Drem."],
 ["outoftime",2023,"Out of Time",["pp-aspin"],"Subtitled The Intergenerational Abduction Program Explored. Aspin combines his own experiences with years of reading and interviews to argue that alien abductions pass down through families and began by the 1890s. It was published through Grosvenor House, a self-publishing service."],
+["stateofmind",2020,"A State of Mind: Faith and the CIA",["pp-mowatt"],"A memoir of recruiting and handling spies, the CIA's response to 9/11, and work on nuclear security, woven together with the author's conversion and his account of dreams and visions he attributes to God.",null,"cia"],
 ["keyhoe",1950,"The Flying Saucers Are Real",["pp-keyhoe"],"Argued that flying saucers were real and that the Air Force was hiding what it knew. It grew out of Keyhoe's popular article in True magazine the same year."],
 ["adamski",1953,"Flying Saucers Have Landed",["pp-adamski"],"Co-written with Desmond Leslie. Adamski said he had met a man from Venus in the California desert in 1952, launching the \"contactee\" movement. His photos are widely considered hoaxes."],
 ["jessup",1955,"The Case for the UFO",["pp-jessup"],"Argued that UFOs could explain disappearances and other mysteries. A copy annotated by unknown writers reached the Office of Naval Research and fed the Philadelphia Experiment legend.",null,"navy"],
