@@ -2195,7 +2195,12 @@ function tlAxis(){var el=document.getElementById("tlaxis");if(!el||mode!=="timel
 function apply(){if(mode==="map"){gQueue();return;}clampPan();var el={tree:world,timeline:document.getElementById("tlw")}[mode];el.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";
   var g=40*k;vp.style.backgroundSize=g+"px "+g+"px";vp.style.backgroundPosition=tx+"px "+ty+"px";tlAxis();}
 function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBounds}
-function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),duration:RM?0:800});return;}if(mode==="map"){cancelAnimationFrame(gAnim);k=1;gox=0;goy=0;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
+/* Fit on the map shows the whole globe, upright and facing north, centered in the space beside (or above) an open
+   details panel; earlier padding for the panel and any 3D tilt are cleared */
+function fitPad(){var r=vpR(),o=panel.classList.contains("open");if(!o)return {top:0,bottom:0,left:0,right:0};
+  return r.width>640?{top:0,bottom:0,left:0,right:pw(r)}:{top:0,left:0,right:0,bottom:Math.round(Math.min(panel.getBoundingClientRect().height,r.height*0.9))}}
+function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),pitch:0,bearing:0,padding:fitPad(),duration:RM?0:800});return;}
+  if(mode==="map"){cancelAnimationFrame(gAnim);var fp=fitPad();k=1;gox=(fp.left-fp.right)/2;goy=(fp.top-fp.bottom)/2;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
 /* the org chart can't zoom out past the whole-chart view that Fit shows */
 /* Fit on the timeline shows all of it, from the earliest entry to now */
 function tlFitK(){var r=vpR(),b=dims();return Math.max(0.05,Math.min(r.width/b.w,(r.height-20)/b.h,1))}
