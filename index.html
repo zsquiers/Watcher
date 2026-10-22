@@ -1675,9 +1675,13 @@ function satLines(){if(satLinesDone||!satMap||!satReady||satMap.getZoom()<7)retu
   satMap.addSource("towns",{type:"geojson",data:satLinesFC(),tolerance:0.5});
   satMap.addLayer({id:"towns",type:"line",source:"towns",minzoom:8,paint:{"line-color":"rgba(255,248,230,.6)","line-width":["interpolate",["linear"],["zoom"],8,0.4,12,0.9,15,1.4]}});}
 function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(),l0=c.lng*DEG,sp0=Math.sin(c.lat*DEG),cp0=Math.cos(c.lat*DEG),
-    occ=satMap.transform&&satMap.transform.isLocationOccluded,boxes=[],lab=satMap.getZoom()>=kToZ(1.4);
+    T=satMap.transform,occ=T&&T.isLocationOccluded,dep=T&&T.lngLatToCameraDepth,boxes=[],lab=satMap.getZoom()>=kToZ(1.4);
   for(var i=0;i<PINS.length;i++){var o=PINS[i],ph=o.p.lat*DEG,dl=o.p.lon*DEG-l0,front=sp0*Math.sin(ph)+cp0*Math.cos(ph)*Math.cos(dl)>0.05;
-    var hidden=occ?satMap.transform.isLocationOccluded({lng:o.p.lon,lat:o.p.lat}):!front,pt=hidden?null:satMap.project([o.p.lon,o.p.lat]);
+    var hidden=occ?T.isLocationOccluded({lng:o.p.lon,lat:o.p.lat}):!front;
+    /* tilted low, places behind the camera or past the far edge of the view still project onto the screen, bunched up
+       along the horizon, so pins whose depth falls outside the camera's view are hidden too */
+    if(!hidden&&dep){var d=T.lngLatToCameraDepth({lng:o.p.lon,lat:o.p.lat},0);hidden=!(d>-1&&d<1);}
+    var pt=hidden?null:satMap.project([o.p.lon,o.p.lat]);
     var X=pt&&pt.x,Y=pt&&pt.y,vis=!!pt&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
     if(vis!==o.v){o.v=vis;o.el.classList.toggle("off",!vis);}
     if(!vis)continue;boxes.push([X-8,Y-8,X+8,Y+8]);
