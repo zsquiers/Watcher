@@ -1994,6 +1994,9 @@ function buildTL(){
   TLBK.forEach(function(r){var by=r[3].map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(" and ");TL.push({id:"tl-b-"+r[0],type:"ev",yr:r[1],t:r[2],au:r[3],tid:r[6]||null,pid:r[5]||null,kind:"book",own:true,st:"Book",s:"By "+by+", "+r[1],d:[r[4]]})});
   TL.forEach(function(e){TLById[e.id]=e;if(e.tid&&!TLByTid[e.tid]&&!e.own)TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid]&&!e.own)TLByPid[e.pid]=e.id;});
   TL.forEach(function(e){if(e.tid&&!TLByTid[e.tid])TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid])TLByPid[e.pid]=e.id;});
+  /* the axis starts just before the earliest entry, on a multiple of five, so early events like Tesla's 1901
+     article can be scrolled to */
+  var y0=Math.min.apply(null,TL.map(function(e){return e.type==="bar"?e.y1:e.yr}));if(isFinite(y0))TL_START=Math.min(1940,Math.floor((y0-1)/5)*5);
 }
 function tw(s){return s.length*7.3+34}
 function layoutTL(){tlPos={};
@@ -2128,7 +2131,7 @@ function apply(){if(mode==="map"){gQueue();return;}clampPan();var el={tree:world
 function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBounds}
 function fit(){if(mode==="map"&&SAT&&satMap){satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),duration:RM?0:800});return;}if(mode==="map"){cancelAnimationFrame(gAnim);k=1;gox=0;goy=0;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
 /* the org chart can't zoom out past the whole-chart view that Fit shows */
-/* Fit on the timeline shows all of it, 1940 to now */
+/* Fit on the timeline shows all of it, from the earliest entry to now */
 function tlFitK(){var r=vpR(),b=dims();return Math.max(0.05,Math.min(r.width/b.w,(r.height-20)/b.h,1))}
 function treeFitK(){var r=vpR();return Math.max(0.15,Math.min(r.width/bounds.w,r.height/bounds.h,1.2))}
 function zoomAt(f,cx,cy){if(mode==="map"&&SAT&&satMap){satMap.zoomTo(satMap.getZoom()+Math.log2(f),{duration:RM?0:250});return;}if(mode==="map"){cancelAnimationFrame(gAnim);gZoom(f,cx,cy);return;}var nk=Math.min(mode==="map"?40:3,Math.max(mode==="tree"?treeFitK():Math.min(0.15,tlFitK()),k*f));f=nk/k;tx=cx-(cx-tx)*f;ty=cy-(cy-ty)*f;k=nk;apply();}
