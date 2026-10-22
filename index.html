@@ -2117,9 +2117,11 @@ function renderMap(){
 }
 function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap();else renderTimeline();}
 
-/* keep the org chart and timeline on screen: a small margin past each edge, plus room for the details panel when it's open */
+/* keep the org chart and timeline on screen: a small margin past each edge (just 24px for the timeline, so it stops near
+   its first year and the present while its labels, which its bounds include, stay whole), plus room for the details
+   panel when it's open */
 function clampPan(){var r=vpR(),b=dims();if(!b||!b.w)return;var cw=b.w*k,chh=b.h*k,po=panel.classList.contains("open"),
-    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,sl=mode==="tree"?0.12:0.45,mx=Math.max(mode==="tree"?24:60,vw*sl),my=Math.max(mode==="tree"?24:60,vh*sl);
+    rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,sl=mode==="tree"?0.12:0.45,mx=mode==="timeline"?24:Math.max(mode==="tree"?24:60,vw*sl),my=Math.max(mode==="tree"?24:60,vh*sl);
   if(cw<=vw-2*mx)tx=Math.min(vw-cw-mx,Math.max(mx,tx));else tx=Math.min(mx,Math.max(vw-cw-mx,tx));
   if(mode==="timeline"){var t0=tlTop();ty=Math.min(t0,Math.max(Math.min(t0,vh-chh-20),ty));return;}
   if(chh<=vh-2*my)ty=Math.min(vh-chh-my,Math.max(my,ty));else ty=Math.min(my,Math.max(vh-chh-my,ty));}
