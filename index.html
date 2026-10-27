@@ -331,6 +331,10 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 #ledgerBtn{font-weight:500}
 #ledger{position:fixed;inset:0;z-index:40;background:var(--bg);overflow-y:auto;display:block}
 #ledger[hidden]{display:none}
+.lgfab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:41;display:flex;gap:8px;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
+.lgfab.on{opacity:1;visibility:visible;transform:none}
+.lgfab button{box-shadow:0 4px 14px rgba(10,20,35,.18);font-weight:500}
+@media (prefers-reduced-motion:reduce){.lgfab{transition:none}}
 .lg{max-width:1080px;margin:0 auto;padding:22px 24px 60px}
 .lgh{display:flex;align-items:flex-start;gap:16px;margin-bottom:6px}
 .lgh h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:34px;line-height:1.05;margin:0}
@@ -2743,7 +2747,8 @@ function evYr(c){return c.ev!=null?c.ev:c.yr}
 function evLabel(c){return c.ev<0?"ancient times":String(c.ev)}
 function openLedger(focus){var L=document.getElementById("ledger");
   if(!L){document.body.insertAdjacentHTML("beforeend",'<div id="ledger" role="dialog" aria-modal="true" aria-labelledby="lgt" hidden></div>');L=document.getElementById("ledger");
-    L.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeLedger()}});}
+    L.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeLedger()}});
+    L.addEventListener("scroll",lgFab,{passive:true});}
   if(focus)LGF="all";
   var counts={};CLAIMS.forEach(function(c){counts[c.st]=(counts[c.st]||0)+1});
   var list=CLAIMS.filter(function(c){return LGF==="all"||c.st===LGF}).slice().sort(LGSORTS[LGS]?LGSORTS[LGS][1]:LGSORTS["new"][1]);
@@ -2757,9 +2762,11 @@ function openLedger(focus){var L=document.getElementById("ledger");
       return '<article class="cl" id="'+c.id+'" style="--sc:var(--st-'+c.st+')"><div class="clt"><h3>'+esc(c.t)+'</h3><span class="stb" title="'+esc(CLST[c.st][1])+'"><span class="std"></span>'+CLST[c.st][0]+'</span></div>'+
         '<p class="clm">Claimed by '+who+' \u00b7 '+c.yr+' \u00b7 '+esc(c.venue)+(c.ev!=null&&c.ev!==c.yr?' \u00b7 <span class="clev">About events of '+evLabel(c)+'</span>':'')+'</p>'+
         '<div class="clg"><div><h4>The claim</h4>'+cb.paras[0]+'</div><div><h4>The official record</h4>'+cb.paras[1]+'</div></div>'+
-        (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>';
-  L.hidden=false;document.body.style.overflow="hidden";
-  document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
+        (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>'+
+    '<div class="lgfab" id="lgfab"><button id="lgtop" aria-label="Back to the top of the claims ledger">&uarr; Top</button><button id="lgx2" aria-label="Close claims ledger">Close &times;</button></div>';
+  L.hidden=false;document.body.style.overflow="hidden";lgFab();
+  document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgx2").onclick=closeLedger;
+  document.getElementById("lgtop").onclick=function(){L.scrollTo({top:0,behavior:RM?"auto":"smooth"});document.getElementById("lgx").focus({preventScroll:true})};document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
   document.getElementById("lgsort").onchange=function(){LGS=this.value;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
   L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by])});
@@ -2769,6 +2776,8 @@ function openLedger(focus){var L=document.getElementById("ledger");
     li.scrollIntoView({block:"center",behavior:RM?"auto":"smooth"});li.classList.add("flash");setTimeout(function(){li.classList.remove("flash")},900);}});
   if(focus){var el=document.getElementById(focus);if(el){el.scrollIntoView({block:"start"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1400);el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}}
   else{L.scrollTop=0;document.getElementById("lgx").focus();}}
+/* once the ledger's own header has scrolled away, a floating Top and Close pair appears in the corner */
+function lgFab(){var L=document.getElementById("ledger"),f=document.getElementById("lgfab");if(L&&f)f.classList.toggle("on",L.scrollTop>320)}
 function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 document.getElementById("ledgerBtn").onclick=function(){openLedger()};
 /* quiz: ten questions built fresh each round from the site's own data (the claims ledger, the timeline, and the map),
