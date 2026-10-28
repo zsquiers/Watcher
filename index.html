@@ -41,13 +41,20 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,.node:focus-visi
 button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber);color:var(--ink)}
 .sq{width:36px;padding:0;font-size:18px}
 .pbk{font-size:17px}
-/* collapsed details panel: just its title bar, at the top right (or the bottom on phones), until expanded */
+/* collapsed details panel: on wider screens a slim strip down the right edge with the entry's name, on phones just
+   the title bar at the bottom, until expanded */
 .pmin svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
-#panel.min .pmin svg{transform:rotate(180deg)}
-#panel.min{bottom:auto;height:auto!important;border-bottom:1px solid var(--hair);border-bottom-left-radius:10px}
+.pmt{display:none}
 #panel.min .pb{display:none}
 #panel.min .ph{border-bottom:0;cursor:pointer}
-@media (max-width:640px){#panel.min{bottom:0;border-bottom:0;border-bottom-left-radius:0}#panel.min .pmin svg{transform:rotate(0)}#panel:not(.min) .pmin svg{transform:rotate(180deg)}}
+@media (min-width:641px){.pmin svg{transform:rotate(90deg)}#panel.min .pmin svg{transform:rotate(-90deg)}
+  #panel.min{width:46px!important}
+  #panel.min .ph{flex-direction:column;align-items:center;gap:14px;height:100%;padding:14px 0}
+  #panel.min .ph>:not(.pmin):not(.pmt):not(#pc),#panel.min .pgrip{display:none}
+  #panel.min #pc{order:1}#panel.min .pmt{order:2}
+  #panel.min .pmt{display:block;writing-mode:vertical-rl;max-height:calc(100% - 130px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--ink)}
+  body.pmin #compass{right:58px}}
+@media (max-width:640px){.pmin svg{transform:rotate(180deg)}#panel.min .pmin svg{transform:rotate(0)}#panel.min{height:auto!important}}
 #vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px)}
 #panel,#vp .legend{cursor:auto}
 #vp.drag{cursor:grabbing}
@@ -320,7 +327,7 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 @media (min-width:641px){
   /* the compass moves out from under the open details panel */
   #compass{transition:right .22s ease}
-  body.dossier #compass,body.pmin #compass{right:calc(min(var(--pw),100%) + 12px)}
+  body.dossier #compass{right:calc(min(var(--pw),100%) + 12px)}
   body.dossier #world .node,body.dossier #edges,body.dossier #tlitems .tlb,body.dossier #tlitems .tle,body.dossier #pins .pin .mk,body.dossier #pins .pin .lb{transition:opacity .25s ease}
   body.dossier #world .node:not(.sel){opacity:.35}
   body.dossier #edges{opacity:.35}
@@ -1546,7 +1553,7 @@ var LNK=null,LNKRE=null,TALIAS={uaptf:["UAPTF"],navy:["Navy","Office of Naval In
   dod:["The Pentagon","Pentagon","Defense Department"],aatip:["Advanced Aerospace Threat Identification Program"],aawsap:["Advanced Aerospace Weapon System Applications Program"],
   aaro:["All-domain Anomaly Resolution Office"],darpa:["ARPA"],doe:["Energy Department"],nasastudy:[],interagency:[],pres:[],nasadir:[]},
   /* other names for places, and timeline entries that are often mentioned by name */
-  PALIAS={"m-skunkworks":["Skunk Works"]},XLNK={"Project Serpo":{go:"timeline",id:"tl-serpo"}};
+  PALIAS={"m-skunkworks":["Skunk Works"]},XLNK={"Project Serpo":{go:"timeline",id:"tl-serpo"},"L-9 document":{go:"timeline",id:"tl-l9"},"L-9 incident":{go:"timeline",id:"tl-l9"}};
 /* single words that are also book titles but usually appear as ordinary words, as in "Aerial Phenomena Research" */
 var LNKSKIP={"Phenomena":1};
 function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*\([^)]*\)\s*$/,"").trim();if(name.length<3||LNK[name]||LNKSKIP[name])return;LNK[name]=v};
@@ -2523,7 +2530,7 @@ function histNote(v){var sc=null;
   else if(pcur&&!(pcur.k===v.k&&pcur.id===v.id)){var b=panel.querySelector(".pb");pcur.sc=b?b.scrollTop:0;phist.push(pcur);if(phist.length>40)phist.shift();}
   pcur=v;return sc;}
 function backBtn(){var v=phist[phist.length-1];return v?'<button class="sq pbk" id="pbk" aria-label="Back to '+esc(v.t)+'" title="Back to '+esc(v.t)+'">&larr;</button>':''}
-function minBtn(){return '<button class="sq pmin" id="pmin" aria-expanded="true" aria-label="Collapse details" title="Collapse"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3.5,10 8,5.5 12.5,10"/></svg></button>'}
+function minBtn(t){return '<button class="sq pmin" id="pmin" aria-expanded="true" aria-label="Collapse details" title="Collapse"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3.5,10 8,5.5 12.5,10"/></svg></button><span class="pmt" aria-hidden="true">'+esc(t)+'</span>'}
 function pMin(on){panel.classList.toggle("min",on);var b=document.getElementById("pmin");
   if(b){b.setAttribute("aria-expanded",String(!on));b.setAttribute("aria-label",on?"Expand details":"Collapse details");b.title=on?"Expand":"Collapse";}
   document.body.classList.toggle("dossier",!on&&!!selId);document.body.classList.toggle("pmin",on);}
@@ -2561,7 +2568,7 @@ function open(id,editName){
     kfHtml([["Year",tl&&tl.yr?String(tl.yr):""],["Office",tl&&tl.tid&&findItem(tl.tid)?findItem(tl.tid).t:""],["Place",tl&&tl.pid&&findItem(tl.pid)?findItem(tl.pid).t:""],["By",(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(", ")]]);
   var edit=n.custom?'<h3>Name and description</h3><input id="en" maxlength="60" value="'+esc(n.t)+'" aria-label="Name"><input id="es" maxlength="60" style="margin-top:8px" value="'+esc(n.s||"")+'" placeholder="Short description (optional)" aria-label="Description"><div class="err" id="ee"></div><div class="row"><button id="eb">Save name</button></div>':'';
   var branch=!isTree(n.id)||n.custom==="pin"||n.c?'':'<h3>Add a branch under this box</h3><input id="cn" placeholder="Name, such as Senate Intelligence Committee" maxlength="60"><input id="cs" placeholder="Short description (optional)" maxlength="60" style="margin-top:8px"><div class="err" id="ce"></div><div class="row"><button id="ca">Add branch</button></div>';
-  panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+minBtn()+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+minBtn(n.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
@@ -2893,7 +2900,7 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
   var conn=p.L.filter(function(l){return l[0]==="timeline"?TLById[l[1]]:findItem(l[1])}).map(function(l){
     return '<button class="conn" data-go="'+l[0]+'" data-id="'+l[1]+'"><span class="cv">'+VNAME[l[0]]+'</span><span class="ct">'+esc(lTitle(l))+'</span><span class="cw">'+esc(l[2])+'</span></button>'}).join("");
   var cb=citeBlock(id,p.d);
-  panel.innerHTML='<div class="ph"><div style="flex:1"><p class="eb">Person</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+minBtn()+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph"><div style="flex:1"><p class="eb">Person</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+minBtn(p.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+cb.chip+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+
   (conn?'<h3>Where to find them</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
