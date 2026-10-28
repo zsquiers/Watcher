@@ -41,6 +41,13 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,.node:focus-visi
 button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber);color:var(--ink)}
 .sq{width:36px;padding:0;font-size:18px}
 .pbk{font-size:17px}
+/* collapsed details panel: just its title bar, at the top right (or the bottom on phones), until expanded */
+.pmin svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+#panel.min .pmin svg{transform:rotate(180deg)}
+#panel.min{bottom:auto;height:auto!important;border-bottom:1px solid var(--hair);border-bottom-left-radius:10px}
+#panel.min .pb{display:none}
+#panel.min .ph{border-bottom:0;cursor:pointer}
+@media (max-width:640px){#panel.min{bottom:0;border-bottom:0;border-bottom-left-radius:0}#panel.min .pmin svg{transform:rotate(0)}#panel:not(.min) .pmin svg{transform:rotate(180deg)}}
 #vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px)}
 #panel,#vp .legend{cursor:auto}
 #vp.drag{cursor:grabbing}
@@ -313,7 +320,7 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 @media (min-width:641px){
   /* the compass moves out from under the open details panel */
   #compass{transition:right .22s ease}
-  body.dossier #compass{right:calc(min(var(--pw),100%) + 12px)}
+  body.dossier #compass,body.pmin #compass{right:calc(min(var(--pw),100%) + 12px)}
   body.dossier #world .node,body.dossier #edges,body.dossier #tlitems .tlb,body.dossier #tlitems .tle,body.dossier #pins .pin .mk,body.dossier #pins .pin .lb{transition:opacity .25s ease}
   body.dossier #world .node:not(.sel){opacity:.35}
   body.dossier #edges{opacity:.35}
@@ -2382,7 +2389,7 @@ function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap()
 /* keep the org chart and timeline on screen: a small margin past each edge (just 24px for the timeline, so it stops near
    its first year and the present while its labels, which its bounds include, stay whole), plus room for the details
    panel when it's open */
-function clampPan(){var r=vpR(),b=dims();if(!b||!b.w)return;var cw=b.w*k,chh=b.h*k,po=panel.classList.contains("open"),
+function clampPan(){var r=vpR(),b=dims();if(!b||!b.w)return;var cw=b.w*k,chh=b.h*k,po=panel.classList.contains("open")&&!panel.classList.contains("min"),
     rp=po&&r.width>640?pw(r):0,bp=po&&r.width<=640?Math.min(panel.getBoundingClientRect().height,r.height*0.9):0,vw=r.width-rp,vh=r.height-bp,sl=mode==="tree"?0.12:0.45,mx=mode==="timeline"?24:Math.max(mode==="tree"?24:60,vw*sl),my=Math.max(mode==="tree"?24:60,vh*sl);
   if(cw<=vw-2*mx)tx=Math.min(vw-cw-mx,Math.max(mx,tx));else tx=Math.min(mx,Math.max(vw-cw-mx,tx));
   if(mode==="timeline"){var t0=tlTop();ty=Math.min(t0,Math.max(Math.min(t0,vh-chh-20),ty));return;}
@@ -2403,7 +2410,7 @@ function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBou
 /* Fit on the map shows the whole globe, upright and facing north, centered in the space beside (or above) an open
    details panel; any 3D tilt is cleared. The satellite map is moved with a one-off offset rather than camera padding:
    padding stays on the map after the panel closes, and MapLibre's atmosphere ignores it, leaving a seam on the globe */
-function fitPad(){var r=vpR(),o=panel.classList.contains("open");if(!o)return {top:0,bottom:0,left:0,right:0};
+function fitPad(){var r=vpR(),o=panel.classList.contains("open")&&!panel.classList.contains("min");if(!o)return {top:0,bottom:0,left:0,right:0};
   return r.width>640?{top:0,bottom:0,left:0,right:pw(r)}:{top:0,left:0,right:0,bottom:Math.round(Math.min(panel.getBoundingClientRect().height,r.height*0.9))}}
 function fit(){if(mode==="map"&&SAT&&satMap){var sp=fitPad();satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),pitch:0,bearing:0,offset:[(sp.left-sp.right)/2,(sp.top-sp.bottom)/2],padding:{top:0,bottom:0,left:0,right:0},duration:RM?0:800});return;}
   if(mode==="map"){cancelAnimationFrame(gAnim);var fp=fitPad();k=1;gox=(fp.left-fp.right)/2;goy=(fp.top-fp.bottom)/2;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
@@ -2516,6 +2523,12 @@ function histNote(v){var sc=null;
   else if(pcur&&!(pcur.k===v.k&&pcur.id===v.id)){var b=panel.querySelector(".pb");pcur.sc=b?b.scrollTop:0;phist.push(pcur);if(phist.length>40)phist.shift();}
   pcur=v;return sc;}
 function backBtn(){var v=phist[phist.length-1];return v?'<button class="sq pbk" id="pbk" aria-label="Back to '+esc(v.t)+'" title="Back to '+esc(v.t)+'">&larr;</button>':''}
+function minBtn(){return '<button class="sq pmin" id="pmin" aria-expanded="true" aria-label="Collapse details" title="Collapse"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3.5,10 8,5.5 12.5,10"/></svg></button>'}
+function pMin(on){panel.classList.toggle("min",on);var b=document.getElementById("pmin");
+  if(b){b.setAttribute("aria-expanded",String(!on));b.setAttribute("aria-label",on?"Expand details":"Collapse details");b.title=on?"Expand":"Collapse";}
+  document.body.classList.toggle("dossier",!on&&!!selId);document.body.classList.toggle("pmin",on);}
+function pMinWire(){var b=document.getElementById("pmin");if(b)b.onclick=function(e){e.stopPropagation();pMin(!panel.classList.contains("min"))};
+  var h=panel.querySelector(".ph");if(h)h.onclick=function(e){if(panel.classList.contains("min")&&!e.target.closest("button"))pMin(false)};}
 function histWire(sc){var b=document.getElementById("pbk");if(b)b.onclick=histBack;var x=panel.querySelector(".pb");if(x&&sc!=null)x.scrollTop=sc;}
 function histBack(){var v;while((v=phist.pop())&&!(v.k==="person"?PBy[v.id]:TLById[v.id]||findItem(v.id))){}if(!v)return;pback=v;
   if(v.k==="person")openPerson(v.id);else goTo(v.m,v.id);}
@@ -2548,13 +2561,13 @@ function open(id,editName){
     kfHtml([["Year",tl&&tl.yr?String(tl.yr):""],["Office",tl&&tl.tid&&findItem(tl.tid)?findItem(tl.tid).t:""],["Place",tl&&tl.pid&&findItem(tl.pid)?findItem(tl.pid).t:""],["By",(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(", ")]]);
   var edit=n.custom?'<h3>Name and description</h3><input id="en" maxlength="60" value="'+esc(n.t)+'" aria-label="Name"><input id="es" maxlength="60" style="margin-top:8px" value="'+esc(n.s||"")+'" placeholder="Short description (optional)" aria-label="Description"><div class="err" id="ee"></div><div class="row"><button id="eb">Save name</button></div>':'';
   var branch=!isTree(n.id)||n.custom==="pin"||n.c?'':'<h3>Add a branch under this box</h3><input id="cn" placeholder="Name, such as Senate Intelligence Committee" maxlength="60"><input id="cs" placeholder="Short description (optional)" maxlength="60" style="margin-top:8px"><div class="err" id="ce"></div><div class="row"><button id="ca">Add branch</button></div>';
-  panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+minBtn()+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
   linkNames(panel.querySelector(".facts"),[cid,tl&&tl.id]);
-  panel.classList.add("open");panel.scrollTop=0;var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);wireCites();wireClaimLinks(panel);document.body.classList.toggle("dossier",!!selId);
+  panel.classList.add("open");panel.scrollTop=0;var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
   panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
   panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   document.getElementById("pc").onclick=function(){closePanel()};
@@ -2577,7 +2590,7 @@ function open(id,editName){
   if(selId)focusItem(selId);
 }
 /* closing the panel on the drawn globe glides it back from beside the panel to the middle of the screen */
-function closePanel(silent){if(!silent){phist=[];pcur=null;pback=null;if(mode==="map"&&!SAT&&gW&&(gox||goy))gFly(gLat,gLon,k,gW/2,gH/2);}panel.classList.remove("open");document.body.classList.remove("dossier");selId=null;if(!silent)render();}
+function closePanel(silent){panel.classList.remove("min");document.body.classList.remove("pmin");if(!silent){phist=[];pcur=null;pback=null;if(mode==="map"&&!SAT&&gW&&(gox||goy))gFly(gLat,gLon,k,gW/2,gH/2);}panel.classList.remove("open");document.body.classList.remove("dossier");selId=null;if(!silent)render();}
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(placing){document.getElementById("addpin").click();}else if(panel.classList.contains("open"))closePanel();}});
 
 var PEOPLE=[
@@ -2880,13 +2893,13 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
   var conn=p.L.filter(function(l){return l[0]==="timeline"?TLById[l[1]]:findItem(l[1])}).map(function(l){
     return '<button class="conn" data-go="'+l[0]+'" data-id="'+l[1]+'"><span class="cv">'+VNAME[l[0]]+'</span><span class="ct">'+esc(lTitle(l))+'</span><span class="cw">'+esc(l[2])+'</span></button>'}).join("");
   var cb=citeBlock(id,p.d);
-  panel.innerHTML='<div class="ph"><div style="flex:1"><p class="eb">Person</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph"><div style="flex:1"><p class="eb">Person</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+minBtn()+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+cb.chip+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+
   (conn?'<h3>Where to find them</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div></div>';
   linkNames(panel.querySelector(".facts"),[id]);
-  panel.classList.add("open");var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);wireCites();wireClaimLinks(panel);document.body.classList.remove("dossier");
+  panel.classList.add("open");var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
   panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
   panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   document.getElementById("pc").onclick=function(){closePanel()};
@@ -2966,7 +2979,7 @@ window.addEventListener("load",function(){setTimeout(function(){loadGeo().catch(
   panel.addEventListener("pointerdown",function(e){if(!phone()||e.button>0)return;var h=e.target.closest(".sgrip,.ph");
     if(!h||e.target.closest("button,a,input,textarea,select,[data-claim],[data-person]"))return;
     var vh=window.innerHeight,y0=e.clientY,h0=panel.offsetHeight,cur=h0,moved=false;h.setPointerCapture(e.pointerId);
-    function mv(ev){var d=ev.clientY-y0;if(!moved&&Math.abs(d)<4)return;if(!moved){moved=true;panel.classList.add("sdrag");}
+    function mv(ev){var d=ev.clientY-y0;if(!moved&&Math.abs(d)<4)return;if(!moved){moved=true;panel.classList.add("sdrag");if(panel.classList.contains("min"))pMin(false);}
       cur=h0-d;R.style.setProperty("--ph",Math.round(Math.max(vh*0.12,Math.min(cur,vh)))+"px");}
     function up(){h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);h.removeEventListener("pointercancel",up);
       if(!moved)return;panel.classList.remove("sdrag");
