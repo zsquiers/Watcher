@@ -1684,7 +1684,7 @@ var LNK=null,LNKRE=null,TALIAS={uaptf:["UAPTF"],navy:["Navy","Office of Naval In
 /* single words that are also book titles but usually appear as ordinary words, as in "Aerial Phenomena Research" */
 var LNKSKIP={"Phenomena":1};
 /* surnames that are also common words, places or other people's names, so they only link as part of a full name */
-var SURSKIP={Fort:1,Ford:1,Bush:1,West:1,Rich:1,Davis:1,Moore:1,Hall:1,Hill:1,Taylor:1,Jones:1,Pope:1,Cook:1,Dick:1,Bishop:1,Colby:1,Hopkins:1,Smith:1,Brown:1,Johnson:1,Wood:1,Graves:1,Rounds:1,Mace:1,Halt:1,Nell:1,Barber:1,Case:1,Luna:1,Reid:1,Mack:1,Hancock:1};
+var PREL={},SURSKIP={Fort:1,Ford:1,Bush:1,West:1,Rich:1,Davis:1,Moore:1,Hall:1,Hill:1,Taylor:1,Jones:1,Pope:1,Cook:1,Dick:1,Bishop:1,Colby:1,Hopkins:1,Smith:1,Brown:1,Johnson:1,Wood:1,Graves:1,Rounds:1,Mace:1,Halt:1,Nell:1,Barber:1,Case:1,Luna:1,Reid:1,Mack:1,Hancock:1};
 function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*\([^)]*\)\s*$/,"").trim();if(name.length<3||LNK[name]||LNKSKIP[name])return;LNK[name]=v};
   treeAll().forEach(function(n){if(n.custom)return;var al=TALIAS[n.id];if(!al||al.length)add(n.t,{go:"tree",id:n.id});(al||[]).forEach(function(a){add(a,{go:"tree",id:n.id})})});
   PEOPLE.forEach(function(q){add(q.t,{person:q.id});(q.a||"").split(",").forEach(function(a){if(/\s/.test(a.trim()))add(a,{person:q.id})})});
@@ -1696,14 +1696,20 @@ function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*
     var w=t.split(" ");if(w.length<2)return;var k=w[w.length-1];if(w.length>2&&/^(von|van|Van|de|De|da|di|du|le|la)$/.test(w[w.length-2]))k=w[w.length-2]+" "+k;
     (sn[k]=sn[k]||[]).push(q.id)});
   Object.keys(sn).forEach(function(k){if(sn[k].length===1&&k.length>=4&&!SURSKIP[k])add(k,{person:sn[k][0]})});
+  /* a surname on the skip list still links inside entries connected to that person (their own profile's links, or a
+     book they wrote), where it can only mean them: "Fort" in Charles Fort's books, "Colby" in a CIA director's entry */
+  PREL={};PEOPLE.forEach(function(q){q.L.forEach(function(l){(PREL[l[1]]=PREL[l[1]]||{})[q.id]=1})});
+  Object.keys(sn).forEach(function(k){if(sn[k].length===1&&k.length>=4&&SURSKIP[k]&&!LNK[k])LNK[k]={person:sn[k][0],amb:1}});
   TL.forEach(function(e){var t=e.t.replace(/\s*\([^)]*\)\s*$/,"");if(e.kind==="book"&&(/\s/.test(t)||t.length>=9))add(t,{go:"timeline",id:e.id})});
   var ks=Object.keys(LNK).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")});
   LNKRE=new RegExp("(^|[^\\w-])("+ks.join("|")+")(?![\\w-])","g");}
 var LNKGEN={"Air Force":1,"Navy":1,"Army":1};
-function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={};(self||[]).forEach(function(x){if(x)done[x]=1});
+function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={},near={};(self||[]).forEach(function(x){if(!x)return;done[x]=1;
+    var r=PREL[x];if(r)for(var q in r)near[q]=1;var e=TLById[x];if(e&&e.au)e.au.forEach(function(a){near[a]=1})});
   root.querySelectorAll("p").forEach(function(pe){var w=document.createTreeWalker(pe,NodeFilter.SHOW_TEXT,null),nodes=[],t;while((t=w.nextNode()))if(!t.parentNode.closest("a,button,sup"))nodes.push(t);
     nodes.forEach(function(tn){var s=tn.nodeValue,m,last=0,frag=null;LNKRE.lastIndex=0;
       while((m=LNKRE.exec(s))){var name=m[2],v=LNK[name],key=v.person||v.id,st=m.index+m[1].length;
+        if(v.amb&&!near[v.person])continue;
         if(done[key])continue;
         if(LNKGEN[name]){var before=s.slice(0,st);if(/[A-Z][a-z]+\s$/.test(before)&&!/U\.S\.\s$/.test(before))continue;if(name==="Army"&&/^ Air/.test(s.slice(st+name.length)))continue;}
         done[key]=1;frag=frag||document.createDocumentFragment();frag.appendChild(document.createTextNode(s.slice(last,st)));
@@ -3191,7 +3197,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
   document.getElementById("lgtop").onclick=function(){L.scrollTo({top:0,behavior:RM?"auto":"smooth"});document.getElementById("lgx").focus({preventScroll:true})};document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
   document.getElementById("lgsort").onchange=function(){LGS=this.value;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
-  L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by])});
+  L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by,c&&c.id])});
   L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();closeLedger();goTo(b.dataset.go,b.dataset.id)}});
   L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();closeLedger();openPerson(b.dataset.person)}});
   L.querySelectorAll("sup.cn a").forEach(function(a){a.onclick=function(e){e.preventDefault();var li=document.getElementById(a.dataset.ref);if(!li)return;var d=li.closest("details");if(d)d.open=true;
