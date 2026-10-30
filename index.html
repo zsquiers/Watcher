@@ -54,7 +54,7 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
   #panel.min .ph>:not(.pmin):not(.pmt):not(#pc),#panel.min .pgrip{display:none}
   #panel.min #pc{order:1}#panel.min .pmt{order:2}
   #panel.min .pmt{display:block;writing-mode:vertical-rl;max-height:calc(100% - 130px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--ink)}
-  body.pmin #compass{right:58px}}
+  body.pcollapsed #compass{right:58px}}
 @media (max-width:640px){.pwide{display:none}.pmin svg{transform:rotate(180deg)}#panel.min .pmin svg{transform:rotate(0)}#panel.min{height:auto!important}}
 #vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px)}
 #panel,#vp .legend{cursor:auto}
@@ -2639,7 +2639,7 @@ function wideBtn(){return '<button class="sq pwide" id="pwide" aria-pressed="fal
 function minBtn(t){return '<button class="sq pmin" id="pmin" aria-expanded="true" aria-label="Collapse details" title="Collapse"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3.5,10 8,5.5 12.5,10"/></svg></button><span class="pmt" aria-hidden="true">'+esc(t)+'</span>'}
 function pMin(on){panel.classList.toggle("min",on);var b=document.getElementById("pmin");
   if(b){b.setAttribute("aria-expanded",String(!on));b.setAttribute("aria-label",on?"Expand details":"Collapse details");b.title=on?"Expand":"Collapse";}
-  document.body.classList.toggle("dossier",!on&&!!selId);document.body.classList.toggle("pmin",on);}
+  document.body.classList.toggle("dossier",!on&&!!selId);document.body.classList.toggle("pcollapsed",on);}
 function pMinWire(){var w=document.getElementById("pwide");if(w)w.onclick=function(e){e.stopPropagation();if(pWide)pWide()};pWideSync();var b=document.getElementById("pmin");if(b)b.onclick=function(e){e.stopPropagation();pMin(!panel.classList.contains("min"))};
   var h=panel.querySelector(".ph");if(h)h.onclick=function(e){if(panel.classList.contains("min")&&!e.target.closest("button"))pMin(false)};}
 function histWire(sc){var b=document.getElementById("pbk");if(b)b.onclick=histBack;var x=panel.querySelector(".pb");if(x&&sc!=null)x.scrollTop=sc;}
@@ -2703,7 +2703,7 @@ function open(id,editName){
   if(selId)focusItem(selId);
 }
 /* closing the panel on the drawn globe glides it back from beside the panel to the middle of the screen */
-function closePanel(silent){panel.classList.remove("min");document.body.classList.remove("pmin");if(!silent){phist=[];pcur=null;pback=null;if(mode==="map"&&!SAT&&gW&&(gox||goy))gFly(gLat,gLon,k,gW/2,gH/2);}panel.classList.remove("open");document.body.classList.remove("dossier");selId=null;if(!silent)render();}
+function closePanel(silent){panel.classList.remove("min");document.body.classList.remove("pcollapsed");if(!silent){phist=[];pcur=null;pback=null;if(mode==="map"&&!SAT&&gW&&(gox||goy))gFly(gLat,gLon,k,gW/2,gH/2);}panel.classList.remove("open");document.body.classList.remove("dossier");selId=null;if(!silent)render();}
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(placing){document.getElementById("addpin").click();}else if(panel.classList.contains("open"))closePanel();}});
 
 var PEOPLE=[
