@@ -96,3 +96,16 @@ Portraits in `img/people/` are 250-pixel copies of images hosted on Wikimedia Co
 | William Colby | `img/people/pp-colby.jpg` | White House photographer | Public domain | [William Colby extracted.jpg](https://commons.wikimedia.org/wiki/File:William_Colby_extracted.jpg) |
 | William Donovan | `img/people/pp-donovan.jpg` | Office for Emergency Management | Public domain | [William J. Donovan - General, USA, and Head of Office of Strategic Services.jpg](https://commons.wikimedia.org/wiki/File:William_J._Donovan_-_General%2C_USA%2C_and_Head_of_Office_of_Strategic_Services.jpg) |
 | William Stephenson | `img/people/pp-stephenson.jpg` | Unknown author | Public domain | [Sir William Stephenson from 1942 passport.jpg](https://commons.wikimedia.org/wiki/File:Sir_William_Stephenson_from_1942_passport.jpg) |
+
+## Place and event images
+
+Banner images in `img/places/` are resized copies (800 pixels wide) of public-domain or Creative Commons images on Wikimedia Commons, credited in each panel.
+
+| Entry | File | Author | License | Source |
+|---|---|---|---|---|
+| Battelle Memorial Institute | `img/places/m-battelle.jpg` | Sixflashphoto | CC BY-SA 4.0 | [Battelle Memorial Institute in Winter 1.jpg](https://commons.wikimedia.org/wiki/File:Battelle_Memorial_Institute_in_Winter_1.jpg) |
+| Rendlesham Forest incident | `img/places/w-rendlesham.jpg` | Simon Leatherdale, Geograph | CC BY-SA 2.0 | [Supposed UFO landing site - Rendlesham Forest - geograph.org.uk - 263104.jpg](https://commons.wikimedia.org/wiki/File:Supposed_UFO_landing_site_-_Rendlesham_Forest_-_geograph.org.uk_-_263104.jpg) |
+| Roswell | `img/places/m-roswell.jpg` | Roswell Daily Record | Public domain | [Roswell Daily Record. July 8, 1947. RAAF Captures Flying Saucer On Ranch in Roswell Region. Top of front page.jpg](https://commons.wikimedia.org/wiki/File:Roswell_Daily_Record._July_8%2C_1947._RAAF_Captures_Flying_Saucer_On_Ranch_in_Roswell_Region._Top_of_front_page.jpg) |
+| Skinwalker Ranch | `img/places/m-skinwalker.jpg` | Paul (Flickr) | CC BY-SA 2.0 | [Skinwalker Ranch (10393732103).jpg](https://commons.wikimedia.org/wiki/File:Skinwalker_Ranch_%2810393732103%29.jpg) |
+| Trinity test site | `img/places/m-trinity.jpg` | Jack W. Aeby, Los Alamos | Public domain | [Trinity shot color.jpg](https://commons.wikimedia.org/wiki/File:Trinity_shot_color.jpg) |
+| Wright-Patterson AFB | `img/places/m-wpafb.jpg` | U.S. Geological Survey | Public domain | [Wright-Patterson Air Force Base - 10 Oct 2000.jpg](https://commons.wikimedia.org/wiki/File:Wright-Patterson_Air_Force_Base_-_10_Oct_2000.jpg) |
