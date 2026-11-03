@@ -1025,6 +1025,8 @@ var SRC={
 "gr-messengers":["Messengers of Deception: UFO Contacts and Cults","Goodreads (book listing)","","https://www.goodreads.com/book/show/406348","ref"],
 "anomalist-vallee":["Jacques Vallee's Alien Contact Trilogy","Anomalist Books (publisher's listing)","","https://www.anomalistbooks.com/vallee.cfm","ref"],
 "kirkus-revelations":["Revelations (review)","Kirkus Reviews","Aug. 1, 1991","https://www.kirkusreviews.com/book-reviews/jacques-vallee/revelations/","news"],
+"trinityufo-wiki":["Trinity UFO Case","Wikipedia","","https://en.wikipedia.org/wiki/Trinity_UFO_Case","ref"],
+"skeptoid-929":["The Trinity UFO Crash of 1945 (Brian Dunning)","Skeptoid, episode 929","Mar. 26, 2024","https://skeptoid.com/episodes/929","pub"],
 "medium-baltic":["The Baltic Sea Anomaly","Ancient Nerds (Medium)","","https://medium.com/@ancientnerdsdao/the-baltic-sea-anomaly-ac435332954a","news"]};
 var STYPE={doc:"Official document",news:"News or analysis",ref:"Reference",arch:"Archive",pub:"Publisher listing"};
 /* citations: entry id -> [[paragraph, a phrase in the claim, "source keys"]]; the number goes at the end of that sentence */
@@ -1418,6 +1420,8 @@ var CITE={
 "tl-b-messengers":[[0,"UFO Contacts and Cults","gr-messengers"],[0,"growing effect","gr-messengers"]],
 "tl-b-confrontations":[[0,"forty UFO cases","anomalist-vallee"]],
 "tl-b-revelations":[[0,"Roswell","kirkus-revelations"],[0,"media manipulations","anomalist-vallee"],[0,"disinformation","kirkus-revelations"],[0,"iconoclastic","kirkus-revelations"]],
+"tl-b-trinitybook":[[0,"Self-published","trinityufo-wiki"],[0,"obvious similarities","trinityufo-wiki"],[0,"without explanation","skeptoid-929"]],
+"cl-trinitycrash":[[0,"August 16, 1945","trinityufo-wiki skeptoid-929"],[0,"avocado-shaped","trinityufo-wiki"],[0,"Eddie Apodaca","trinityufo-wiki"],[0,"kept a piece","trinityufo-wiki"],[1,"first appeared in 2003","trinityufo-wiki skeptoid-929"],[1,"until 1951","skeptoid-929"],[1,"pickup truck","skeptoid-929"],[1,"made up","skeptoid-929 trinityufo-wiki"]],
 "cl-crash":[[0,"testified that","hearing-2023 grusch-wiki"],[1,"found no evidence","aaro-hrr1"],[1,"Grusch says","grusch-wiki"]],
 "cl-immcon":[[0,"A report given to Congress","hearing-2024 hearing-2024-tr"],[1,"no record","nn-immcon"]],
 "cl-aatip":[[0,"Luis Elizondo says","elizondo-wiki"],[1,"conflicting statements","elizondo-wiki aatip-wiki"]],
@@ -1462,6 +1466,10 @@ var CLST={confirmed:["Confirmed","The core claim is backed by official records."
   unverified:["Unverified","No public evidence either way."],denied:["Officially denied","The government says it is not true."],
   explained:["Officially explained","An official investigation gave an ordinary explanation."],false:["Shown false","The evidence for it was shown to be fake or mistaken."]};
 var CLAIMS=[
+{id:"cl-trinitycrash",t:"A craft crashed near the Trinity test site in August 1945",by:"",byt:"Reme Baca and Jose Padilla, publicized by Paola Harris and Jacques Vallée",yr:2003,ev:1945,venue:"A 2003 newspaper story, radio, a 2011 memoir and the 2021 book Trinity",st:"false",
+ c:"Baca and Padilla say that on August 16, 1945, when they were 7 and 9, they were looking for a lost cow on the Padilla family ranch near the Trinity site when they saw a flash and found an avocado-shaped metal craft with small, insect-like creatures moving in the wreckage. They say state police officer Eddie Apodaca came to look, soldiers hauled the wreck away over several days, and they kept a piece of it.",
+ r:"The story first appeared in 2003, nearly 60 years later, and rests on the two men alone. Researcher Douglas Dean Johnson found that Apodaca was fighting in Europe at the time and did not join the state police until 1951, and that Baca had earlier pitched other versions to UFO authors, dated 1947 and 1946, with a disk-shaped craft and a pickup truck instead of horses. Skeptic Brian Dunning concludes the story was made up.",
+ L:[["map","m-trinity","Trinity test site"],["timeline","tl-b-trinitybook","Trinity: The Best-Kept Secret"]]},
 {id:"cl-mars1984",t:"A 1984 Army remote viewing session saw an ancient civilization on Mars",by:"pp-mcmoneagle",byt:"",yr:1984,ev:1984,venue:"A remote viewing session transcript, released in 2000",st:"unverified",
  c:"In a session targeting Mars about a million years ago, the viewer described huge pyramids, an obelisk and carved channels, and very tall, thin people hibernating in the structures as their world was devastated by storms. The released CIA transcript is widely shared as proof that ancient Martians existed.",
  r:"The document is real, but it records only what the viewer said; there is no way to check the description against the target, and McMoneagle himself says there is no real way to validate it. No orbiter, lander or rover has found any sign of buildings or past life on Mars. The 1995 review commissioned by the CIA found that remote viewing had never been used to guide intelligence operations.",
@@ -3047,6 +3055,7 @@ var TLBK=[
 ["revelations",1991,"Revelations",["pp-vallee"],"Subtitled Alien Contact and Human Deception, the last book of the trilogy. Vallée argues that famous cases, from Roswell to tales of a secret federal UFO committee, are largely hoaxes and media manipulations, possibly including disinformation. Kirkus called it forceful and refreshingly iconoclastic, though its conclusions wobbly."],
 ["ufochronicles",1992,"UFO Chronicles of the Soviet Union",["pp-vallee"],"Subtitled A Cosmic Samizdat, Vallée's account of UFO reports and research in the Soviet Union."],
 ["forbiddenscience",1992,"Forbidden Science",["pp-vallee"],"The first volume of Vallée's published journals, covering 1957 to 1969, including his work with J. Allen Hynek and the Air Force's Project Blue Book years. Later volumes continue the diaries."],
+["trinitybook",2021,"Trinity: The Best-Kept Secret",["pp-vallee"],"Self-published by Jacques Vallée and Paola Harris, it retells Reme Baca and Jose Padilla's story of an avocado-shaped craft that crashed near the Trinity test site in August 1945, and argues it has obvious similarities to Roswell. It drops the live creatures and body recovery of earlier versions without explanation."],
 ["keyhoe",1950,"The Flying Saucers Are Real",["pp-keyhoe"],"Argued that flying saucers were real and that the Air Force was hiding what it knew. It grew out of Keyhoe's popular article in True magazine the same year."],
 ["adamski",1953,"Flying Saucers Have Landed",["pp-adamski"],"Co-written with Desmond Leslie. Adamski said he had met a man from Venus in the California desert in 1952, launching the \"contactee\" movement. His photos are widely considered hoaxes."],
 ["jessup",1955,"The Case for the UFO",["pp-jessup"],"Argued that UFOs could explain disappearances and other mysteries. A copy annotated by unknown writers reached the Office of Naval Research and fed the Philadelphia Experiment legend.",null,"navy"],
