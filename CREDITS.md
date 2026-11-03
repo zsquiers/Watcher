@@ -9,6 +9,7 @@ Portraits in `img/people/` are 250-pixel copies of images hosted on Wikimedia Co
 | Allen Dulles | `img/people/pp-dulles.jpg` | U.S. Government | Public domain | [Allen w dulles.jpg](https://commons.wikimedia.org/wiki/File:Allen_w_dulles.jpg) |
 | Andrija Puharich | `img/people/pp-puharich.jpg` | Andrija Puharich | Public domain | [Andrija Puharich parapsychologist.jpg](https://commons.wikimedia.org/wiki/File:Andrija_Puharich_parapsychologist.jpg) |
 | Avi Loeb | `img/people/pp-loeb.jpg` | Christopher Michel | CC BY-SA 4.0 | [Avi Loeb in 2023 02.jpg](https://commons.wikimedia.org/wiki/File:Avi_Loeb_in_2023_02.jpg) |
+| Billy Meier | `img/people/pp-meier.jpg` | FIGU | CC BY-SA 2.5 | [Billy meier.jpg](https://commons.wikimedia.org/wiki/File:Billy_meier.jpg) |
 | Carl Jung | `img/people/pp-jung.jpg` | Unknown photographer, ETH-Bibliothek | Public domain | [ETH-BIB-Jung, Carl Gustav (1875-1961)-Portrait-Portr 14163 (cropped).tif](https://commons.wikimedia.org/wiki/File:ETH-BIB-Jung%2C_Carl_Gustav_%281875-1961%29-Portrait-Portr_14163_%28cropped%29.tif) |
 | Charles Berlitz | `img/people/pp-berlitz.jpg` | Unknown author | Public domain | [Charles Berlitz.jpg](https://commons.wikimedia.org/wiki/File:Charles_Berlitz.jpg) |
 | Charles Fort | `img/people/pp-fort.jpg` | Unknown author | Public domain | [Fort charles 1920.jpg](https://commons.wikimedia.org/wiki/File:Fort_charles_1920.jpg) |
