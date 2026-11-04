@@ -65,7 +65,7 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
   #panel.min .pmt{display:block;writing-mode:vertical-rl;max-height:calc(100% - 130px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--ink)}
   body.pcollapsed #compass{right:58px}}
 @media (max-width:640px){.pwide{display:none}.pmin svg{transform:rotate(180deg)}#panel.min .pmin svg{transform:rotate(0)}#panel.min{height:auto!important}}
-#vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px)}
+#vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--bg)}
 #panel,#vp .legend{cursor:auto}
 #vp.drag{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
@@ -200,6 +200,7 @@ body.sat.mode-map .hint{bottom:40px}
 #tlw{position:absolute;left:0;top:0;transform-origin:0 0}
 #tlsvg{position:absolute;left:0;top:0;overflow:visible}
 .tg{stroke:var(--hair);stroke-width:1}.tg.td{stroke:var(--line);stroke-opacity:.45}
+.tg.ty{stroke-opacity:.45}
 .tt{stroke:var(--line);stroke-width:1}.tax{stroke:var(--ink2);stroke-width:1.5}
 .tnow{stroke:var(--amber);stroke-width:2;stroke-dasharray:4 4}
 .tgap{fill:var(--ink);opacity:.05}
@@ -2648,7 +2649,7 @@ function layoutTL(){tlPos={};
 }
 function renderTimeline(){
   var h='',g='';
-  tlYears(function(y){var x=yx(y);if(y%5===0)g+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+tlBounds.h+'" class="tg'+(y%10===0?' td':'')+'"/>';});
+  tlYears(function(y){var x=yx(y);g+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+tlBounds.h+'" class="tg'+(y%10===0?' td':y%5===0?'':' ty')+'"/>';});
   tlGaps(function(a,b){g+='<rect x="'+(a+6)+'" y="0" width="'+(b-a-12)+'" height="'+tlBounds.h+'" class="tgap"/>'});
   var nx=yx(NOWY);g+='<line x1="'+nx+'" y1="0" x2="'+nx+'" y2="'+tlBounds.h+'" class="tnow"/>';
   
