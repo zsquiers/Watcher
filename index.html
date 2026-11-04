@@ -248,6 +248,19 @@ body.sat.mode-map .hint{bottom:40px}
 .tlb:hover,.tle:hover{border-color:var(--ink2)}
 .tlb.sel,.tle.sel{box-shadow:0 0 0 3px var(--focus)}
 .tlb:focus-visible,.tle:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* hover, as on the org chart: lift, a slight scale (bars grow from their start so long bars don't jump) and a glow */
+.tlb,.tle{--g:var(--glow);transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease-out,border-color .18s ease-out}
+.tlb{transform-origin:left center}
+.tlb.active{--g:var(--glow-act)}
+.tlb.secret,.tle.sec{--g:var(--glow-sec)}
+@media (hover:hover) and (pointer:fine){
+.tlb:hover,.tle:hover{z-index:3;box-shadow:0 8px 20px var(--lift),0 0 0 3px var(--g),0 0 18px var(--g)}
+.tlb:hover{transform:translateY(-2px) scale(1.015,1.06)}
+.tle:hover{transform:translateY(-2px) scale(1.04)}
+.tle.sel:hover{box-shadow:0 0 0 3px var(--focus),0 8px 20px var(--lift),0 0 18px var(--g)}
+.tlb:active,.tle:active{transform:translateY(-1px) scale(1.01);transition-duration:.08s}
+}
+@media (prefers-reduced-motion:reduce){.tlb,.tle,.tlb:hover,.tle:hover,.tlb:active,.tle:active{transform:none;transition:box-shadow .18s ease-out,border-color .18s ease-out}}
 .tb{display:flex;gap:6px;flex-wrap:wrap;align-items:center;width:100%}
 .node.haslogo{padding-left:50px}
 .node .nlg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 1px var(--hair);pointer-events:none}
