@@ -266,6 +266,7 @@ body.sat.mode-map .hint{bottom:40px}
 .node .nlg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 1px var(--hair);pointer-events:none}
 .tlb .tlg{position:absolute;left:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;pointer-events:none}
 .tlb .bl.haslogo{left:34px}
+.tlb .bl.out.haslogo{left:calc(100% + 8px)}
 .tle .elg{width:18px;height:18px;border-radius:50%;flex:none;margin-left:-2px}
 .ph .plg{width:56px;height:56px;border-radius:50%;flex:none;box-shadow:0 0 0 1px var(--hair)}
 .links{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -2682,7 +2683,7 @@ function renderTimeline(){
   if(tlBounds.ne)h+='<div class="tlsec" style="top:'+(tlBounds.ey-30)+'px">Events and milestones</div>';
   if(!tlBounds.nb&&!tlBounds.ne)h+='<div class="tlsec" style="top:'+(tlBounds.by-30)+'px">Nothing selected. Turn on items in the key.</div>';
   TL.forEach(function(e){var p=tlPos[e.id];if(!p)return;
-    if(e.type==="bar"){var inside=p.w>=tw(e.t)-10;
+    if(e.type==="bar"){var inside=p.w>=tw(e.t)-10+(logoOf(e)?30:0);
       h+='<div class="tlb '+e.kind+(e.ongoing?' on':'')+(e.id===selId?' sel':'')+'" data-id="'+e.id+'" tabindex="0" role="button" aria-label="'+esc(e.t+", "+e.y1+(e.y2!==e.y1?" to "+(e.ongoing?"now":e.y2):""))+'" style="left:'+p.x+'px;top:'+p.y+'px;width:'+p.w+'px">'+logoImg(e,"tlg")+'<span class="bl'+(inside?'':' out')+(logoOf(e)?' haslogo':'')+'">'+esc(e.t)+'</span></div>';}
     else{h+='<div class="tle '+e.kind+(e.id===selId?' sel':'')+'" data-id="'+e.id+'" tabindex="0" role="button" aria-label="'+esc(p.lab)+'" style="left:'+p.x+'px;top:'+p.y+'px"><i class="tm"></i>'+logoImg(e,"elg")+'<b>'+e.yr+'</b> '+esc(e.t)+(state.notes[e.own?e.id:(e.pid||e.tid)]?'<i class="tdot"></i>':'')+'</div>';}
   });
