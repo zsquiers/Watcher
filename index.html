@@ -67,6 +67,9 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
 @media (max-width:640px){.pwide{display:none}.pmin svg{transform:rotate(180deg)}#panel.min .pmin svg{transform:rotate(0)}#panel.min{height:auto!important}}
 #vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--vpbg)}
 #panel,#vp .legend{cursor:auto}
+/* the details panel sits inside the draggable view, which turns off text selection; names and text in it can be selected and copied */
+#panel{-webkit-user-select:text;user-select:text}
+#panel button{-webkit-user-select:none;user-select:none}
 #vp.drag{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
 #edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
