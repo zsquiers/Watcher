@@ -381,6 +381,7 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 :root[data-theme="dark"]{--st-confirmed:#4CC3B5;--st-partly:#7CCBA8;--st-disputed:#E9A443;--st-contested:#D9B060;--st-unverified:#9AABBE;--st-denied:#B49BE3;--st-explained:#7FB0E6;--st-false:#F08A8A}
 #ledgerBtn{font-weight:500}
 #ledger{position:fixed;inset:0;z-index:40;background:var(--bg);overflow-y:auto;display:block}
+#ledger>*{zoom:var(--lz,1)}
 #ledger[hidden]{display:none}
 .lgfab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:41;display:flex;gap:8px;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
 .lgfab.on{opacity:1;visibility:visible;transform:none}
@@ -2896,9 +2897,16 @@ vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
 vp.addEventListener("keydown",function(e){var n=e.target.closest&&e.target.closest(".node,.pin,.tlb,.tle");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();open(n.dataset.id);}});
 /* Ctrl+scroll and Ctrl+plus/minus anywhere on the page zoom the view instead of the whole webpage,
    so the org chart's Fit limit always applies */
-document.addEventListener("wheel",function(e){if(!e.ctrlKey||vp.contains(e.target))return;if(e.target.closest&&e.target.closest("#panel,#qr"))return;e.preventDefault();
+var LZ=1;function lgOpen(){var l=document.getElementById("ledger");return l&&!l.hidden?l:null}
+function ledgerZoom(f){var l=lgOpen();if(!l)return;var top=l.scrollTop/Math.max(1,l.scrollHeight);LZ=f===0?1:Math.max(.7,Math.min(2,LZ*f));
+  l.style.setProperty("--lz",LZ.toFixed(3));l.scrollTop=top*l.scrollHeight}
+document.addEventListener("wheel",function(e){if(!e.ctrlKey||vp.contains(e.target))return;
+  if(lgOpen()&&e.target.closest&&e.target.closest("#ledger")){e.preventDefault();var dz=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);ledgerZoom(Math.exp(-Math.max(-25,Math.min(25,dz))*0.006));return;}
+  if(e.target.closest&&e.target.closest("#panel,#qr"))return;e.preventDefault();
   if(mode==="map"&&SAT)return;var c=center(),d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);d=Math.max(-25,Math.min(25,d));zoomAt(Math.exp(-d*0.008),c[0],c[1]);},{passive:false});
-document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||e.altKey)return;var c=center();
+document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
+  if(lgOpen()){if(e.key==="-"||e.key==="_"){e.preventDefault();ledgerZoom(1/1.15)}else if(e.key==="="||e.key==="+"){e.preventDefault();ledgerZoom(1.15)}else if(e.key==="0"){e.preventDefault();ledgerZoom(0)}return;}
+  var c=center();
   if(e.key==="-"||e.key==="_"){e.preventDefault();zoomAt(0.8,c[0],c[1]);}
   else if(e.key==="="||e.key==="+"){e.preventDefault();zoomAt(1.25,c[0],c[1]);}
   else if(e.key==="0"){e.preventDefault();fit();}});
