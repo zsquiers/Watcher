@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500&family=Cormorant+Garamond:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 <style id="css">
-:root{--bg:#E8ECEF;--vpbg:#DCE1E6;--glow:rgba(47,111,179,.22);--glow-act:rgba(184,110,14,.32);--glow-sec:rgba(106,75,166,.30);--lift:rgba(10,20,35,.16);--grid:rgba(20,38,61,.07);--ink:#14263D;--ink2:#4A5D73;--card:#FBFCFD;--line:#8395AA;--amber:#B86E0E;--amber-bg:#FCF1DF;--closed:#8A96A4;--panel:#FFFFFF;--hair:rgba(20,38,61,.16);--focus:#2F6FB3;--land:#F7F8F9;--mil:#56704F;--civ:#0E7C74;--co:#6B7A8F;--book:#2F6F9F;--sec:#6A4BA6;--sec-bg:#F1ECFA;
+:root{--wglow:0 0 0 2px rgba(255,255,255,.95),0 0 16px 4px rgba(255,255,255,.85);--bg:#E8ECEF;--vpbg:#DCE1E6;--glow:rgba(47,111,179,.22);--glow-act:rgba(184,110,14,.32);--glow-sec:rgba(106,75,166,.30);--lift:rgba(10,20,35,.16);--grid:rgba(20,38,61,.07);--ink:#14263D;--ink2:#4A5D73;--card:#FBFCFD;--line:#8395AA;--amber:#B86E0E;--amber-bg:#FCF1DF;--closed:#8A96A4;--panel:#FFFFFF;--hair:rgba(20,38,61,.16);--focus:#2F6FB3;--land:#F7F8F9;--mil:#56704F;--civ:#0E7C74;--co:#6B7A8F;--book:#2F6F9F;--sec:#6A4BA6;--sec-bg:#F1ECFA;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1620;--vpbg:#0A121A;--glow:rgba(127,176,230,.30);--glow-act:rgba(233,164,67,.38);--glow-sec:rgba(180,155,227,.36);--lift:rgba(0,0,0,.45);--grid:rgba(220,229,239,.05);--ink:#DDE6EF;--ink2:#9AABBE;--card:#15212E;--line:#50647A;--amber:#E9A443;--amber-bg:#2A2010;--closed:#6D7B8A;--panel:#132030;--hair:rgba(220,229,239,.14);--focus:#7FB0E6;--land:#16222F;--mil:#8BA883;--civ:#4CC3B5;--co:#A3B1C4;--book:#7FB5E0;--sec:#B49BE3;--sec-bg:#231B35}}
 :root[data-theme="dark"]{--bg:#0D1620;--vpbg:#0A121A;--glow:rgba(127,176,230,.30);--glow-act:rgba(233,164,67,.38);--glow-sec:rgba(180,155,227,.36);--lift:rgba(0,0,0,.45);--grid:rgba(220,229,239,.05);--ink:#DDE6EF;--ink2:#9AABBE;--card:#15212E;--line:#50647A;--amber:#E9A443;--amber-bg:#2A2010;--closed:#6D7B8A;--panel:#132030;--hair:rgba(220,229,239,.14);--focus:#7FB0E6;--land:#16222F;--mil:#8BA883;--civ:#4CC3B5;--co:#A3B1C4;--book:#7FB5E0;--sec:#B49BE3;--sec-bg:#231B35}
@@ -67,6 +67,9 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
 @media (max-width:640px){.pwide{display:none}.pmin svg{transform:rotate(180deg)}#panel.min .pmin svg{transform:rotate(0)}#panel.min{height:auto!important}}
 #vp{flex:1;position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;background-color:var(--vpbg)}
 #panel,#vp .legend{cursor:auto}
+/* the details panel sits inside the draggable view, which turns off text selection; names and text in it can be selected and copied */
+#panel{-webkit-user-select:text;user-select:text}
+#panel button{-webkit-user-select:none;user-select:none}
 #vp.drag{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
 #edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
@@ -74,13 +77,13 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
 .lin{fill:none;stroke:var(--amber);stroke-width:2;stroke-dasharray:6 5}
 .node{position:absolute;width:210px;min-height:78px;background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px 10px;cursor:pointer;user-select:none;-webkit-user-select:none}
 .node:hover{border-color:var(--ink2)}
-/* hover: the box lifts, grows slightly and glows in its own color (mouse and trackpad only; no motion if reduced) */
+/* hover: the box lifts, grows slightly and glows white (mouse and trackpad only; no motion if reduced) */
 .node{--g:var(--glow);transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s ease-out,border-color .18s ease-out}
 .node.active{--g:var(--glow-act)}
 .node.secret{--g:var(--glow-sec)}
 @media (hover:hover) and (pointer:fine){
-.node:hover{z-index:3;transform:translateY(-3px) scale(1.03);box-shadow:0 10px 24px var(--lift),0 0 0 3px var(--g),0 0 22px var(--g)}
-.node.sel:hover{box-shadow:0 0 0 3px var(--focus),0 10px 24px var(--lift),0 0 22px var(--g)}
+.node:hover{z-index:3;transform:translateY(-3px) scale(1.03);box-shadow:var(--wglow)}
+.node.sel:hover{box-shadow:0 0 0 3px var(--focus),0 0 16px 4px rgba(255,255,255,.85)}
 .node:active{transform:translateY(-1px) scale(1.01);transition-duration:.08s}
 }
 @media (prefers-reduced-motion:reduce){.node,.node:hover,.node:active{transform:none;transition:box-shadow .18s ease-out,border-color .18s ease-out}}
@@ -252,10 +255,10 @@ body.sat.mode-map .hint{bottom:40px}
 .tlb.active{--g:var(--glow-act)}
 .tlb.secret,.tle.sec{--g:var(--glow-sec)}
 @media (hover:hover) and (pointer:fine){
-.tlb:hover,.tle:hover{z-index:3;box-shadow:0 8px 20px var(--lift),0 0 0 3px var(--g),0 0 18px var(--g)}
+.tlb:hover,.tle:hover{z-index:3;box-shadow:var(--wglow)}
 .tlb:hover{transform:translateY(-2px) scale(1.015,1.06)}
 .tle:hover{transform:translateY(-2px) scale(1.04)}
-.tle.sel:hover{box-shadow:0 0 0 3px var(--focus),0 8px 20px var(--lift),0 0 18px var(--g)}
+.tle.sel:hover{box-shadow:0 0 0 3px var(--focus),0 0 16px 4px rgba(255,255,255,.85)}
 .tlb:active,.tle:active{transform:translateY(-1px) scale(1.01);transition-duration:.08s}
 }
 @media (prefers-reduced-motion:reduce){.tlb,.tle,.tlb:hover,.tle:hover,.tlb:active,.tle:active{transform:none;transition:box-shadow .18s ease-out,border-color .18s ease-out}}
@@ -381,6 +384,8 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 :root[data-theme="dark"]{--st-confirmed:#4CC3B5;--st-partly:#7CCBA8;--st-disputed:#E9A443;--st-contested:#D9B060;--st-unverified:#9AABBE;--st-denied:#B49BE3;--st-explained:#7FB0E6;--st-false:#F08A8A}
 #ledgerBtn{font-weight:500}
 #ledger{position:fixed;inset:0;z-index:40;background:var(--bg);overflow-y:auto;display:block}
+#ledger>*{zoom:var(--lz,1)}
+body.lgopen #panel{position:fixed;z-index:45}
 #ledger[hidden]{display:none}
 .lgfab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:41;display:flex;gap:8px;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
 .lgfab.on{opacity:1;visibility:visible;transform:none}
@@ -2896,9 +2901,16 @@ vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
 vp.addEventListener("keydown",function(e){var n=e.target.closest&&e.target.closest(".node,.pin,.tlb,.tle");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();open(n.dataset.id);}});
 /* Ctrl+scroll and Ctrl+plus/minus anywhere on the page zoom the view instead of the whole webpage,
    so the org chart's Fit limit always applies */
-document.addEventListener("wheel",function(e){if(!e.ctrlKey||vp.contains(e.target))return;if(e.target.closest&&e.target.closest("#panel,#qr"))return;e.preventDefault();
+var LZ=1;function lgOpen(){var l=document.getElementById("ledger");return l&&!l.hidden?l:null}
+function ledgerZoom(f){var l=lgOpen();if(!l)return;var top=l.scrollTop/Math.max(1,l.scrollHeight);LZ=f===0?1:Math.max(.7,Math.min(2,LZ*f));
+  l.style.setProperty("--lz",LZ.toFixed(3));l.scrollTop=top*l.scrollHeight}
+document.addEventListener("wheel",function(e){if(!e.ctrlKey||vp.contains(e.target))return;
+  if(lgOpen()&&e.target.closest&&e.target.closest("#ledger")){e.preventDefault();var dz=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);ledgerZoom(Math.exp(-Math.max(-25,Math.min(25,dz))*0.006));return;}
+  if(e.target.closest&&e.target.closest("#panel,#qr"))return;e.preventDefault();
   if(mode==="map"&&SAT)return;var c=center(),d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);d=Math.max(-25,Math.min(25,d));zoomAt(Math.exp(-d*0.008),c[0],c[1]);},{passive:false});
-document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||e.altKey)return;var c=center();
+document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
+  if(lgOpen()){if(e.key==="-"||e.key==="_"){e.preventDefault();ledgerZoom(1/1.15)}else if(e.key==="="||e.key==="+"){e.preventDefault();ledgerZoom(1.15)}else if(e.key==="0"){e.preventDefault();ledgerZoom(0)}return;}
+  var c=center();
   if(e.key==="-"||e.key==="_"){e.preventDefault();zoomAt(0.8,c[0],c[1]);}
   else if(e.key==="="||e.key==="+"){e.preventDefault();zoomAt(1.25,c[0],c[1]);}
   else if(e.key==="0"){e.preventDefault();fit();}});
@@ -2974,7 +2986,7 @@ function open(id,editName){
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
   linkNames(panel.querySelector(".facts"),[cid,tl&&tl.id]);
   panel.classList.add("open");panel.scrollTop=0;var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
-  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
+  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();if(b.closest(".golinks"))closeLedger();goTo(b.dataset.go,b.dataset.id)}});
   panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   document.getElementById("pc").onclick=function(){closePanel()};
   document.getElementById("ns").onclick=function(){var v=document.getElementById("nt").value.trim();if(v)state.notes[id]=v;else delete state.notes[id];save("Notes saved");render();};
@@ -3382,7 +3394,7 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div></div>';
   linkNames(panel.querySelector(".facts"),[id]);
   panel.classList.add("open");var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
-  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
+  panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();if(b.closest(".golinks"))closeLedger();goTo(b.dataset.go,b.dataset.id)}});
   panel.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   document.getElementById("pc").onclick=function(){closePanel()};
   document.getElementById("ns").onclick=function(){var v=document.getElementById("nt").value.trim();if(v)state.notes[id]=v;else delete state.notes[id];save("Notes saved");};}
@@ -3505,21 +3517,21 @@ function openLedger(focus){var L=document.getElementById("ledger");
         '<div class="clg"><div><h4>The claim</h4>'+cb.paras[0]+'</div><div><h4>The official record</h4>'+cb.paras[1]+'</div></div>'+
         (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>'+
     '<div class="lgfab" id="lgfab"><button id="lgtop" aria-label="Back to the top of the claims ledger">&uarr; Top</button><button id="lgx2" aria-label="Close claims ledger">Close &times;</button></div>';
-  L.hidden=false;document.body.style.overflow="hidden";lgFab();
+  L.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("lgopen");lgFab();
   document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgx2").onclick=closeLedger;
   document.getElementById("lgtop").onclick=function(){L.scrollTo({top:0,behavior:RM?"auto":"smooth"});document.getElementById("lgx").focus({preventScroll:true})};document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
   document.getElementById("lgsort").onchange=function(){LGS=this.value;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
   L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by,c&&c.id])});
-  L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();closeLedger();goTo(b.dataset.go,b.dataset.id)}});
-  L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();closeLedger();openPerson(b.dataset.person)}});
+  L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
+  L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
   L.querySelectorAll("sup.cn a").forEach(function(a){a.onclick=function(e){e.preventDefault();var li=document.getElementById(a.dataset.ref);if(!li)return;var d=li.closest("details");if(d)d.open=true;
     li.scrollIntoView({block:"center",behavior:RM?"auto":"smooth"});li.classList.add("flash");setTimeout(function(){li.classList.remove("flash")},900);}});
   if(focus){var el=document.getElementById(focus);if(el){el.scrollIntoView({block:"start"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1400);el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}}
   else{L.scrollTop=0;document.getElementById("lgx").focus();}}
 /* once the ledger's own header has scrolled away, a floating Top and Close pair appears in the corner */
 function lgFab(){var L=document.getElementById("ledger"),f=document.getElementById("lgfab");if(L&&f)f.classList.toggle("on",L.scrollTop>320)}
-function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
+function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";document.body.classList.remove("lgopen");}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 document.getElementById("ledgerBtn").onclick=function(){openLedger()};
 /* quiz: ten questions built fresh each round from the site's own data (the claims ledger, the timeline, and the map),
    so it grows as entries are added; every answer links back to its entry */
