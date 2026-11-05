@@ -99,7 +99,7 @@ Portraits in `img/people/` are 250-pixel copies of images hosted on Wikimedia Co
 
 ## Place and event images
 
-Banner images in `img/places/` are resized copies (800 pixels wide) of public-domain or freely licensed images on Wikimedia Commons, credited in each panel.
+Banner images and book covers in `img/places/` are resized copies of public-domain or freely licensed images on Wikimedia Commons, credited in each panel.
 
 | Entry | File | Author | License | Source |
 |---|---|---|---|---|
@@ -117,6 +117,7 @@ Banner images in `img/places/` are resized copies (800 pixels wide) of public-do
 | Barksdale AFB | `img/places/m-barksdale.jpg` | Airman 1st Class Benjamin Gonsier, U.S. Air Force | Public domain | [Barksdale participates in exercise 120605-F-KN424-052.jpg](https://commons.wikimedia.org/wiki/File:Barksdale_participates_in_exercise_120605-F-KN424-052.jpg) |
 | Battelle Memorial Institute | `img/places/m-battelle.jpg` | Sixflashphoto | CC BY-SA 4.0 | [Battelle Memorial Institute in Winter 1.jpg](https://commons.wikimedia.org/wiki/File:Battelle_Memorial_Institute_in_Winter_1.jpg) |
 | Beale AFB | `img/places/m-beale.jpg` | U.S. Air Force | Public domain | [RQ-4 Meets U-2 (9824584333).jpg](https://commons.wikimedia.org/wiki/File:RQ-4_Meets_U-2_%289824584333%29.jpg) |
+| Behind the Flying Saucers (book cover) | `img/places/tl-b-scully.jpg` | Earle Bergey (cover art), Popular Library | Public domain (copyright not renewed) | [Popular Library 326 - Behind the Flying Saucers (Frank Scully).jpg](https://commons.wikimedia.org/wiki/File:Popular_Library_326_-_Behind_the_Flying_Saucers_%28Frank_Scully%29.jpg) |
 | Belgian UFO wave | `img/places/w-belgium.jpg` | Trougnouf (Benoit Brummer) | CC BY 4.0 | [Eupen (DSCF6509).jpg](https://commons.wikimedia.org/wiki/File:Eupen_%28DSCF6509%29.jpg) |
 | Bent and Red Pyramids | `img/places/a-dahshur.jpg` | Daniel Mayer | CC BY-SA 3.0 | [Dahshur - Red Pyramid - Tourist policemen on camel.JPG](https://commons.wikimedia.org/wiki/File:Dahshur_-_Red_Pyramid_-_Tourist_policemen_on_camel.JPG) |
 | Berkshire UFO incident | `img/places/m-berkshire.jpg` | MayorBatman | CC BY-SA 4.0 | [Housatonic River at the Old Covered Bridge, Sheffield MA.jpg](https://commons.wikimedia.org/wiki/File:Housatonic_River_at_the_Old_Covered_Bridge%2C_Sheffield_MA.jpg) |
@@ -273,6 +274,7 @@ Banner images in `img/places/` are resized copies (800 pixels wide) of public-do
 | Stephenville sightings | `img/places/m-stephenville.jpg` | Renegomezphotography | CC BY-SA 4.0 | [Erath County Courthouse Stephenville 2024.jpg](https://commons.wikimedia.org/wiki/File:Erath_County_Courthouse_Stephenville_2024.jpg) |
 | Tehran UFO incident | `img/places/w-tehran.jpg` | U.S. government | Public domain | [Left Front View of Iranian Air Force F-4 342-C-K-064344 001.tif](https://commons.wikimedia.org/wiki/File:Left_Front_View_of_Iranian_Air_Force_F-4_342-C-K-064344_001.tif) |
 | Teotihuacan | `img/places/a-teotihuacan.jpg` | Hdlrosa | CC BY-SA 4.0 | [ZA77 Teotihuacán edo de mex Herberto de la rosa.jpg](https://commons.wikimedia.org/wiki/File:ZA77_Teotihuac%C3%A1n_edo_de_mex_Herberto_de_la_rosa.jpg) |
+| The Flying Saucers Are Real (book cover) | `img/places/tl-b-keyhoe.jpg` | Donald Keyhoe | Public domain | [Keyhoe - The Flying Saucers Are Real, cover.jpg](https://commons.wikimedia.org/wiki/File:Keyhoe_-_The_Flying_Saucers_Are_Real%2C_cover.jpg) |
 | The Integratron | `img/places/m-integratron.jpg` | Jessie Eastland | CC BY-SA 4.0 | [Integratron-3.jpg](https://commons.wikimedia.org/wiki/File:Integratron-3.jpg) |
 | The Pentagon | `img/places/m-pentagon.jpg` | Touch Of Light | CC BY-SA 4.0 | [The Pentagon, Headquarters of the US Department of Defense (cropped2).jpg](https://commons.wikimedia.org/wiki/File:The_Pentagon%2C_Headquarters_of_the_US_Department_of_Defense_%28cropped2%29.jpg) |
 | The White House | `img/places/m-whitehouse.jpg` | Cezary p and others | CC BY-SA 3.0 | [White House north and south sides.jpg](https://commons.wikimedia.org/wiki/File:White_House_north_and_south_sides.jpg) |
