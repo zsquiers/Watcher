@@ -384,6 +384,21 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
 #ledger>*{zoom:var(--lz,1)}
 body.lgopen #panel{position:fixed;z-index:45}
 #ledger[hidden]{display:none}
+#about{position:fixed;inset:0;z-index:47;background:var(--bg);overflow-y:auto}
+#about[hidden]{display:none}
+.ab{max-width:780px}
+.ab h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:21px;margin:26px 0 6px}
+.ab p,.ab li{font-size:15.5px;line-height:1.6;color:var(--ink);margin:0 0 10px}
+.ab ul{padding-left:20px;margin:0 0 10px}
+.ab a{color:inherit}
+.abst{list-style:none;padding:0!important}
+.abst li{display:flex;gap:10px;align-items:baseline;margin:0 0 8px}
+.abst .stb{flex:none;min-width:150px;justify-content:flex-start}
+.abn{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--ink2);font-size:14px;margin:4px 0 6px}
+.wabout{margin:14px 0 0;text-align:center}
+.wabout button,.lgab{font:inherit;font-size:14px;color:var(--ink2);background:none;border:0;padding:2px 4px;text-decoration:underline;cursor:pointer}
+.wabout button:hover,.lgab:hover{color:var(--ink)}
+@media (max-width:640px){.abst li{flex-direction:column;gap:2px}.abst .stb{min-width:0}}
 .lgfab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:41;display:flex;gap:8px;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
 .lgfab.on{opacity:1;visibility:visible;transform:none}
 .lgfab button{box-shadow:0 4px 14px rgba(10,20,35,.18);font-weight:500}
@@ -2998,11 +3013,12 @@ var pWide=null,pWideSync=function(){};
 var HVIEW={tree:"org",map:"map",timeline:"timeline"},HMODE={org:"tree",map:"map",timeline:"timeline"},DOCT=document.title;
 function setHash(h,t){try{var u=h||location.pathname+location.search;if((location.hash||"")!==(h||""))history.replaceState(null,"",u)}catch(e){}document.title=t?t+" \u00b7 Watcher":DOCT;}
 function entryHash(v){return v.k==="person"?"#/person/"+v.id:"#/"+(HVIEW[v.m]||"org")+"/"+v.id}
-function parseHash(h){var m=/^#\/(person|org|map|timeline|claim|claims)(?:\/([A-Za-z0-9_-]+))?$/.exec(h||"");return m?{v:m[1],id:m[2]||""}:null}
-function routeOK(r){return !!r&&(r.v==="person"?!!PBy[r.id]:r.v==="claims"?true:r.v==="claim"?CLAIMS.some(function(c){return c.id===r.id}):!!r.id&&!!(TLById[r.id]||findItem(r.id)))}
+function parseHash(h){var m=/^#\/(person|org|map|timeline|claim|claims|about)(?:\/([A-Za-z0-9_-]+))?$/.exec(h||"");return m?{v:m[1],id:m[2]||""}:null}
+function routeOK(r){return !!r&&(r.v==="person"?!!PBy[r.id]:r.v==="claims"||r.v==="about"?true:r.v==="claim"?CLAIMS.some(function(c){return c.id===r.id}):!!r.id&&!!(TLById[r.id]||findItem(r.id)))}
 function routeTo(r){if(!routeOK(r))return false;
   if(r.v==="person"){if(!PBy[r.id])return false;openPerson(r.id);return true;}
   if(r.v==="claims"){openLedger();return true;}
+  if(r.v==="about"){openAbout();return true;}
   if(r.v==="claim"){if(!CLAIMS.some(function(c){return c.id===r.id}))return false;openLedger(r.id);return true;}
   if(!r.id||!(TLById[r.id]||findItem(r.id)))return false;goTo(HMODE[r.v],r.id);return true;}
 window.addEventListener("hashchange",function(){routeTo(parseHash(location.hash))});
@@ -3582,6 +3598,26 @@ var LGSORTS={"new":["Claim date, newest first",function(a,b){return b.yr-a.yr}],
   "evold":["Event date, oldest first",function(a,b){return evYr(a)-evYr(b)||a.yr-b.yr}],"evnew":["Event date, newest first",function(a,b){return evYr(b)-evYr(a)||b.yr-a.yr}]};
 function evYr(c){return c.ev!=null?c.ev:c.yr}
 function evLabel(c){return c.ev<0?"ancient times":String(c.ev)}
+/* About: what the site is, how it sources and labels things, credits, privacy and how to report a mistake */
+function openAbout(){var A=document.getElementById("about");
+  if(!A){document.body.insertAdjacentHTML("beforeend",'<div id="about" role="dialog" aria-modal="true" aria-labelledby="abt" hidden></div>');A=document.getElementById("about");
+    A.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeAbout()}});}
+  var nPins=pinAll().filter(function(q){return !q.custom}).length,nTree=treeAll().filter(function(n){return !n.custom}).length;
+  A.innerHTML='<div class="lg ab"><div class="lgh"><div style="flex:1"><p class="eb">About</p><h2 id="abt">About Watcher</h2></div><button class="sq" id="abx" aria-label="Close About">&times;</button></div>'+
+    '<p class="abn"><span>'+nTree+' offices and programs</span><span>'+PEOPLE.length+' people</span><span>'+nPins+' places</span><span>'+TL.length+' timeline entries</span><span>'+CLAIMS.length+' claims</span><span>'+Object.keys(SRC).length+' sources</span></p>'+
+    '<h3>What this is</h3><p>Watcher is an independent, sourced guide to the history of UFOs and UAP: the government offices and programs that handled them, the places and incidents, the people, the books, and the claims made along the way. It is a research and reading aid, not an official site, and it isn’t affiliated with any government agency. Agency seals and program emblems appear only to identify the organizations.</p>'+
+    '<h3>How entries are sourced</h3><p>Statements are tied to their sources with numbered citations; select a number to see the source. Official documents, court records and contemporaneous reporting are preferred for key facts, with reference works such as Wikipedia used for background. What witnesses and claimants say is attributed to them (“he says,” “according to”) and is never presented as established fact. Entries still waiting for statement-by-statement citations are marked <b>Citations pending</b> and list general sources to start from.</p>'+
+    '<h3>Claim statuses</h3><p>The claims ledger sets each public claim beside the official record, with sources for both sides. Each claim carries one status. Statuses describe the public record, not a final verdict, and change as new records are released.</p>'+
+    '<ul class="abst">'+Object.keys(CLST).map(function(k){return '<li style="--sc:var(--st-'+k+')"><span class="stb"><span class="std"></span>'+CLST[k][0]+'</span><span>'+esc(CLST[k][1])+'</span></li>'}).join("")+'</ul>'+
+    '<h3>What we leave out</h3><p>Private individuals aren’t made the subjects of conspiracy theories, and deaths aren’t tied to theories that no evidence supports. Living people’s claims are reported as their claims, alongside the strongest response to them.</p>'+
+    '<h3>Images and credits</h3><p>Photos of people and places come from Wikimedia Commons and are public domain or under free licenses; each is credited where it appears, and all are listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>. Book covers are shown only when they are in the public domain. Satellite imagery and place labels © Esri, Maxar, Earthstar Geographics and the GIS User Community. Street map © OpenFreeMap, OpenMapTiles and OpenStreetMap contributors. Terrain: Mapzen / AWS Terrain Tiles. Clouds and night lights: NASA GIBS.</p>'+
+    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking. Notes and pins you add stay in your own browser and are never sent anywhere. Fonts and map tiles load from outside services (Google Fonts, Esri, OpenFreeMap, Amazon Web Services and NASA), which receive your IP address as with any web request.</p>'+
+    '<h3>Corrections</h3><p>If something is wrong, out of date or missing a source, please <a href="https://github.com/zsquiers/Watcher/issues" target="_blank" rel="noopener">report it on GitHub</a>, naming the entry (its link, from the link button in its panel, is ideal). Corrections are checked against the sources before they’re made.</p>'+
+    '<h3>Disclaimer</h3><p>This site is for information and research. It may contain errors and is not a substitute for the sources it cites; check them before relying on anything here.</p></div>';
+  A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;
+  document.getElementById("abx").onclick=closeAbout;document.getElementById("abx").focus();setHash("#/about","About");}
+function closeAbout(){var A=document.getElementById("about");if(A)A.hidden=true;
+  if(document.body.classList.contains("lgopen"))setHash("#/claims","Claims ledger");else{document.body.style.overflow="";if(panel.classList.contains("open")&&pcur)setHash(entryHash(pcur),pcur.t);else setHash("");}}
 function openLedger(focus){var L=document.getElementById("ledger");
   if(!L){document.body.insertAdjacentHTML("beforeend",'<div id="ledger" role="dialog" aria-modal="true" aria-labelledby="lgt" hidden></div>');L=document.getElementById("ledger");
     L.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeLedger()}});
@@ -3590,7 +3626,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
   var counts={};CLAIMS.forEach(function(c){counts[c.st]=(counts[c.st]||0)+1});
   var list=CLAIMS.filter(function(c){return LGF==="all"||c.st===LGF}).slice().sort(LGSORTS[LGS]?LGSORTS[LGS][1]:LGSORTS["new"][1]);
   L.innerHTML='<div class="lg"><div class="lgh"><div style="flex:1"><p class="eb">Claims ledger</p><h2 id="lgt">What was claimed, and what the record says</h2></div><button class="lgquiz" id="lgquiz">Take the quiz</button><button class="sq" id="lgx" aria-label="Close claims ledger">&times;</button></div>'+
-    '<p class="lgi">Each entry sets a public claim next to the official response, with sources for both sides. Statuses describe the public record, not a final verdict, and change as new records are released.</p>'+
+    '<p class="lgi">Each entry sets a public claim next to the official response, with sources for both sides. Statuses describe the public record, not a final verdict, and change as new records are released. <button class="lgab" id="lgab">How Watcher works</button></p>'+
     '<div class="lgf" role="group" aria-label="Filter by status"><button data-f="all" aria-pressed="'+(LGF==="all")+'">All <span class="n">'+CLAIMS.length+'</span></button>'+
     Object.keys(CLST).filter(function(k){return counts[k]}).map(function(k){return '<button data-f="'+k+'" aria-pressed="'+(LGF===k)+'" title="'+esc(CLST[k][1])+'" style="--sc:var(--st-'+k+')"><span class="std"></span>'+CLST[k][0]+' <span class="n">'+counts[k]+'</span></button>'}).join("")+'</div>'+
     '<label class="lgs">Sort <select id="lgsort">'+Object.keys(LGSORTS).map(function(k){return '<option value="'+k+'"'+(k===LGS?' selected':'')+'>'+LGSORTS[k][0]+'</option>'}).join("")+'</select></label>'+
@@ -3602,7 +3638,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
         (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>'+
     '<div class="lgfab" id="lgfab"><button id="lgtop" aria-label="Back to the top of the claims ledger">&uarr; Top</button><button id="lgx2" aria-label="Close claims ledger">Close &times;</button></div>';
   L.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("lgopen");lgFab();
-  document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgx2").onclick=closeLedger;
+  document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgab").onclick=openAbout;document.getElementById("lgx2").onclick=closeLedger;
   document.getElementById("lgtop").onclick=function(){L.scrollTo({top:0,behavior:RM?"auto":"smooth"});document.getElementById("lgx").focus({preventScroll:true})};document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
   document.getElementById("lgsort").onchange=function(){LGS=this.value;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
@@ -3712,6 +3748,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     '<button class="wled" id="wled"><b>Claims ledger</b><span>'+CLAIMS.length+' major claims set side by side with the official record, with sources for both.</span><em>Open the ledger \u2192</em></button>'+
     '<button class="wled wquiz" id="wquiz"><b>Quiz</b><span>Ten questions drawn from the site: which claims hold up, when things happened, and where.</span><em>Take the quiz \u2192</em></button>'+
     '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
+    '<p class="wabout"><button id="wabout">About Watcher: how it\u2019s sourced, claim statuses, credits and privacy</button></p>'+
     '</div></div>');
   var W=document.getElementById("welcome"),last=null;
   function shut(then){try{sessionStorage.setItem("watcher-welcomed","1")}catch(e){}
@@ -3722,7 +3759,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
     goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
   document.getElementById("wx").onclick=function(){shut()};
-  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};
+  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wabout").onclick=function(){shut(openAbout)};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};
   W.addEventListener("click",function(e){if(e.target===W)shut()});
   W.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();shut();return;}
     if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button")),a=f.indexOf(document.activeElement);
