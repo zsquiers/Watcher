@@ -33,6 +33,7 @@ Portraits in `img/people/` are 250-pixel copies of images hosted on Wikimedia Co
 | Gordon Cooper | `img/people/pp-cooper.jpg` | NASA | Public domain | [Gordon Cooper 2.jpg](https://commons.wikimedia.org/wiki/File:Gordon_Cooper_2.jpg) |
 | Graham Hancock | `img/people/pp-hancock.jpg` | Cpt.Muji | CC BY 3.0 | [Graham-Hancock.jpg](https://commons.wikimedia.org/wiki/File:Graham-Hancock.jpg) |
 | Guglielmo Marconi | `img/people/pp-marconi.jpg` | Pach Brothers | Public domain | [Guglielmo Marconi.jpg](https://commons.wikimedia.org/wiki/File:Guglielmo_Marconi.jpg) |
+| Haim Eshed | `img/people/pp-eshed.jpg` | Fisher Institute for Air and Space Strategic Studies | CC BY-SA 2.5 | [Haim Eshed January 2008.jpg](https://commons.wikimedia.org/wiki/File:Haim_Eshed_January_2008.jpg) |
 | Harald Malmgren | `img/people/pp-malmgren.png` | San Francisco Examiner | Public domain | [Harald Malmgren.png](https://commons.wikimedia.org/wiki/File:Harald_Malmgren.png) |
 | Harold Puthoff | `img/people/pp-puthoff.png` | Central Intelligence Agency | Public domain | [Hal Puthoff.png](https://commons.wikimedia.org/wiki/File:Hal_Puthoff.png) |
 | Harry Reid | `img/people/pp-reid.jpg` | United States Congress | Public domain | [Harry Reid official portrait 2009 (1).jpg](https://commons.wikimedia.org/wiki/File:Harry_Reid_official_portrait_2009_%281%29.jpg) |
