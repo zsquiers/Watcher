@@ -43,7 +43,7 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
 .pbk{font-size:17px}
 /* collapsed details panel: on wider screens a slim strip down the right edge with the entry's name, on phones just
    the title bar at the bottom, until expanded */
-.pwide svg,.pmin svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+.pwide svg,.pmin svg,.plink svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
 .pwide[aria-pressed="true"] svg{transform:scaleX(-1)}
 .pmt{display:none}
 #panel.min .pb{display:none}
@@ -404,6 +404,10 @@ body.lgopen #panel{position:fixed;z-index:45}
 .cl{border:1px solid var(--hair);border-left:5px solid var(--sc);border-radius:10px;background:var(--card);padding:16px 18px 12px;margin:0 0 14px;scroll-margin-top:16px}
 .cl.flash{box-shadow:0 0 0 3px var(--focus)}
 .clt{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.clk{margin-left:auto;font:inherit;font-size:12.5px;color:var(--ink2);background:none;border:1px solid var(--line);border-radius:14px;padding:1px 10px;cursor:pointer}
+.clk:hover{color:var(--ink);border-color:var(--ink2)}
+#toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom,0px));transform:translate(-50%,8px);z-index:80;background:var(--ink);color:var(--card);font-size:14px;padding:8px 14px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 .clt h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:22px;line-height:1.15;margin:0;flex:1 1 320px}
 .stb{display:inline-flex;align-items:center;gap:6px;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--sc);border:1.5px solid var(--sc);border-radius:20px;padding:1px 10px}
 .clm{font-size:13.5px;color:var(--ink2);margin:4px 0 10px}
@@ -2985,10 +2989,31 @@ var phist=[],pcur=null,pback=null;
 function histNote(v){var sc=null;
   if(pback){sc=pback.sc;pback=null;}
   else if(pcur&&!(pcur.k===v.k&&pcur.id===v.id)){var b=panel.querySelector(".pb");pcur.sc=b?b.scrollTop:0;phist.push(pcur);if(phist.length>40)phist.shift();}
-  pcur=v;return sc;}
+  pcur=v;setHash(entryHash(v),v.t);return sc;}
 function backBtn(){var v=phist[phist.length-1];return v?'<button class="sq pbk" id="pbk" aria-label="Back to '+esc(v.t)+'" title="Back to '+esc(v.t)+'">&larr;</button>':''}
 /* widen: the details panel jumps to the widest it can be without covering the map key, and back */
 var pWide=null,pWideSync=function(){};
+/* entry links: every open panel puts its own address in the URL (#/person/pp-grusch, #/map/m-roswell, #/timeline/tl-mj12,
+   #/claim/cl-roswell), so an entry can be shared or bookmarked, and opening that address goes straight to it */
+var HVIEW={tree:"org",map:"map",timeline:"timeline"},HMODE={org:"tree",map:"map",timeline:"timeline"},DOCT=document.title;
+function setHash(h,t){try{var u=h||location.pathname+location.search;if((location.hash||"")!==(h||""))history.replaceState(null,"",u)}catch(e){}document.title=t?t+" \u00b7 Watcher":DOCT;}
+function entryHash(v){return v.k==="person"?"#/person/"+v.id:"#/"+(HVIEW[v.m]||"org")+"/"+v.id}
+function parseHash(h){var m=/^#\/(person|org|map|timeline|claim|claims)(?:\/([A-Za-z0-9_-]+))?$/.exec(h||"");return m?{v:m[1],id:m[2]||""}:null}
+function routeOK(r){return !!r&&(r.v==="person"?!!PBy[r.id]:r.v==="claims"?true:r.v==="claim"?CLAIMS.some(function(c){return c.id===r.id}):!!r.id&&!!(TLById[r.id]||findItem(r.id)))}
+function routeTo(r){if(!routeOK(r))return false;
+  if(r.v==="person"){if(!PBy[r.id])return false;openPerson(r.id);return true;}
+  if(r.v==="claims"){openLedger();return true;}
+  if(r.v==="claim"){if(!CLAIMS.some(function(c){return c.id===r.id}))return false;openLedger(r.id);return true;}
+  if(!r.id||!(TLById[r.id]||findItem(r.id)))return false;goTo(HMODE[r.v],r.id);return true;}
+window.addEventListener("hashchange",function(){routeTo(parseHash(location.hash))});
+function toast(msg){var t=document.getElementById("toast");if(!t){document.body.insertAdjacentHTML("beforeend",'<div id="toast" role="status" aria-live="polite"></div>');t=document.getElementById("toast");}
+  t.textContent=msg;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove("on")},1800);}
+function copyLink(h){var u=location.href.split("#")[0]+h,ok=function(){toast("Link copied")},no=function(){
+    var a=document.createElement("textarea");a.value=u;a.setAttribute("readonly","");a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();
+    var d=false;try{d=document.execCommand("copy")}catch(e){}a.remove();if(d)ok();else window.prompt("Copy this link:",u);};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,no);else no();}catch(e){no()}}
+function linkBtn(){return '<button class="sq plink" id="plink" aria-label="Copy a link to this entry" title="Copy link"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.5 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1"/><path d="M8.5 11.5l-1 1a2.5 2.5 0 0 1-3.5-3.5l1-1"/></svg></button>'}
+panel.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#plink");if(b&&pcur){e.stopPropagation();copyLink(entryHash(pcur))}});
 function wideBtn(){return '<button class="sq pwide" id="pwide" aria-pressed="false" aria-label="Widen details panel" title="Widen"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="7.5,4 3.5,8 7.5,12"/><polyline points="12.5,4 8.5,8 12.5,12"/></svg></button>'}
 function minBtn(t){return '<button class="sq pmin" id="pmin" aria-expanded="true" aria-label="Collapse details" title="Collapse"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3.5,10 8,5.5 12.5,10"/></svg></button><span class="pmt" aria-hidden="true">'+esc(t)+'</span>'}
 function pMin(on){panel.classList.toggle("min",on);var b=document.getElementById("pmin");
@@ -3029,7 +3054,7 @@ function open(id,editName){
     kfHtml([["Year",tl&&tl.yr?String(tl.yr):""],["Office",tl&&tl.tid&&findItem(tl.tid)?findItem(tl.tid).t:""],["Place",tl&&tl.pid&&findItem(tl.pid)?findItem(tl.pid).t:""],["By",(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(", ")]]);
   var edit=n.custom?'<h3>Name and description</h3><input id="en" maxlength="60" value="'+esc(n.t)+'" aria-label="Name"><input id="es" maxlength="60" style="margin-top:8px" value="'+esc(n.s||"")+'" placeholder="Short description (optional)" aria-label="Description"><div class="err" id="ee"></div><div class="row"><button id="eb">Save name</button></div>':'';
   var branch=!isTree(n.id)||n.custom==="pin"||n.c?'':'<h3>Add a branch under this box</h3><input id="cn" placeholder="Name, such as Senate Intelligence Committee" maxlength="60"><input id="cs" placeholder="Short description (optional)" maxlength="60" style="margin-top:8px"><div class="err" id="ce"></div><div class="row"><button id="ca">Add branch</button></div>';
-  panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+wideBtn()+minBtn(n.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+linkBtn()+wideBtn()+minBtn(n.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+banHtml(tl&&IMG[tl.id]?tl.id:cid,n.t)+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
@@ -3058,7 +3083,7 @@ function open(id,editName){
   if(selId)focusItem(selId);
 }
 /* closing the panel on the drawn globe glides it back from beside the panel to the middle of the screen */
-function closePanel(silent){panel.classList.remove("min");document.body.classList.remove("pcollapsed");if(!silent){phist=[];pcur=null;pback=null;if(mode==="map"&&!SAT&&gW&&(gox||goy))gFly(gLat,gLon,k,gW/2,gH/2);}panel.classList.remove("open");document.body.classList.remove("dossier");selId=null;if(!silent)render();}
+function closePanel(silent){panel.classList.remove("min");document.body.classList.remove("pcollapsed");if(!silent){phist=[];pcur=null;pback=null;if(document.body.classList.contains("lgopen"))setHash("#/claims","Claims ledger");else setHash("");if(mode==="map"&&!SAT&&gW&&(gox||goy))gFly(gLat,gLon,k,gW/2,gH/2);}panel.classList.remove("open");document.body.classList.remove("dossier");selId=null;if(!silent)render();}
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(placing){document.getElementById("addpin").click();}else if(panel.classList.contains("open"))closePanel();}});
 
 var PEOPLE=[
@@ -3446,7 +3471,7 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
     return '<button class="conn" data-go="'+l[0]+'" data-id="'+l[1]+'"><span class="cv">'+VNAME[l[0]]+'</span><span class="ct">'+esc(lTitle(l))+'</span><span class="cw">'+esc(l[2])+'</span></button>'}).join("");
   var cb=citeBlock(id,p.d);
   var ph=PHOTO[id];
-  panel.innerHTML='<div class="ph">'+(ph?'<img class="pphoto" src="img/people/'+id+'.'+ph[0]+'" alt="'+esc(p.t)+'" width="64" height="64" decoding="async" onerror="this.remove()">':'')+'<div style="flex:1"><p class="eb">'+(p.kind?"Reported being":"Person")+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+wideBtn()+minBtn(p.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph">'+(ph?'<img class="pphoto" src="img/people/'+id+'.'+ph[0]+'" alt="'+esc(p.t)+'" width="64" height="64" decoding="async" onerror="this.remove()">':'')+'<div style="flex:1"><p class="eb">'+(p.kind?"Reported being":"Person")+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+linkBtn()+wideBtn()+minBtn(p.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+(ph?'<p class="pcred">Photo: '+esc(ph[1])+', <a href="'+esc(ph[3])+'" target="_blank" rel="noopener">'+esc(ph[2])+'</a>, via Wikimedia Commons</p>':'')+cb.chip+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+
   (conn?'<h3>'+(p.kind?"Where they come up":"Where to find them")+'</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
@@ -3571,7 +3596,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
     '<label class="lgs">Sort <select id="lgsort">'+Object.keys(LGSORTS).map(function(k){return '<option value="'+k+'"'+(k===LGS?' selected':'')+'>'+LGSORTS[k][0]+'</option>'}).join("")+'</select></label>'+
     list.map(function(c){var cb=citeBlock(c.id,[c.c,c.r],c.id+"-s"),who=c.by&&PBy[c.by]?'<button data-person="'+c.by+'">'+esc(PBy[c.by].t)+'</button>':esc(c.byt||"");
       var links=c.L.filter(function(l){return l[0]==="timeline"?TLById[l[1]]:findItem(l[1])}).map(function(l){return '<button data-go="'+l[0]+'" data-id="'+l[1]+'"><span class="cv">'+VNAME[l[0]]+'</span>'+esc(l[2])+'</button>'}).join("");
-      return '<article class="cl" id="'+c.id+'" style="--sc:var(--st-'+c.st+')"><div class="clt"><h3>'+esc(c.t)+'</h3><span class="stb" title="'+esc(CLST[c.st][1])+'"><span class="std"></span>'+CLST[c.st][0]+'</span></div>'+
+      return '<article class="cl" id="'+c.id+'" style="--sc:var(--st-'+c.st+')"><div class="clt"><h3>'+esc(c.t)+'</h3><span class="stb" title="'+esc(CLST[c.st][1])+'"><span class="std"></span>'+CLST[c.st][0]+'</span><button class="clk" data-clink="'+c.id+'" aria-label="Copy a link to this claim" title="Copy link">Link</button></div>'+
         '<p class="clm">Claimed by '+who+' \u00b7 '+c.yr+' \u00b7 '+esc(c.venue)+(c.ev!=null&&c.ev!==c.yr?' \u00b7 <span class="clev">About events of '+evLabel(c)+'</span>':'')+'</p>'+
         '<div class="clg"><div><h4>The claim</h4>'+cb.paras[0]+'</div><div><h4>The official record</h4>'+cb.paras[1]+'</div></div>'+
         (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>'+
@@ -3584,13 +3609,15 @@ function openLedger(focus){var L=document.getElementById("ledger");
   L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by,c&&c.id])});
   L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
   L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
+  L.querySelectorAll("[data-clink]").forEach(function(b){b.onclick=function(){copyLink("#/claim/"+b.dataset.clink)}});
+  var fc=focus&&CLAIMS.find(function(c){return c.id===focus});setHash(fc?"#/claim/"+fc.id:"#/claims",fc?fc.t:"Claims ledger");
   L.querySelectorAll("sup.cn a").forEach(function(a){a.onclick=function(e){e.preventDefault();var li=document.getElementById(a.dataset.ref);if(!li)return;var d=li.closest("details");if(d)d.open=true;
     li.scrollIntoView({block:"center",behavior:RM?"auto":"smooth"});li.classList.add("flash");setTimeout(function(){li.classList.remove("flash")},900);}});
   if(focus){var el=document.getElementById(focus);if(el){el.scrollIntoView({block:"start"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1400);el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}}
   else{L.scrollTop=0;document.getElementById("lgx").focus();}}
 /* once the ledger's own header has scrolled away, a floating Top and Close pair appears in the corner */
 function lgFab(){var L=document.getElementById("ledger"),f=document.getElementById("lgfab");if(L&&f)f.classList.toggle("on",L.scrollTop>320)}
-function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";document.body.classList.remove("lgopen");}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
+function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";document.body.classList.remove("lgopen");}if(panel.classList.contains("open")&&pcur)setHash(entryHash(pcur),pcur.t);else setHash("");var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 document.getElementById("ledgerBtn").onclick=function(){openLedger()};
 /* quiz: ten questions built fresh each round from the site's own data (the claims ledger, the timeline, and the map),
    so it grows as entries are added; every answer links back to its entry */
@@ -3703,7 +3730,8 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   var br=document.querySelector("header .brand");br.classList.add("wopen");br.setAttribute("role","button");br.setAttribute("tabindex","0");br.setAttribute("aria-label","Watcher: open the welcome screen");
   br.onclick=show;br.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};
   var seen=null;try{seen=sessionStorage.getItem("watcher-welcomed")||sessionStorage.getItem("uap-mode")}catch(e){}
-  if(!seen)show();})();
+  if(!seen&&!routeOK(parseHash(location.hash)))show();})();
+if(location.hash&&!routeTo(parseHash(location.hash)))setHash("");
 window.addEventListener("resize",function(){gSize();if(mode==="map")apply();else if(!panel.classList.contains("open"))fit();});
 /* the viewport can change size without the window resizing (on phones the header is taller in Map view), so the globe
    canvas is re-measured whenever it does, or it would be stretched into an oval */
