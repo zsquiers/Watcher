@@ -11,6 +11,7 @@ Portraits in `img/people/` are 250-pixel copies of images hosted on Wikimedia Co
 | Anna Paulina Luna | `img/people/pp-luna.jpg` | U.S. House of Representatives | Public domain | [Anna Paulina Luna.jpg](https://commons.wikimedia.org/wiki/File:Anna_Paulina_Luna.jpg) |
 | Avi Loeb | `img/people/pp-loeb.jpg` | Christopher Michel | CC BY-SA 4.0 | [Avi Loeb in 2023 02.jpg](https://commons.wikimedia.org/wiki/File:Avi_Loeb_in_2023_02.jpg) |
 | Billy Meier | `img/people/pp-meier.jpg` | FIGU | CC BY-SA 2.5 | [Billy meier.jpg](https://commons.wikimedia.org/wiki/File:Billy_meier.jpg) |
+| Bobby Ray Inman | `img/people/pp-inman.jpg` | CIA | Public domain | [Admiral Bobby Ray Inman, official CIA photo, 1983.JPEG](https://commons.wikimedia.org/wiki/File:Admiral_Bobby_Ray_Inman,_official_CIA_photo,_1983.JPEG) |
 | Bruce Maccabee | `img/people/pp-maccabee.jpg` | Jacques Poulet | CC BY-SA 2.5 | [Bruce Maccabee 1993.jpg](https://commons.wikimedia.org/wiki/File:Bruce_Maccabee_1993.jpg) |
 | Carl Jung | `img/people/pp-jung.jpg` | Unknown photographer, ETH-Bibliothek | Public domain | [ETH-BIB-Jung, Carl Gustav (1875-1961)-Portrait-Portr 14163 (cropped).tif](https://commons.wikimedia.org/wiki/File:ETH-BIB-Jung%2C_Carl_Gustav_%281875-1961%29-Portrait-Portr_14163_%28cropped%29.tif) |
 | Carl Sagan | `img/people/pp-sagan.jpg` | NASA/JPL | Public domain | [Carl Sagan Planetary Society.JPG](https://commons.wikimedia.org/wiki/File:Carl_Sagan_Planetary_Society.JPG) |
