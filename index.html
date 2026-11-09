@@ -56,6 +56,14 @@ button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)
 .pban.cover img{width:auto;max-width:min(150px,40%);height:auto;max-height:230px;object-fit:contain;background:none;box-shadow:0 2px 8px rgba(0,0,0,.25);border-radius:3px}
 .pphoto{flex:none;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 22%;border:1px solid var(--hair);background:var(--hair)}
 .pcred{font-size:11.5px;color:var(--ink2);margin:0 0 10px}
+.pban img,.pphoto{cursor:zoom-in}
+#lbox{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));background:rgba(8,12,18,.88);cursor:zoom-out;opacity:0;transition:opacity .18s ease}
+#lbox.on{opacity:1}
+#lbox[hidden]{display:none}
+#lbox img{display:block;max-width:100%;max-height:calc(100% - 60px);object-fit:contain;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.5);transform:scale(.96);transition:transform .18s ease}
+#lbox.on img{transform:none}
+#lbox p{margin:0;max-width:720px;color:#E8ECEF;font-size:13.5px;line-height:1.45;text-align:center}
+@media (prefers-reduced-motion:reduce){#lbox,#lbox img{transition:none}}
 .pcred a{color:inherit}
 #panel.min .ph{border-bottom:0;cursor:pointer}
 @media (min-width:641px){.pmin svg{transform:rotate(90deg)}#panel.min .pmin svg{transform:rotate(-90deg)}
@@ -3116,6 +3124,19 @@ function copyLink(h){var u=location.href.split("#")[0]+h,ok=function(){toast("Li
     var d=false;try{d=document.execCommand("copy")}catch(e){}a.remove();if(d)ok();else window.prompt("Copy this link:",u);};
   try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,no);else no();}catch(e){no()}}
 function linkBtn(){return '<button class="sq plink" id="plink" aria-label="Copy a link to this entry" title="Copy link"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.5 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1"/><path d="M8.5 11.5l-1 1a2.5 2.5 0 0 1-3.5-3.5l1-1"/></svg></button>'}
+/* tapping a photo in the panel shows it large; tapping anywhere (or Escape) puts it back */
+var lbLast=null;
+function openLightbox(img){var L=document.getElementById("lbox");
+  if(!L){document.body.insertAdjacentHTML("beforeend",'<div id="lbox" role="dialog" aria-modal="true" aria-label="Enlarged image" tabindex="-1" hidden><img alt=""><p></p></div>');L=document.getElementById("lbox");
+    L.addEventListener("click",closeLightbox);L.addEventListener("keydown",function(e){if(e.key==="Escape"||e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();closeLightbox()}});}
+  var fig=img.closest("figure"),cap=fig&&fig.querySelector("figcaption"),pc=panel.querySelector(".pcred"),
+    txt=cap?cap.textContent:(img.classList.contains("pphoto")?(img.alt||"")+(pc?". "+pc.textContent:""):(img.alt||"")),
+    big=L.querySelector("img"),nw=img.naturalWidth||800;
+  big.src=img.currentSrc||img.src;big.alt=img.alt||"";big.style.width=Math.min(nw*(nw<400?1.6:1),1600)+"px";
+  L.querySelector("p").textContent=txt;lbLast=document.activeElement;L.hidden=false;void L.offsetWidth;L.classList.add("on");L.focus();}
+function closeLightbox(){var L=document.getElementById("lbox");if(!L||L.hidden)return;L.classList.remove("on");setTimeout(function(){L.hidden=true},RM?0:180);if(lbLast&&lbLast.focus)try{lbLast.focus()}catch(e){}}
+panel.addEventListener("click",function(e){var im=e.target.closest&&e.target.closest(".pban img,img.pphoto");if(im){e.stopPropagation();openLightbox(im);return;}});
+panel.addEventListener("keydown",function(e){var im=e.target.closest&&e.target.closest(".pban img,img.pphoto");if(im&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openLightbox(im)}});
 panel.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("#plink");if(b&&pcur){e.stopPropagation();copyLink(entryHash(pcur))}});
 function wideBtn(){return '<button class="sq pwide" id="pwide" aria-pressed="false" aria-label="Widen details panel" title="Widen"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="7.5,4 3.5,8 7.5,12"/><polyline points="12.5,4 8.5,8 12.5,12"/></svg></button>'}
 function minBtn(t){return '<button class="sq pmin" id="pmin" aria-expanded="true" aria-label="Collapse details" title="Collapse"><svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3.5,10 8,5.5 12.5,10"/></svg></button><span class="pmt" aria-hidden="true">'+esc(t)+'</span>'}
@@ -3127,7 +3148,7 @@ function pMinWire(){var w=document.getElementById("pwide");if(w)w.onclick=functi
 function histWire(sc){var b=document.getElementById("pbk");if(b)b.onclick=histBack;var x=panel.querySelector(".pb");if(x&&sc!=null)x.scrollTop=sc;}
 function histBack(){var v;while((v=phist.pop())&&!(v.k==="person"?PBy[v.id]:TLById[v.id]||findItem(v.id))){}if(!v)return;pback=v;
   if(v.k==="person")openPerson(v.id);else goTo(v.m,v.id);}
-function banHtml(k,t){var b=IMG[k];if(!b)return "";var cv=/^tl-b-/.test(k);return '<figure class="pban'+(cv?' cover':'')+'"><img src="img/places/'+k+'.'+b[0]+'"'+(b[5]?' style="object-position:'+b[5]+'"':"")+' alt="'+esc(b[4]||t)+'" decoding="async" onerror="this.parentNode.remove()"><figcaption>'+(b[4]?esc(b[4])+". ":"")+(cv?'Cover: ':'Photo: ')+esc(b[1])+', <a href="'+esc(b[3])+'" target="_blank" rel="noopener">'+esc(b[2])+'</a>, via Wikimedia Commons</figcaption></figure>'}
+function banHtml(k,t){var b=IMG[k];if(!b)return "";var cv=/^tl-b-/.test(k);return '<figure class="pban'+(cv?' cover':'')+'"><img tabindex="0" role="button" title="Enlarge" src="img/places/'+k+'.'+b[0]+'"'+(b[5]?' style="object-position:'+b[5]+'"':"")+' alt="'+esc(b[4]||t)+'" decoding="async" onerror="this.parentNode.remove()"><figcaption>'+(b[4]?esc(b[4])+". ":"")+(cv?'Cover: ':'Photo: ')+esc(b[1])+', <a href="'+esc(b[3])+'" target="_blank" rel="noopener">'+esc(b[2])+'</a>, via Wikimedia Commons</figcaption></figure>'}
 function open(id,editName){
   var tl=TLById[id];var n=tl?(tl.own?tl:findItem(tl.pid&&!tl.tid?tl.pid:(tl.type==="ev"&&tl.pid?tl.pid:tl.tid))):findItem(id);if(!n)return;
   var hsc=histNote({k:"item",id:id,m:mode,t:n.t});
@@ -3575,7 +3596,7 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
     return '<button class="conn" data-go="'+l[0]+'" data-id="'+l[1]+'"><span class="cv">'+VNAME[l[0]]+'</span><span class="ct">'+esc(lTitle(l))+'</span><span class="cw">'+esc(l[2])+'</span></button>'}).join("");
   var cb=citeBlock(id,p.d);
   var ph=PHOTO[id];
-  panel.innerHTML='<div class="ph">'+(ph?'<img class="pphoto" src="img/people/'+id+'.'+ph[0]+'" alt="'+esc(p.t)+'" width="64" height="64" decoding="async" onerror="this.remove()">':'')+'<div style="flex:1"><p class="eb">'+(p.kind?"Reported being":"Person")+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+linkBtn()+wideBtn()+minBtn(p.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
+  panel.innerHTML='<div class="ph">'+(ph?'<img class="pphoto" tabindex="0" role="button" title="Enlarge" src="img/people/'+id+'.'+ph[0]+'" alt="'+esc(p.t)+'" width="64" height="64" decoding="async" onerror="this.remove()">':'')+'<div style="flex:1"><p class="eb">'+(p.kind?"Reported being":"Person")+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+linkBtn()+wideBtn()+minBtn(p.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+(ph?'<p class="pcred">Photo: '+esc(ph[1])+', <a href="'+esc(ph[3])+'" target="_blank" rel="noopener">'+esc(ph[2])+'</a>, via Wikimedia Commons</p>':'')+cb.chip+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+
   (conn?'<h3>'+(p.kind?"Where they come up":"Where to find them")+'</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
