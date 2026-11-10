@@ -327,6 +327,34 @@ Banner images and book covers in `img/places/` are resized copies of public-doma
 | Ġgantija temples | `img/places/a-ggantija.jpg` | FritzPhotography | CC BY-SA 4.0 | [Ggantija Temple on Gozo.jpg](https://commons.wikimedia.org/wiki/File:Ggantija_Temple_on_Gozo.jpg) |
 | Ōyu Stone Circles | `img/places/a-oyu.jpg` | Takuan (Japanese Wikipedia) | CC BY-SA 3.0 | [Oyu-kanjyouretuseki.JPG](https://commons.wikimedia.org/wiki/File:Oyu-kanjyouretuseki.JPG) |
 
+## Org chart seals and icons
+
+The org chart shows small seals and icons (`LOGOS` in `index.html`). The agency seals and logos are works of the U.S. government and in the public domain; they are used only to identify each organization and do not imply endorsement. Some seals are protected by law against uses that suggest official endorsement, so the Great Seal of the United States and the Seal of the President, which are the most restricted, are not used: the federal government and President boxes show neutral icons instead.
+
+| Box | Key | Image | Matches |
+|---|---|---|---|
+| All-domain Anomaly Resolution Office (AARO) | `aaro` | Logo | [All-domain Anomaly Resolution Office AARO Logo.png](https://commons.wikimedia.org/wiki/File:All-domain_Anomaly_Resolution_Office_AARO_Logo.png) |
+| Atomic Energy Commission | `aec` | Seal | [Seal of the United States Atomic Energy Commission.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Atomic_Energy_Commission.svg) |
+| Central Intelligence Agency | `cia` | Seal | [Seal of the Central Intelligence Agency.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_Central_Intelligence_Agency.svg) |
+| DARPA | `darpa` | Logo (same design as the Commons file, in a lighter color version) | [DARPA Logo.jpg](https://commons.wikimedia.org/wiki/File:DARPA_Logo.jpg) |
+| Defense Intelligence Agency | `dia` | Seal | [Seal of the U.S. Defense Intelligence Agency.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_U.S._Defense_Intelligence_Agency.svg) |
+| Department of Defense | `dod` | Seal (2001 to 2022 design) | [Seal of the United States Department of Defense (2001–2022).svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Department_of_Defense_(2001%E2%80%932022).svg) |
+| Department of Energy | `doe` | Seal | [Seal of the United States Department of Energy.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Department_of_Energy.svg) |
+| Department of the Air Force | `af` | Seal | [Seal of the United States Department of the Air Force.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Department_of_the_Air_Force.svg) |
+| Department of the Army | `army` | Emblem | [Emblem of the United States Department of the Army.svg](https://commons.wikimedia.org/wiki/File:Emblem_of_the_United_States_Department_of_the_Army.svg) |
+| Department of the Navy | `navy` | Seal | [Seal of the United States Department of the Navy.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_Department_of_the_Navy.svg) |
+| Federal Bureau of Investigation | `fbi` | Seal | [Seal of the Federal Bureau of Investigation.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_Federal_Bureau_of_Investigation.svg) |
+| House of Representatives (oversight box) | `oversight` | Seal | [Seal of the United States House of Representatives.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_United_States_House_of_Representatives.svg) |
+| Joint Chiefs of Staff | `jcs` | Seal | [Joint Chiefs of Staff seal.svg](https://commons.wikimedia.org/wiki/File:Joint_Chiefs_of_Staff_seal.svg) |
+| NASA | `nasa` | Insignia | [NASA logo.svg](https://commons.wikimedia.org/wiki/File:NASA_logo.svg) |
+| Office of the Director of National Intelligence | `odni` | Seal | [Seal of the Office of the Director of National Intelligence.svg](https://commons.wikimedia.org/wiki/File:Seal_of_the_Office_of_the_Director_of_National_Intelligence.svg) |
+| Manhattan Project | `manhattan` | Unofficial emblem of the Manhattan Project, circa 1946, reproduced in the U.S. Army's official history (Vincent Jones, *Manhattan: The Army and the Atomic Bomb*, p. 89) | [Manhattan Project emblem.png](https://commons.wikimedia.org/wiki/File:Manhattan_Project_emblem.png) |
+| United States government | `gov` | Neutral icon (a columned building) drawn for Watcher, replacing the Great Seal | None |
+| The President | `pres` | Neutral icon (a star in a circle) drawn for Watcher, replacing the Presidential seal | None |
+| MKUltra, Project Mogul, Stargate, UAP Task Force, AATIP | `mkultra`, `mogul`, `stargate`, `uaptf`, `aatip` | Simple illustrations, not official insignia | Unknown; not official |
+
+Each "Matches" file was compared side by side with the image in `index.html`. All are marked public domain on Wikimedia Commons.
+
 ## Map data
 
 The map's outlines and labels are loaded from `data/geo.json` and `data/detail.json`. The street, terrain and satellite layers come from third-party tile services and are credited on the map itself.
