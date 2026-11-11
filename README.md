@@ -59,8 +59,10 @@ Before merging a change, also open the site and try the org chart, map, timeline
 
 Satellite imagery and place labels © Esri, Maxar, Earthstar Geographics and the GIS User Community. Street map © OpenFreeMap, OpenMapTiles and OpenStreetMap contributors. Terrain: Mapzen / AWS Terrain Tiles. Clouds and night lights: NASA GIBS. Fonts: Barlow, Barlow Condensed and Cormorant Garamond (SIL Open Font License). Sources for each entry are listed in its details panel.
 
-The provenance of some assets (the agency seals and program emblems, and the county and town line data) still needs to be recorded. See `ISSUES.md`.
+Images, agency seals, map data and bundled code are credited with their sources and licenses in `CREDITS.md`. The source of the town outlines and names is still unconfirmed (see `ISSUES.md`).
 
 ## License
 
-Not yet chosen (see issue L-3 in `ISSUES.md`). Until one is added, all rights are reserved by the owner.
+- **Content:** Watcher's own text and research are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See `LICENSE-CONTENT.md` for what that covers and how to give credit.
+- **Code:** the site's HTML, CSS and JavaScript and the scripts in `tools/` are licensed under the MIT License. See `LICENSE`.
+- **Everything else** keeps its own license: quotations belong to their authors, and images, map data and bundled third-party code are listed with their licenses in `CREDITS.md`.
