@@ -523,6 +523,7 @@ header>.tb{order:3;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none
 header>.tb::-webkit-scrollbar{display:none}
 header>.tb .tb{flex-wrap:nowrap}
 header>.tb button{min-height:30px;padding:3px 10px;font-size:13px;white-space:nowrap;flex:none}
+#jump{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--hair);border-radius:6px;min-height:30px;padding:3px 6px;flex:none;max-width:170px;cursor:pointer}
 header>.tb .seg button{min-height:30px}
 .keybtn{display:flex;align-items:center;gap:7px;position:absolute;left:10px;bottom:10px;z-index:3;min-height:36px;padding:4px 12px;font-size:13.5px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .keybtn i{display:block;width:14px;height:10px;background:linear-gradient(var(--ink2) 0 2px,transparent 2px 4px,var(--ink2) 4px 6px,transparent 6px 8px,var(--ink2) 8px 10px)}
@@ -2893,7 +2894,7 @@ function linksHtml(n,byline,skip){var q=encodeURIComponent,list=(LINKS[n.id]||[]
   else list.push(["Search Wikipedia","https://en.wikipedia.org/w/index.php?search="+q(n.t)]);
   return '<h3>Further reading</h3><ul class="links">'+list.map(function(l){return '<li><a href="'+esc(l[1])+'" target="_blank" rel="noopener noreferrer">'+esc(l[0])+' <span aria-hidden="true">&#8599;</span></a></li>'}).join("")+'</ul>'}
 var LINEAGE=["sign","grudge","bluebook","aawsap","aatip","uaptf","aoimsg","aaro"];
-var W=210,GAP=26,VGAP=74,PAD=60,MW=975,MH=610;
+var W=210,GAP=26,VGAP=74,PAD=60,CGAP=170,MW=975,MH=610;
 var MAP=JSON.parse(document.getElementById("mapdata").textContent);
 var GEO=window.UAPGEO,DEG=Math.PI/180;
 
@@ -2911,7 +2912,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="srch" role="search"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.8" cy="6.8" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6L14.5 14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="q" type="search" placeholder="Search people, places, programs" aria-label="Search people, places, and programs" autocomplete="off" spellcheck="false" role="combobox" aria-controls="qr" aria-expanded="false" aria-autocomplete="list"><div id="qr" role="listbox" aria-label="Search results" hidden></div></div>'+
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
-'<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button>'+
+'<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><select class="treeonly" id="jump" aria-label="Jump to a country"><option value="">Jump to country</option></select>'+
 '<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="vp" role="main"><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
@@ -3780,7 +3781,7 @@ function renderTree(){
   function depth(id){return kids(list,id).reduce(function(m,c){return Math.max(m,1+depth(c.id))},0)}
   function size(id){return kids(list,id).reduce(function(m,c){return m+size(c.id)},1)}
   function outlineParent(id){var ch=kids(list,id);return ch.length>1&&ch.some(function(c){return !isLeaf(c.id)})&&ch.every(function(c){return depth(c.id)<=2})}
-  (function md(id,d){rowH[d]=Math.max(rowH[d]||0,heights[id]);if(outlineParent(id))return;kids(list,id).forEach(function(c){if(!isLeaf(c.id))md(c.id,d+1)})})("gov",0);
+  function md(id,d){rowH[d]=Math.max(rowH[d]||0,heights[id]);if(outlineParent(id))return;kids(list,id).forEach(function(c){if(!isLeaf(c.id))md(c.id,d+1)})}var roots=list.filter(function(n){return !n.p});roots.forEach(function(r){md(r.id,0)});
   var depthY={0:PAD};for(var d=1;d<40;d++)depthY[d]=depthY[d-1]+(rowH[d-1]||0)+VGAP;
   pos={};var edges="",bottom=0;
   function tick(spine,mids,left){var p='<path class="e" d="M'+spine+' '+mids[0]+'V'+mids[mids.length-1]+'"/>';mids.forEach(function(m){p+='<path class="e" d="M'+spine+' '+m+'H'+left+'"/>'});return p}
@@ -3798,7 +3799,7 @@ function renderTree(){
         return mid}
       g.forEach(function(c){mids.push(place(c,1));bottom=Math.max(bottom,y-SG);});
       nx+=W+deep*IND+GAP;return {x:x+14,mids:mids,left:x+IND}})}
-  (function lay(id,d){
+  function lay(id,d){
     var ch=kids(list,id),slots=[];
     if(!ch.length){pos[id]={x:nx,y:depthY[d],d:d};nx+=W+GAP;bottom=Math.max(bottom,depthY[d]+heights[id]);return;}
     if(outlineParent(id))outline(ch,d+1).forEach(function(c){slots.push({col:c})});
@@ -3811,8 +3812,11 @@ function renderTree(){
     slots.forEach(function(sl){
       if(sl.col){var c=sl.col;edges+='<path class="e" d="M'+x1+' '+y1+'V'+my+'H'+c.x+'V'+c.mids[0]+'"/>'+tick(c.x,c.mids,c.left);}
       else{var b=pos[sl.id];edges+='<path class="e" d="M'+x1+' '+y1+'V'+my+'H'+(b.x+W/2)+'V'+b.y+'"/>';}});
-  })("gov",0);
+  }
+  /* each country's government is its own tree, laid out left to right with a wide gap between countries */
+  roots.forEach(function(r,i){if(i)nx+=CGAP;lay(r.id,0);});
   bounds={w:nx-GAP+PAD,h:bottom+PAD};
+  var jp=document.getElementById("jump");if(jp&&jp.options.length!==roots.length+1)jp.innerHTML='<option value="">Jump to country</option>'+roots.map(function(r){return '<option value="'+r.id+'">'+esc(r.cn||r.t)+'</option>'}).join("");
   world.querySelectorAll(".node").forEach(function(el){var p=pos[el.dataset.id];if(!p){el.remove();return;}el.style.left=p.x+"px";el.style.top=p.y+"px";});
   svg.setAttribute("width",bounds.w);svg.setAttribute("height",bounds.h);
   var paths=edges;
@@ -3913,6 +3917,7 @@ function setMode(m){if(m===mode)return;if(m==="map"&&!mapWait(function(){setMode
   hint.textContent=HINTS[m];document.getElementById("vt").textContent=SUBS[m];if(m==="map"&&!SAT&&BODY==="earth"&&satWanted())setTimeout(function(){setSat(true)},0);document.getElementById("addpin").textContent="Add a pin";render();
   if(views[m]){tx=views[m].tx;ty=views[m].ty;k=views[m].k;if(m==="map"){gLon=views[m].lon;gLat=views[m].lat;gox=views[m].ox;goy=views[m].oy;}apply();}else if(m==="tree")homeTree();else if(m==="timeline")homeTL();else if(m==="map")homeMap();else fit();}
 document.getElementById("mt").onclick=function(){switchTo("tree")};
+document.getElementById("jump").onchange=function(){var id=this.value,p=pos[id];this.value="";if(!p)return;var r=vpR();k=Math.max(treeFitK(),r.width<640?0.6:0.85);tx=r.width*(r.width<640?0.5:0.4)-(p.x+W/2)*k;ty=Math.max(24,r.height*0.1)-p.y*k+20;apply();this.blur();};
 document.getElementById("mm").onclick=function(){switchTo("map")};
 document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
