@@ -367,6 +367,7 @@ The map's outlines and labels are loaded from `data/geo.json` and `data/detail.j
 | Ocean, country, state, province and city labels | `data/geo.json` (`labels`) | Probably [Natural Earth](https://www.naturalearthdata.com/) admin and populated-place names; not confirmed | Natural Earth data is public domain |
 | U.S. county subdivision lines | `data/detail.json` (`cousub`) | Probably U.S. Census Bureau county subdivision boundaries, keyed by state FIPS code; edition not confirmed | Census data is public domain |
 | U.S. town outlines and town names | `data/detail.json` (`towns`, `townNames`) | Not confirmed. The names include neighborhoods that are not Census places (for example Alief and Richmond Hill), so they may come from GeoNames or OpenStreetMap | Unknown until the source is confirmed |
+| Moon surface imagery | `img/moon/moon-2k.jpg`, `img/moon/moon-4k.jpg` | NASA Scientific Visualization Studio, [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/) (Ernie Wright, 2019; color map updated December 2025), built from the Lunar Reconnaissance Orbiter Camera (LROC) WAC mosaic and the Lunar Orbiter Laser Altimeter (LOLA) elevation data. We used `lroc_color_16bit_srgb_4k.tif`, softened its color, and added light relief shading from `ldem_16_uint.tif` | Public domain (NASA) |
 
 The world and U.S. outlines are identical to the geometry in those packages (every arc matches). The sky data matches d3-celestial's files in star count (5,044) and constellation names.
 
