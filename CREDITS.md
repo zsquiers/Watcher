@@ -355,6 +355,30 @@ The org chart shows small seals and icons (`LOGOS` in `index.html`). The agency 
 
 Each "Matches" file was compared side by side with the image in `index.html`. All are marked public domain on Wikimedia Commons.
 
+## Country flags
+
+Small flags in `img/flags/` mark each country's top box on the org chart. Each is a 120-pixel-wide PNG rendering of the flag's SVG on Wikimedia Commons, all public domain:
+
+| Flag | Commons file | License |
+|---|---|---|
+| United States (`us.png`) | [Flag of the United States.svg](https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States.svg) | Public domain (PD-USGov) |
+| United Kingdom (`uk.png`) | [Flag of the United Kingdom (3-5).svg](https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom_(3-5).svg) | Public domain (PD-UKGov) |
+| France (`fr.png`) | [Flag of France.svg](https://commons.wikimedia.org/wiki/File:Flag_of_France.svg) | Public domain (simple shapes) |
+| Canada (`ca.png`) | [Flag of Canada.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Canada.svg) | Public domain (PD-Canada) |
+| Soviet Union (`su.png`) | [Flag of the Soviet Union.svg](https://commons.wikimedia.org/wiki/File:Flag_of_the_Soviet_Union.svg) | Public domain (state symbol, PD-RU-exempt) |
+| Japan (`jp.png`) | [Flag of Japan.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Japan.svg) | Public domain (PD-JapanGov) |
+| Brazil (`br.png`) | [Flag of Brazil.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Brazil.svg) | Public domain (PD-BrazilGov) |
+| Chile (`cl.png`) | [Flag of Chile.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Chile.svg) | Public domain (PD-Chile) |
+| Peru (`pe.png`) | [Flag of Peru.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Peru.svg) | Public domain (ineligible) |
+| Argentina (`ar.png`) | [Flag of Argentina.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Argentina.svg) | Public domain (PD-Argentina) |
+| Uruguay (`uy.png`) | [Flag of Uruguay.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Uruguay.svg) | Public domain (PD-Uruguay) |
+| Spain (`es.png`) | [Flag of Spain.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Spain.svg) | Public domain |
+| Italy (`it.png`) | [Flag of Italy.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Italy.svg) | Public domain (simple shapes) |
+| Belgium (`be.png`) | [Flag of Belgium.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Belgium.svg) | Public domain (simple shapes) |
+| Denmark (`dk.png`) | [Flag of Denmark.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Denmark.svg) | Public domain (simple shapes) |
+| Sweden (`se.png`) | [Flag of Sweden.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Sweden.svg) | Public domain (simple shapes) |
+| Australia (`au.png`) | [Flag of Australia.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg) | Public domain (PD-AustraliaGov) |
+
 ## Map data
 
 The map's outlines and labels are loaded from `data/geo.json` and `data/detail.json`. The street, terrain and satellite layers come from third-party tile services and are credited on the map itself.
