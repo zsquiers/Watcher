@@ -355,6 +355,30 @@ The org chart shows small seals and icons (`LOGOS` in `index.html`). The agency 
 
 Each "Matches" file was compared side by side with the image in `index.html`. All are marked public domain on Wikimedia Commons.
 
+## Country flags
+
+Small flags in `img/flags/` mark each country's top box on the org chart. Each is a 120-pixel-wide PNG rendering of the flag's SVG on Wikimedia Commons, all public domain:
+
+| Flag | Commons file | License |
+|---|---|---|
+| United States (`us.png`) | [Flag of the United States.svg](https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States.svg) | Public domain (PD-USGov) |
+| United Kingdom (`uk.png`) | [Flag of the United Kingdom (3-5).svg](https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom_(3-5).svg) | Public domain (PD-UKGov) |
+| France (`fr.png`) | [Flag of France.svg](https://commons.wikimedia.org/wiki/File:Flag_of_France.svg) | Public domain (simple shapes) |
+| Canada (`ca.png`) | [Flag of Canada.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Canada.svg) | Public domain (PD-Canada) |
+| Soviet Union (`su.png`) | [Flag of the Soviet Union.svg](https://commons.wikimedia.org/wiki/File:Flag_of_the_Soviet_Union.svg) | Public domain (state symbol, PD-RU-exempt) |
+| Japan (`jp.png`) | [Flag of Japan.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Japan.svg) | Public domain (PD-JapanGov) |
+| Brazil (`br.png`) | [Flag of Brazil.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Brazil.svg) | Public domain (PD-BrazilGov) |
+| Chile (`cl.png`) | [Flag of Chile.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Chile.svg) | Public domain (PD-Chile) |
+| Peru (`pe.png`) | [Flag of Peru.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Peru.svg) | Public domain (ineligible) |
+| Argentina (`ar.png`) | [Flag of Argentina.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Argentina.svg) | Public domain (PD-Argentina) |
+| Uruguay (`uy.png`) | [Flag of Uruguay.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Uruguay.svg) | Public domain (PD-Uruguay) |
+| Spain (`es.png`) | [Flag of Spain.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Spain.svg) | Public domain |
+| Italy (`it.png`) | [Flag of Italy.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Italy.svg) | Public domain (simple shapes) |
+| Belgium (`be.png`) | [Flag of Belgium.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Belgium.svg) | Public domain (simple shapes) |
+| Denmark (`dk.png`) | [Flag of Denmark.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Denmark.svg) | Public domain (simple shapes) |
+| Sweden (`se.png`) | [Flag of Sweden.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Sweden.svg) | Public domain (simple shapes) |
+| Australia (`au.png`) | [Flag of Australia.svg](https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg) | Public domain (PD-AustraliaGov) |
+
 ## Map data
 
 The map's outlines and labels are loaded from `data/geo.json` and `data/detail.json`. The street, terrain and satellite layers come from third-party tile services and are credited on the map itself.
@@ -368,6 +392,7 @@ The map's outlines and labels are loaded from `data/geo.json` and `data/detail.j
 | U.S. county subdivision lines | `data/detail.json` (`cousub`) | Probably U.S. Census Bureau county subdivision boundaries, keyed by state FIPS code; edition not confirmed | Census data is public domain |
 | U.S. town outlines and town names | `data/detail.json` (`towns`, `townNames`) | Not confirmed. The names include neighborhoods that are not Census places (for example Alief and Richmond Hill), so they may come from GeoNames or OpenStreetMap | Unknown until the source is confirmed |
 | Moon surface imagery | `img/moon/moon-2k.jpg`, `img/moon/moon-4k.jpg` | NASA Scientific Visualization Studio, [CGI Moon Kit](https://svs.gsfc.nasa.gov/4720/) (Ernie Wright, 2019; color map updated December 2025), built from the Lunar Reconnaissance Orbiter Camera (LROC) WAC mosaic and the Lunar Orbiter Laser Altimeter (LOLA) elevation data. We used `lroc_color_16bit_srgb_4k.tif`, softened its color, and added light relief shading from `ldem_16_uint.tif` | Public domain (NASA) |
+| Earth seen from the Moon | `img/earth/earth-2k.jpg` | NASA Goddard Space Flight Center, "The Blue Marble: land surface, ocean color and sea ice" (Reto Stöckli; enhancements by Robert Simmon), [Visible Earth 57730](http://visibleearth.nasa.gov/view.php?id=57730), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Land_ocean_ice_2048.jpg), 2048×1024 | Public domain (NASA) |
 
 The world and U.S. outlines are identical to the geometry in those packages (every arc matches). The sky data matches d3-celestial's files in star count (5,044) and constellation names.
 
