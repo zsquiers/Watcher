@@ -3389,7 +3389,7 @@ function setSat(on){var bm=document.getElementById("stMap"),bs=document.getEleme
     if(satMap){var c=satMap.getCenter();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,kFromScale(satScale())));gox=0;goy=0;}
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();return;}
   var lb=STREET?bm:bs,lt=lb.textContent;lb.textContent="Loading…";cancelAnimationFrame(gAnim);
-  satLib().then(function(){lb.textContent=lt;if(STREET&&!LIB){setSat(false);return;}SAT=true;document.body.classList.add("sat");
+  satLib().then(function(){lb.textContent=lt;if(BODY!=="earth"){mark();return;}if(STREET&&!LIB){setSat(false);return;}SAT=true;document.body.classList.add("sat");
     if(!satMap)satInit();else{satMap.resize();satMatch();}streetApply();mark();
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();if(selId&&mode==="map")focusItem(selId);if(TERR)setTerrain(true);
   }).catch(function(){lb.textContent=lt;satFailed=true;SAT=false;mark();
@@ -3684,7 +3684,8 @@ function goBody(b,then){if(FLYING||mode!=="map")return;if(b===BODY){if(then)then
   if(b==="moon")toMoon(then);else toEarth(then);}
 function toMoon(then){FLYING=true;cancelAnimationFrame(gAnim);var btn=document.getElementById("goMoon");btn.disabled=true;var lt=btn.textContent;
   var tex=moonFirst();
-  (function ready(n){if(SAT&&(!satMap||!satReady)&&n<40){setTimeout(function(){ready(n+1)},250);return;}go();})(0);
+  (function ready(n){if(n===0&&!SAT&&satWanted())setSat(true);
+    if(n<40&&((SAT&&(!satMap||!satReady))||(!SAT&&satWanted()))){setTimeout(function(){ready(n+1)},250);return;}go();})(0);
   function go(){var wasSat=SAT&&!!satMap,ret;
     if(wasSat){var c0=satMap.getCenter();ret={sat:true,lon:c0.lng,lat:c0.lat,z:satMap.getZoom(),pitch:satMap.getPitch(),bearing:satMap.getBearing()};}
     else ret={sat:false,lon:gLon,lat:gLat,k:k,ox:gox,oy:goy};BODYRET=ret;
