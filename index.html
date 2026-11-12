@@ -3609,7 +3609,8 @@ var MOONLBL=[["Mare Tranquillitatis",31.4,8.5,0],["Mare Serenitatis",17.5,28,0],
   ["Aristarchus",-47.4,23.7,1],["Clavius",-14.4,-58.4,1],["Grimaldi",-68.6,-5.2,1],["Tsiolkovskiy",129.1,-20.4,1]];
 function bodySize(){mc=mc||document.getElementById("moonc");fc=fc||document.getElementById("fly");if(!fc)return;fx=fx||fc.getContext("2d");
   var w=Math.round(gW*gDpr),h=Math.round(gH*gDpr);if(fc.width!==w||fc.height!==h){fc.width=w;fc.height=h;}if(mc.width!==w||mc.height!==h){mc.width=w;mc.height=h;}}
-function moonTexLoad(src){var im=new Image();im.decoding="async";return new Promise(function(res,rej){im.onload=function(){res(im)};im.onerror=rej;im.src=src})}
+/* asked for with CORS: on preview hosts the file comes from another site, and WebGL refuses images it may not read */
+function moonTexLoad(src){var im=new Image();im.crossOrigin="anonymous";im.decoding="async";return new Promise(function(res,rej){im.onload=function(){res(im)};im.onerror=rej;im.src=src})}
 function moonFirst(){if(!MOONT)MOONT=moonTexLoad("img/moon/moon-2k.jpg").then(function(im){var G=moonGL();if(G)moonTexSet(G,im);return im},function(e){MOONT=null;throw e});return MOONT}
 function moonGL(){if(MGL)return MGL;bodySize();var gl=mc.getContext("webgl",{premultipliedAlpha:true,alpha:true,antialias:false});if(!gl)return null;
   var lod=gl.getExtension("EXT_shader_texture_lod");
