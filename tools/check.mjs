@@ -67,7 +67,7 @@ const linkOK = l => l[0] === "tree" ? tree.has(l[1]) : l[0] === "map" ? pinIds.h
 BASE.forEach(n => { if (n.p && !tree.has(n.p)) err(`org chart box ${n.id} has a missing parent ${n.p}`);
   (n.rel || []).forEach(l => { if (!linkOK(l)) err(`org chart box ${n.id} links to missing ${l[0]} entry ${l[1]}`); }); });
 pins.forEach(p => { if (typeof p.lat !== "number" || typeof p.lon !== "number" || Math.abs(p.lat) > 90 || Math.abs(p.lon) > 180) err(`map pin ${p.id} has bad coordinates`);
-  if (!["gov", "mil", "uap", "sec", "civ", "co", "anc"].includes(p.c)) err(`map pin ${p.id} has unknown category ${p.c}`); });
+  if (!["gov", "mil", "uap", "sec", "civ", "co", "anc", "msn"].includes(p.c)) err(`map pin ${p.id} has unknown category ${p.c}`); });
 TLE.forEach(e => { if (!pinIds.has(e[0])) err(`timeline event for missing pin ${e[0]}`); if (e[2] && !tree.has(e[2])) err(`timeline event ${e[0]} names missing office ${e[2]}`); });
 TLP.forEach(p => { if (!tree.has(p[0])) err(`timeline bar for missing office ${p[0]}`); if (p[3] && !pinIds.has(p[3])) err(`timeline bar ${p[0]} names missing pin ${p[3]}`); });
 TLM.forEach(m => { if (m[3] && !tree.has(m[3])) err(`milestone ${m[0]} names missing office ${m[3]}`); if (m[4] && !pinIds.has(m[4])) err(`milestone ${m[0]} names missing pin ${m[4]}`); });
