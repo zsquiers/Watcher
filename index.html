@@ -182,6 +182,7 @@ body:not(.mode-tree) .treeonly,body:not(.mode-map) .maponly,body:not(.mode-timel
 #moonc,#fly{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;display:none}
 body.travel #moonc,body.travel #fly,body.offworld #moonc,body.offworld #fly{display:block}
 body.travel #pins{visibility:hidden}
+body:not(.offworld) #earthrise{display:none}
 body.offworld .seg[aria-label="Map style"],body.offworld #terr,body.offworld #cloud,body.offworld #addpin{display:none}
 body:not(.offworld) .fkey [data-k="msn"]{display:none}
 body.offworld .fkey [data-k]:not([data-k="uap"]):not([data-k="msn"]){display:none}
@@ -3047,7 +3048,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><select class="treeonly" id="jump" aria-label="Jump to a country"><option value="">Jump to country</option></select>'+
-'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
+'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="vp" role="main"><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
@@ -3628,20 +3629,38 @@ function moonGL(){if(MGL)return MGL;bodySize();var gl=mc.getContext("webgl",{pre
   var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
   var u={};["T","C","S","P","H","R","TW","FULL","AMB","E","N","F","L"].forEach(function(n){u[n]=gl.getUniformLocation(pr,n)});
   MGL={gl:gl,pr:pr,buf:b,u:u,ap:gl.getAttribLocation(pr,"p"),tex:null,tw:2048,max:gl.getParameter(gl.MAX_TEXTURE_SIZE)};return MGL}
-function moonTexSet(G,im){var gl=G.gl,t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+function moonTexSet(G,im,key){key=key||"tex";var gl=G.gl,t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);gl.generateMipmap(gl.TEXTURE_2D);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  if(G.tex)gl.deleteTexture(G.tex);G.tex=t;G.tw=im.naturalWidth||im.width;}
+  if(G[key])gl.deleteTexture(G[key]);G[key]=t;G[key==="tex"?"tw":key+"W"]=im.naturalWidth||im.width;}
 /* where the Sun is overhead on the Moon right now: the near side faces Earth, so the phase sets the sub-solar longitude */
 function moonSun(){var mp=moonPos(Date.now()),el=Math.acos(Math.max(-1,Math.min(1,1-2*mp.lit)))/DEG;if(!mp.waxing)el=360-el;var lo=(180-el)*DEG;return [Math.cos(lo),Math.sin(lo),0]}
+/* one textured, sunlit globe: the same shader draws the Moon and, small in the Moon's sky, the Earth */
+function sphereDraw(G,tex,tw,cx,cy,S,P,rot,lon,lat,L,full,amb){var gl=G.gl,u=G.u,l0=lon*DEG,p0=lat*DEG,sl=Math.sin(l0),cl=Math.cos(l0),sp=Math.sin(p0),cp=Math.cos(p0);
+  gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.uniform1i(u.T,0);
+  gl.uniform2f(u.C,cx*gDpr,cy*gDpr);gl.uniform1f(u.S,S*gDpr);gl.uniform1f(u.P,P);gl.uniform1f(u.H,mc.height);gl.uniform1f(u.R,rot||0);gl.uniform1f(u.TW,tw);
+  gl.uniform1f(u.FULL,full||0);gl.uniform1f(u.AMB,amb);gl.uniform3f(u.E,-sl,cl,0);gl.uniform3f(u.N,-sp*cl,-sp*sl,cp);gl.uniform3f(u.F,cp*cl,cp*sl,sp);gl.uniform3f(u.L,L[0],L[1],L[2]);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}
+/* where Earth sits in the Moon's sky for the current view. The near side always faces Earth, so Earth is behind you
+   while you look at the near side, hidden behind the Moon from the far side, and rises over the edge in between.
+   It is placed by direction, like the stars, and drawn about three times its true size, as the Moon is in Earth's sky */
+function earthSky(){var l0=gLon*DEG,p0=gLat*DEG,vx=-Math.sin(l0),vy=-Math.sin(p0)*Math.cos(l0),vz=Math.cos(p0)*Math.cos(l0),cc=-vz;
+  if(cc<0.2)return null;var c=Math.acos(Math.min(1,cc)),sc=Math.max(gW,gH)/2/0.83,r=2*sc*Math.tan(c/2),n=Math.hypot(vx,vy)||1,R=0.05*Math.min(gW,gH),
+    x=gW/2+r*vx/n,y=gH/2-r*vy/n;if(x<-R||x>gW+R||y<-R||y>gH+R)return null;return {x:x,y:y,R:R}}
 function moonDraw(rot,full){var G=moonGL();if(!G)return;var gl=G.gl;bodySize();gl.viewport(0,0,mc.width,mc.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);if(!G.tex)return;
-  gSetProj();var l0=gLon*DEG,p0=gLat*DEG,sl=Math.sin(l0),cl=Math.cos(l0),sp=Math.sin(p0),cp=Math.cos(p0),u=G.u,L=moonSun();
-  gl.useProgram(G.pr);gl.bindBuffer(gl.ARRAY_BUFFER,G.buf);
-  gl.enableVertexAttribArray(G.ap);gl.vertexAttribPointer(G.ap,2,gl.FLOAT,false,0,0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,G.tex);gl.uniform1i(u.T,0);
-  gl.uniform2f(u.C,gcx*gDpr,gcy*gDpr);gl.uniform1f(u.S,gS*gDpr);gl.uniform1f(u.P,gP);gl.uniform1f(u.H,mc.height);gl.uniform1f(u.R,rot||0);gl.uniform1f(u.TW,G.tw);
-  gl.uniform1f(u.FULL,full||0);gl.uniform1f(u.AMB,0.24);gl.uniform3f(u.E,-sl,cl,0);gl.uniform3f(u.N,-sp*cl,-sp*sl,cp);gl.uniform3f(u.F,cp*cl,cp*sl,sp);gl.uniform3f(u.L,L[0],L[1],L[2]);
-  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}
+  gSetProj();gl.useProgram(G.pr);gl.bindBuffer(gl.ARRAY_BUFFER,G.buf);gl.enableVertexAttribArray(G.ap);gl.vertexAttribPointer(G.ap,2,gl.FLOAT,false,0,0);
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+  var es=!FLYING&&BODY==="moon"&&earthSky();
+  if(es){if(G.texE){var now=Date.now(),mp=moonPos(now),sn=sunPos(now),la=sn.lat*DEG,lo=sn.lon*DEG;
+      sphereDraw(G,G.texE,G.texEW,es.x,es.y,es.R,1000,0,gWrap(mp.ra-gmst()),mp.dec,[Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la)],NIGHT?0:1,0.1);}
+    else earthTex();}
+  sphereDraw(G,G.tex,G.tw,gcx,gcy,gS,gP,rot,gLon,gLat,moonSun(),full,0.24);}
+var EARTHT=null;function earthTex(){if(EARTHT)return;EARTHT=moonTexLoad("img/earth/earth-2k.jpg").then(function(im){var G=moonGL();if(G){moonTexSet(G,im,"texE");gQueue();}},function(){EARTHT=null});}
+/* the Earthrise view: swing around to the far side's northern edge, where Earth hangs just above the Moon */
+function earthrise(){if(BODY!=="moon"||FLYING)return;earthTex();var B=freeBox(),C=[(B.x0+B.x1)/2,(B.y0+B.y1)/2],m=Math.min(gW,gH),k1=0.62,R=m*0.42*k1,
+    rs=Math.min(R*1.5,gH/2-0.06*m-8),sc=Math.max(gW,gH)/2/0.83,c=2*Math.atan(rs/(2*sc))/DEG;
+  cancelAnimationFrame(gAnim);gFly(c,180,k1,C[0],C[1]);}
 var MOONFILL=0;function moonFull(){return NIGHT?0:MOONFILL}
 /* Day and night: on, Earth's night side (in Satellite view) and the Moon show the real sunlight for right now;
    off, both are lit evenly, which is easier for reading the map. The choice is remembered on this device */
@@ -3670,7 +3689,7 @@ function moonView(T){var mp=moonPos(Date.now()),lon=gWrap(mp.ra-gmst()-180),lat=
 function freeBox(){var p=fitPad();return {x0:p.left,x1:gW-p.right,y0:p.top,y1:gH-p.bottom}}
 function bodyUI(){var on=BODY!=="earth",b=document.getElementById("goMoon");document.body.classList.toggle("offworld",on);
   if(b){b.textContent=on?"Back to Earth":"Moon";b.title=on?"Fly back to Earth":"Fly to the Moon";}
-  if(mode==="map"){hint.textContent=on?"Drag to spin the Moon, scroll or pinch to zoom. Tap a pin for its story.":HINTS.map;document.getElementById("vt").textContent=on?"Claims and landing sites on the Moon":SUBS.map;}}
+  if(mode==="map"){hint.textContent=on?"Drag to spin the Moon, scroll or pinch to zoom. Tap a pin for its story. Earthrise turns you to where Earth hangs over the edge.":HINTS.map;document.getElementById("vt").textContent=on?"Claims and landing sites on the Moon":SUBS.map;}}
 function tween(dur,f){return new Promise(function(res){if(RM||dur<=0){f(1);res();return;}var t0=performance.now();(function st(){var t=Math.min(1,(performance.now()-t0)/dur);f(t);if(t<1)requestAnimationFrame(st);else res();})();})}
 function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function earthSnap(){return new Promise(function(res){
@@ -4066,7 +4085,7 @@ document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev
   if(b.dataset.k)filt[b.dataset.k]=!filt[b.dataset.k];else MAPKEYS.forEach(function(r){filt[r[0]]=b.dataset.all==="1"});mapFilter();});mapKeySync();
 /* compass: turn back to north; outside 3D terrain it also levels the view, so the whole Earth sits upright again */
 document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setMapStyle("map")};compassUpdate();document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=nightWanted();document.getElementById("night").setAttribute("aria-pressed",NIGHT);document.getElementById("night").onclick=function(){setNight(!NIGHT)};document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setMapStyle("sat")};
-(function(){var b=document.getElementById("goMoon");b.onclick=function(){goBody(BODY==="earth"?"moon":"earth")};b.addEventListener("pointerenter",function(){moonFirst().catch(function(){})},{once:true});})();
+(function(){var b=document.getElementById("goMoon");b.onclick=function(){goBody(BODY==="earth"?"moon":"earth")};b.addEventListener("pointerenter",function(){moonFirst().catch(function(){})},{once:true});document.getElementById("earthrise").onclick=earthrise;})();
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
