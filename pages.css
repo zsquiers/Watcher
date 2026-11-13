@@ -1,0 +1,22 @@
+:root{--bg:#F4F1EA;--card:#FFFFFF;--ink:#14263D;--ink2:#4A5566;--hair:rgba(20,38,61,.14);--link:#1F5C8C;--amber:#94580A}
+@media (prefers-color-scheme:dark){:root{--bg:#0B1220;--card:#121B2C;--ink:#ECE6D8;--ink2:#A7B0BE;--hair:rgba(236,230,216,.14);--link:#8CC0EA;--amber:#E0A040}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.6 Barlow,"Helvetica Neue",Arial,sans-serif}
+a{color:var(--link)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--hair);background:var(--card)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-decoration:none}
+.top nav{display:flex;gap:16px;font-size:15px}
+main{max-width:760px;margin:0 auto;padding:22px 20px 40px}
+h1{font:600 2.1rem/1.15 "Cormorant Garamond",Georgia,serif;margin:6px 0 6px}
+h2{font-size:1.05rem;margin:28px 0 8px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
+.sub{color:var(--ink2);margin:0 0 6px;font-size:1.05rem}.by{margin:0 0 12px;font-size:1.05rem}.meta{color:var(--ink2);font-size:.95rem;margin:0 0 14px}
+.crumb{font-size:.9rem;color:var(--ink2);margin:0}
+.status{border-left:4px solid var(--amber);padding:6px 12px;background:var(--card);border-radius:4px}
+figure{margin:16px 0}figure img{max-width:100%;height:auto;border-radius:6px;display:block}
+figure.portrait img{width:160px;height:160px;object-fit:cover;border-radius:50%}
+figcaption{font-size:.82rem;color:var(--ink2);margin-top:6px}
+sup.cn{font-size:.7em;margin-left:2px}sup.cn a{text-decoration:none}
+.btn{display:inline-block;padding:9px 16px;border-radius:8px;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:600}
+.src{padding-left:22px;font-size:.93rem}.src li{margin:4px 0}.src span,.rel span,.list span,.hub span{color:var(--ink2);font-size:.9rem}
+.rel,.list,.hub{padding-left:20px}.rel li,.list li{margin:4px 0}.hub{list-style:none;padding:0}.hub li{background:var(--card);border:1px solid var(--hair);border-radius:8px;padding:12px 14px;margin:10px 0}.hub p{margin:4px 0 0;color:var(--ink2)}
+footer{max-width:760px;margin:0 auto;padding:0 20px 30px;font-size:.85rem;color:var(--ink2)}

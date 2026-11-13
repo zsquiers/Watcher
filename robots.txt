@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zsquiers.github.io/Watcher/sitemap.xml

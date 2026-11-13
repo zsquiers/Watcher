@@ -1,4 +1,5 @@
-# Runs Watcher's automatic check (tools/check.mjs) on every pull request and every push to main.
+# Runs Watcher's automatic check (tools/check.mjs) on every pull request and every push to main, and makes sure the
+# plain entry pages (tools/build-pages.mjs) have been rebuilt after any change to the entries.
 # It only reads the repository; it doesn't build, deploy or change anything.
 name: Check
 on:
@@ -16,3 +17,4 @@ jobs:
         with:
           node-version: 22
       - run: node tools/check.mjs
+      - run: node tools/build-pages.mjs --check
