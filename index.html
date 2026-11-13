@@ -451,6 +451,7 @@ body.lgopen #panel{position:fixed;z-index:45}
 .lgf button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .lgf .n{font-variant-numeric:tabular-nums;opacity:.75}
 .lgs{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink2);margin:-8px 0 18px}
+.lgshuf{min-height:32px;padding:4px 12px;font-size:13.5px}
 .lgs select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;min-height:32px;padding:4px 8px}
 .clev{color:var(--ink)}
 .std{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sc)}
@@ -4852,7 +4853,10 @@ function wireClaimLinks(root){root.querySelectorAll("[data-claim]").forEach(func
 var LGF="all",LGS=(function(){try{return localStorage.getItem("watcher-lgsort")||"new"}catch(e){return "new"}})();
 /* the ledger's sort orders; a claim's event year is when the thing it describes happened (ev), or the year of the claim */
 var LGSORTS={"new":["Claim date, newest first",function(a,b){return b.yr-a.yr}],"old":["Claim date, oldest first",function(a,b){return a.yr-b.yr}],
-  "evold":["Event date, oldest first",function(a,b){return evYr(a)-evYr(b)||a.yr-b.yr}],"evnew":["Event date, newest first",function(a,b){return evYr(b)-evYr(a)||b.yr-a.yr}]};
+  "evold":["Event date, oldest first",function(a,b){return evYr(a)-evYr(b)||a.yr-b.yr}],"evnew":["Event date, newest first",function(a,b){return evYr(b)-evYr(a)||b.yr-a.yr}],
+  "rand":["Random order",function(a,b){return randKey(a.id)-randKey(b.id)}]};
+/* random order: a fresh shuffle each visit and on Shuffle, kept steady while you filter so the list doesn't jump about */
+var RANDK=null;function randKey(id){if(!RANDK)RANDK={};if(!(id in RANDK))RANDK[id]=Math.random();return RANDK[id]}
 function evYr(c){return c.ev!=null?c.ev:c.yr}
 function evLabel(c){return c.ev<0?"ancient times":String(c.ev)}
 /* About: what the site is, how it sources and labels things, credits, privacy and how to report a mistake */
@@ -4892,7 +4896,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
     '<p class="lgi">Each entry sets a public claim next to the official response, with sources for both sides. Statuses describe the public record, not a final verdict, and change as new records are released. <button class="lgab" id="lgab">How Watcher works</button></p>'+
     '<div class="lgf" role="group" aria-label="Filter by status"><button data-f="all" aria-pressed="'+(LGF==="all")+'">All <span class="n">'+CLAIMS.length+'</span></button>'+
     Object.keys(CLST).filter(function(k){return counts[k]}).map(function(k){return '<button data-f="'+k+'" aria-pressed="'+(LGF===k)+'" title="'+esc(CLST[k][1])+'" style="--sc:var(--st-'+k+')"><span class="std"></span>'+CLST[k][0]+' <span class="n">'+counts[k]+'</span></button>'}).join("")+'</div>'+
-    '<label class="lgs">Sort <select id="lgsort">'+Object.keys(LGSORTS).map(function(k){return '<option value="'+k+'"'+(k===LGS?' selected':'')+'>'+LGSORTS[k][0]+'</option>'}).join("")+'</select></label>'+
+    '<label class="lgs">Sort <select id="lgsort">'+Object.keys(LGSORTS).map(function(k){return '<option value="'+k+'"'+(k===LGS?' selected':'')+'>'+LGSORTS[k][0]+'</option>'}).join("")+'</select>'+(LGS==="rand"?'<button type="button" class="lgshuf" id="lgshuf" title="Deal the claims in a new random order">Shuffle</button>':'')+'</label>'+
     list.map(function(c){var cb=citeBlock(c.id,[c.c,c.r],c.id+"-s"),who=c.by&&PBy[c.by]?'<button data-person="'+c.by+'">'+esc(PBy[c.by].t)+'</button>':esc(c.byt||"");
       var links=c.L.filter(function(l){return l[0]==="timeline"?TLById[l[1]]:findItem(l[1])}).map(function(l){return '<button data-go="'+l[0]+'" data-id="'+l[1]+'"><span class="cv">'+VNAME[l[0]]+'</span>'+esc(l[2])+'</button>'}).join("");
       return '<article class="cl" id="'+c.id+'" style="--sc:var(--st-'+c.st+')"><div class="clt"><h3>'+esc(c.t)+'</h3><span class="stb" title="'+esc(CLST[c.st][1])+'"><span class="std"></span>'+CLST[c.st][0]+'</span><button class="clk" data-clink="'+c.id+'" aria-label="Copy a link to this claim" title="Copy link">Link</button></div>'+
@@ -4904,7 +4908,8 @@ function openLedger(focus){var L=document.getElementById("ledger");
   document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgab").onclick=openAbout;document.getElementById("lgx2").onclick=closeLedger;
   document.getElementById("lgtop").onclick=function(){L.scrollTo({top:0,behavior:RM?"auto":"smooth"});document.getElementById("lgx").focus({preventScroll:true})};document.getElementById("lgquiz").onclick=function(){closeLedger();openQuiz()};
   L.querySelectorAll("[data-f]").forEach(function(b){b.onclick=function(){LGF=b.dataset.f;openLedger();var f=L.querySelector('[data-f="'+LGF+'"]');if(f)f.focus()}});
-  document.getElementById("lgsort").onchange=function(){LGS=this.value;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
+  var shuf=document.getElementById("lgshuf");if(shuf)shuf.onclick=function(){RANDK=null;openLedger();var L=document.getElementById("ledger");if(L)L.scrollTop=0;var b=document.getElementById("lgshuf");if(b)b.focus()};
+  document.getElementById("lgsort").onchange=function(){LGS=this.value;if(LGS==="rand")RANDK=null;try{localStorage.setItem("watcher-lgsort",LGS)}catch(e){}openLedger();var f=document.getElementById("lgsort");if(f)f.focus()};
   L.querySelectorAll("article.cl").forEach(function(a){var c=CLAIMS.find(function(x){return x.id===a.id});linkNames(a.querySelector(".clg"),[c&&c.by,c&&c.id])});
   L.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();goTo(b.dataset.go,b.dataset.id)}});
   L.querySelectorAll("[data-person]").forEach(function(b){b.onclick=function(e){e.preventDefault();openPerson(b.dataset.person)}});
