@@ -9,7 +9,7 @@ a{color:var(--link)}
 main{max-width:760px;margin:0 auto;padding:22px 20px 40px}
 h1{font:600 2.1rem/1.15 "Cormorant Garamond",Georgia,serif;margin:6px 0 6px}
 h2{font-size:1.05rem;margin:28px 0 8px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
-.sub{color:var(--ink2);margin:0 0 6px;font-size:1.05rem}.meta{color:var(--ink2);font-size:.95rem;margin:0 0 14px}
+.sub{color:var(--ink2);margin:0 0 6px;font-size:1.05rem}.by{margin:0 0 12px;font-size:1.05rem}.meta{color:var(--ink2);font-size:.95rem;margin:0 0 14px}
 .crumb{font-size:.9rem;color:var(--ink2);margin:0}
 .status{border-left:4px solid var(--amber);padding:6px 12px;background:var(--card);border-radius:4px}
 figure{margin:16px 0}figure img{max-width:100%;height:auto;border-radius:6px;display:block}

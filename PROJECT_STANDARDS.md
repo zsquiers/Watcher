@@ -36,7 +36,7 @@ Watcher is a public, research-oriented guide to UFO/UAP history for curious gene
 - IDs are unique and permanent. Don't rename an ID that other entries, citations or saved notes may point to.
 - Link between entries only by ID, and only to entries that exist.
 - After any data change, run `node tools/check.mjs`. It must report "All checks passed."
-- Then run `node tools/build-pages.mjs` to rebuild the plain entry pages (`people/`, `places/`, `programs/`, `claims/`, `timeline/`, `books/`, `browse/`, `sitemap.xml`, `robots.txt`) and commit them. Never edit those files by hand; they are generated from `index.html`. A page's address comes from its title, so renaming an entry changes its address.
+- Then run `node tools/build-pages.mjs` to rebuild the plain entry pages (`people/`, `places/`, `programs/`, `claims/`, `timeline/`, `books/`, `authors/`, `browse/`, `sitemap.xml`, `robots.txt`) and commit them. Never edit those files by hand; they are generated from `index.html`. A page's address comes from its title, so renaming an entry changes its address.
 - Edit through small, reviewable changes. Don't regenerate or reformat large blocks of data.
 
 ## Testing

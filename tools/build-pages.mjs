@@ -73,7 +73,8 @@ const SECTIONS = {
   programs: {title: "Programs and offices", blurb: "Government offices and programs that have handled UFO and UAP work, in the U.S. and other countries."},
   claims: {title: "Claims", blurb: "Public claims set beside the official record, with sources for both sides."},
   timeline: {title: "Timeline", blurb: "Milestones in UFO and UAP history."},
-  books: {title: "Books", blurb: "Books that shaped the UFO and UAP story."}
+  books: {title: "Books", blurb: "Books that shaped the UFO and UAP story."},
+  authors: {title: "Authors", blurb: "Everyone who wrote a book listed in Watcher, with their books."}
 };
 const entries = [], byId = new Map();
 function addEntry(e) {
@@ -90,6 +91,13 @@ for (const b of BASE) addEntry({sec: "programs", id: b.id, title: b.t, sub: b.s,
 for (const c of CLAIMS) addEntry({sec: "claims", id: c.id, title: c.t, sub: (CLST[c.st] || [c.st])[0], d: [c.c, c.r], raw: c, hash: "#/claim/" + c.id});
 for (const m of TLM) addEntry({sec: "timeline", id: m[0], title: m[2], sub: String(m[1]), d: m[5], raw: m, hash: "#/timeline/" + m[0]});
 for (const b of TLBK) addEntry({sec: "books", id: "tl-b-" + b[0], title: b[2], sub: String(b[1]), d: b[4], raw: b, hash: "#/timeline/tl-b-" + b[0]});
+/* authors: people with an entry already have a page; every other author gets a short page of their own */
+const booksBy = new Map(); // author key (person id or name) -> books
+for (const b of TLBK) for (const a of b[3] || []) { if (!booksBy.has(a)) booksBy.set(a, []); booksBy.get(a).push(b); }
+const bookList = list => list.slice().sort((x, y) => x[1] - y[1]).map(b => `${b[2]} (${b[1]})`).join(", ");
+for (const [a, list] of booksBy) if (!/^pp-/.test(a))
+  addEntry({sec: "authors", id: "au-" + slugify(a), title: a, sub: "Author", d: [`Author of ${bookList(list)}.`], raw: {name: a, books: list}, hash: "#/timeline/tl-b-" + list[0][0]});
+const authorPage = a => /^pp-/.test(a) ? byId.get(a) : byId.get("au-" + slugify(a));
 void custom;
 
 /* ---- page parts ---- */
@@ -134,7 +142,9 @@ function related(e) {
     for (const b of BASE) if (b.p === e.id) push(b.id, null, "Under it");
   }
   if (e.sec === "timeline") { if (e.raw[3]) push(e.raw[3], null, "Office"); if (e.raw[4]) push(e.raw[4], null, "Place"); }
-  if (e.sec === "books") for (const a of e.raw[3] || []) if (/^pp-/.test(a)) push(a, null, "Author");
+  if (e.sec === "books") for (const a of e.raw[3] || []) { const t = authorPage(a); if (t) push(t.id, null, "Author"); }
+  if (e.sec === "people" && booksBy.has(e.id)) for (const b of booksBy.get(e.id)) push("tl-b-" + b[0], null, `Book, ${b[1]}`);
+  if (e.sec === "authors") for (const b of e.raw.books) push("tl-b-" + b[0], null, String(b[1]));
   for (const p of PEOPLE) if ((p.L || []).some(l => l[1] === e.id)) push(p.id, null, "Person");
   return out.length ? `<h2>Related</h2>\n<ul class="rel">${out.join("\n")}</ul>` : "";
 }
@@ -154,7 +164,8 @@ function metaLine(e) {
   }
   if (e.sec === "claims") { const who = r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt; return `Claimed by ${who} · ${r.yr} · ${r.venue}`; }
   if (e.sec === "timeline") return `${r[1]}`;
-  if (e.sec === "books") return [String(r[1]), (r[3] || []).map(a => /^pp-/.test(a) ? (byId.get(a) || {}).title : a).filter(Boolean).join(", ")].filter(Boolean).join(" · ");
+  if (e.sec === "books") return String(r[1]);
+  if (e.sec === "authors") return `${r.books.length} book${r.books.length > 1 ? "s" : ""} in Watcher`;
   return "";
 }
 function jsonld(e, url, img) {
@@ -170,7 +181,9 @@ function jsonld(e, url, img) {
     itemReviewed: {"@type": "Claim", author: {"@type": r.by ? "Person" : "Organization", name: r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt}, datePublished: String(r.yr)},
     reviewRating: {"@type": "Rating", alternateName: (CLST[r.st] || [r.st])[0]}, author: {"@type": "Organization", name: "Watcher", url: SITE}};
   else if (e.sec === "books") o = {"@type": "Book", name: r[2], datePublished: String(r[1]), description: d, image,
-    author: (r[3] || []).map(a => ({"@type": "Person", name: /^pp-/.test(a) ? (byId.get(a) || {}).title : a})).filter(a => a.name)};
+    author: (r[3] || []).map(a => { const t = authorPage(a); return {"@type": "Person", name: t ? t.title : a, url: t ? SITE + t.path : undefined}; }).filter(a => a.name)};
+  else if (e.sec === "authors") o = {"@type": "Person", name: r.name, description: d, jobTitle: "Author",
+    workExample: r.books.map(b => ({"@type": "Book", name: b[2], datePublished: String(b[1]), url: SITE + byId.get("tl-b-" + b[0]).path}))};
   else o = {"@type": "Article", headline: e.title, description: d, image};
   const page = {"@context": "https://schema.org", "@type": "WebPage", name: e.title, url, isPartOf: site, mainEntity: o,
     breadcrumb: {"@type": "BreadcrumbList", itemListElement: [
@@ -180,6 +193,7 @@ function jsonld(e, url, img) {
   return JSON.stringify(page, (k, v) => v === undefined ? undefined : v).replace(/</g, "\\u003c");
 }
 function shell({title, desc, url, depth, image, ld, body}) {
+  body = body.replace(/\n[ \t]*(?=\n)/g, "");
   const up = "../".repeat(depth);
   return `<!doctype html>
 <html lang="en">
@@ -220,6 +234,7 @@ function entryPage(e) {
 <h1>${esc(e.title)}</h1>
 ${e.sub && e.sec !== "claims" && e.sec !== "timeline" && e.sec !== "books" ? `<p class="sub">${esc(e.sub)}</p>` : ""}
 ${meta ? `<p class="meta">${esc(meta)}</p>` : ""}
+${e.sec === "books" && (e.raw[3] || []).length ? `<p class="by">By ${(e.raw[3] || []).map(a => { const t = authorPage(a); return t ? `<a href="../../${t.path}">${esc(t.title)}</a>` : esc(a); }).join(", ")}</p>` : ""}
 ${status}
 ${fig}
 ${bodyParas(e, ci, heads)}
@@ -231,6 +246,7 @@ ${sourceList(ci)}
   return shell({title, desc: describe(plain(e.d)), url, depth: 2, image: img && img.src, ld: jsonld(e, url, img), body});
 }
 function sectionPage(sec) {
+  if (sec === "authors") return authorsPage();
   const s = SECTIONS[sec], list = entries.filter(e => e.sec === sec).slice()
     .sort((a, b) => sec === "timeline" || sec === "books" ? (Number(a.raw[1]) - Number(b.raw[1])) || a.title.localeCompare(b.title) : a.title.localeCompare(b.title));
   const body = `<p class="crumb"><a href="../browse/">Browse</a></p>
@@ -242,11 +258,25 @@ ${list.map(e => `<li><a href="${e.slug}/">${esc(e.title)}</a>${e.sub ? ` <span>$
   return shell({title: `${s.title} · Watcher`, desc: s.blurb, url: SITE + sec + "/", depth: 1, body,
     ld: JSON.stringify({"@context": "https://schema.org", "@type": "CollectionPage", name: s.title, url: SITE + sec + "/", isPartOf: {"@type": "WebSite", name: "Watcher", url: SITE}})});
 }
+function authorsPage() {
+  const s = SECTIONS.authors, rows = [];
+  for (const [a, list] of booksBy) { const t = authorPage(a); if (t) rows.push({t, list}); }
+  const last = n => { const p = n.replace(/,.*$/, "").trim().split(/\s+/); return (p[p.length - 1] + " " + n).toLowerCase(); };
+  rows.sort((x, y) => last(x.t.title).localeCompare(last(y.t.title)));
+  const body = `<p class="crumb"><a href="../browse/">Browse</a></p>
+<h1>${esc(s.title)}</h1>
+<p class="sub">${esc(s.blurb)} ${rows.length} authors.</p>
+<ul class="list">
+${rows.map(r => `<li><a href="../${r.t.path}">${esc(r.t.title)}</a> <span>${esc(r.list.slice().sort((x, y) => x[1] - y[1]).map(b => b[2] + " (" + b[1] + ")").join("; "))}</span></li>`).join("\n")}
+</ul>`;
+  return shell({title: `${s.title} · Watcher`, desc: s.blurb, url: SITE + "authors/", depth: 1, body,
+    ld: JSON.stringify({"@context": "https://schema.org", "@type": "CollectionPage", name: s.title, url: SITE + "authors/", isPartOf: {"@type": "WebSite", name: "Watcher", url: SITE}})});
+}
 function browsePage() {
   const body = `<h1>Browse Watcher</h1>
 <p class="sub">Every entry in Watcher as a plain page you can read, link to and share. For the org chart, the map and the timeline, <a href="../">open the interactive site</a>.</p>
 <ul class="hub">
-${Object.keys(SECTIONS).map(k => `<li><a href="../${k}/"><strong>${esc(SECTIONS[k].title)}</strong></a> <span>${entries.filter(e => e.sec === k).length} entries</span><p>${esc(SECTIONS[k].blurb)}</p></li>`).join("\n")}
+${Object.keys(SECTIONS).map(k => `<li><a href="../${k}/"><strong>${esc(SECTIONS[k].title)}</strong></a> <span>${k === "authors" ? booksBy.size + " authors" : entries.filter(e => e.sec === k).length + " entries"}</span><p>${esc(SECTIONS[k].blurb)}</p></li>`).join("\n")}
 </ul>`;
   return shell({title: "Browse · Watcher", desc: "Every entry in Watcher, the sourced guide to UFO and UAP history, as a plain page: people, places, programs, claims, milestones and books.", url: SITE + "browse/", depth: 1, body});
 }
@@ -261,7 +291,7 @@ a{color:var(--link)}
 main{max-width:760px;margin:0 auto;padding:22px 20px 40px}
 h1{font:600 2.1rem/1.15 "Cormorant Garamond",Georgia,serif;margin:6px 0 6px}
 h2{font-size:1.05rem;margin:28px 0 8px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
-.sub{color:var(--ink2);margin:0 0 6px;font-size:1.05rem}.meta{color:var(--ink2);font-size:.95rem;margin:0 0 14px}
+.sub{color:var(--ink2);margin:0 0 6px;font-size:1.05rem}.by{margin:0 0 12px;font-size:1.05rem}.meta{color:var(--ink2);font-size:.95rem;margin:0 0 14px}
 .crumb{font-size:.9rem;color:var(--ink2);margin:0}
 .status{border-left:4px solid var(--amber);padding:6px 12px;background:var(--card);border-radius:4px}
 figure{margin:16px 0}figure img{max-width:100%;height:auto;border-radius:6px;display:block}
