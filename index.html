@@ -3669,19 +3669,21 @@ function moonTexLoad(src){var im=new Image();im.crossOrigin="anonymous";im.decod
 function moonFirst(){if(!MOONT)MOONT=moonTexLoad("img/moon/moon-2k.jpg").then(function(im){var G=moonGL();if(G)moonTexSet(G,im);return im},function(e){MOONT=null;throw e});return MOONT}
 function moonGL(){if(MGL)return MGL;bodySize();var gl=mc.getContext("webgl",{premultipliedAlpha:true,alpha:true,antialias:false});if(!gl)return null;
   var lod=gl.getExtension("EXT_shader_texture_lod");
-  var fs=(lod?"#extension GL_EXT_shader_texture_lod : enable\n":"")+"precision highp float;uniform sampler2D T;uniform vec2 C;uniform float S,P,H,R,TW,FULL,AMB;uniform vec3 E,N,F,L;\n"+
+  var fs=(lod?"#extension GL_EXT_shader_texture_lod : enable\n":"")+"precision highp float;uniform sampler2D T;uniform vec2 C;uniform float S,P,H,R,TW,FULL,AMB,ATM;uniform vec3 E,N,F,L;\n"+
     "void main(){vec2 d=vec2(gl_FragCoord.x,H-gl_FragCoord.y)-C;float cr=cos(R),sr=sin(R);d=vec2(cr*d.x+sr*d.y,-sr*d.x+cr*d.y);float X=d.x/S,Y=-d.y/S;"+
     "float rl=(P-1.)/sqrt(P*P-1.),a=clamp((rl-length(vec2(X,Y)))*S+.5,0.,1.);if(a<=0.)discard;"+
     "float A=X*X+Y*Y+(1.-P)*(1.-P),B=2.*P*(1.-P),D=max(B*B-4.*A*(P*P-1.),0.),t=(-B-sqrt(D))/(2.*A);vec3 s=vec3(t*X,t*Y,P+t*(1.-P));"+
     "vec3 g=normalize(s.x*E+s.y*N+s.z*F);vec2 uv=vec2(atan(g.y,g.x)/6.2831853+.5,.5-asin(clamp(g.z,-1.,1.))/3.1415927);"+
     "float lv=max(0.,log2(TW/6.2831853/S/max(.15,s.z)));"+
     (lod?"vec3 c=texture2DLodEXT(T,uv,lv).rgb;":"vec3 c=texture2D(T,uv).rgb;")+
-    "float l=dot(g,L),sh=mix(AMB,1.,smoothstep(-.03,.09,l))*(.92+.08*max(l,0.));sh=mix(sh,1.,FULL);gl_FragColor=vec4(c*sh*a,a);}";
+    "float l=dot(g,L),sh=mix(AMB,1.,smoothstep(-.03,.09,l))*(.92+.08*max(l,0.));sh=mix(sh,1.,FULL);vec3 col=c*sh;"+
+    /* Earth only (ATM>0): a thin blue atmosphere that thickens toward the edge, brightest on the sunlit side */
+    "float rim=pow(1.-clamp(s.z,0.,1.),2.5);col=mix(col,vec3(.42,.62,1.)*(.25+.75*sh),ATM*(.12+.6*rim));gl_FragColor=vec4(col*a,a);}";
   function sh(t,src){var s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
   var pr=gl.createProgram();try{gl.attachShader(pr,sh(gl.VERTEX_SHADER,"attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}"));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));}catch(e){return null}
   gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))return null;
   var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
-  var u={};["T","C","S","P","H","R","TW","FULL","AMB","E","N","F","L"].forEach(function(n){u[n]=gl.getUniformLocation(pr,n)});
+  var u={};["T","C","S","P","H","R","TW","FULL","AMB","ATM","E","N","F","L"].forEach(function(n){u[n]=gl.getUniformLocation(pr,n)});
   MGL={gl:gl,pr:pr,buf:b,u:u,ap:gl.getAttribLocation(pr,"p"),tex:null,tw:2048,max:gl.getParameter(gl.MAX_TEXTURE_SIZE)};return MGL}
 function moonTexSet(G,im,key){key=key||"tex";var gl=G.gl,t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);gl.generateMipmap(gl.TEXTURE_2D);
@@ -3691,10 +3693,10 @@ function moonTexSet(G,im,key){key=key||"tex";var gl=G.gl,t=gl.createTexture();gl
 /* where the Sun is overhead on the Moon right now: the near side faces Earth, so the phase sets the sub-solar longitude */
 function moonSun(){var mp=moonPos(Date.now()),el=Math.acos(Math.max(-1,Math.min(1,1-2*mp.lit)))/DEG;if(!mp.waxing)el=360-el;var lo=(180-el)*DEG;return [Math.cos(lo),Math.sin(lo),0]}
 /* one textured, sunlit globe: the same shader draws the Moon and, small in the Moon's sky, the Earth */
-function sphereDraw(G,tex,tw,cx,cy,S,P,rot,lon,lat,L,full,amb){var gl=G.gl,u=G.u,l0=lon*DEG,p0=lat*DEG,sl=Math.sin(l0),cl=Math.cos(l0),sp=Math.sin(p0),cp=Math.cos(p0);
+function sphereDraw(G,tex,tw,cx,cy,S,P,rot,lon,lat,L,full,amb,atm){var gl=G.gl,u=G.u,l0=lon*DEG,p0=lat*DEG,sl=Math.sin(l0),cl=Math.cos(l0),sp=Math.sin(p0),cp=Math.cos(p0);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,tex);gl.uniform1i(u.T,0);
   gl.uniform2f(u.C,cx*gDpr,cy*gDpr);gl.uniform1f(u.S,S*gDpr);gl.uniform1f(u.P,P);gl.uniform1f(u.H,mc.height);gl.uniform1f(u.R,rot||0);gl.uniform1f(u.TW,tw);
-  gl.uniform1f(u.FULL,full||0);gl.uniform1f(u.AMB,amb);gl.uniform3f(u.E,-sl,cl,0);gl.uniform3f(u.N,-sp*cl,-sp*sl,cp);gl.uniform3f(u.F,cp*cl,cp*sl,sp);gl.uniform3f(u.L,L[0],L[1],L[2]);
+  gl.uniform1f(u.FULL,full||0);gl.uniform1f(u.AMB,amb);gl.uniform1f(u.ATM,atm||0);gl.uniform3f(u.E,-sl,cl,0);gl.uniform3f(u.N,-sp*cl,-sp*sl,cp);gl.uniform3f(u.F,cp*cl,cp*sl,sp);gl.uniform3f(u.L,L[0],L[1],L[2]);
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}
 /* where Earth sits in the Moon's sky for the current view. The near side always faces Earth, so Earth is behind you
    while you look at the near side, hidden behind the Moon from the far side, and rises over the edge in between.
@@ -3707,7 +3709,7 @@ function moonDraw(rot,full){var G=moonGL();if(!G)return;var gl=G.gl;bodySize();g
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
   var es=!FLYING&&BODY==="moon"&&earthSky();
   if(es){if(G.texE){var now=Date.now(),mp=moonPos(now),sn=sunPos(now),la=sn.lat*DEG,lo=sn.lon*DEG;
-      sphereDraw(G,G.texE,G.texEW,es.x,es.y,es.R,1000,0,gWrap(mp.ra-gmst()),mp.dec,[Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la)],NIGHT?0:1,0.1);}
+      sphereDraw(G,G.texE,G.texEW,es.x,es.y,es.R,1000,0,gWrap(mp.ra-gmst()),mp.dec,[Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la)],NIGHT?0:1,0.1,1);}
     else earthTex();}
   sphereDraw(G,G.tex,G.tw,gcx,gcy,gS,gP,rot,gLon,gLat,moonSun(),full,0.24);}
 var EARTHT=null;function earthTex(){if(EARTHT)return;EARTHT=moonTexLoad("img/earth/earth-2k.jpg").then(function(im){var G=moonGL();if(G){moonTexSet(G,im,"texE");gQueue();}},function(){EARTHT=null});}
@@ -3729,7 +3731,9 @@ function moonLabels(){var c=fx;if(!c)return;c.setTransform(gDpr,0,0,gDpr,0,0);c.
     if(boxes.some(function(b){return r[0]<b[2]&&r[2]>b[0]&&r[1]<b[3]&&r[3]>b[1]}))return;boxes.push(r);
     c.fillStyle=L[3]?"rgba(236,240,248,.8)":"rgba(222,232,248,.75)";c.fillText(t,q[0],q[1]);});c.shadowBlur=0;}
 function moonSky(){return [gWrap(SKYB.lon+gLon),Math.max(-85,Math.min(85,SKYB.lat+gLat*0.5))]}
-function bodyDraw(){var c=gx;c.setTransform(gDpr,0,0,gDpr,0,0);var s=moonSky();drawSky(c,s[0],s[1]);moonDraw(0,moonFull());gPins();moonLabels();}
+function bodyDraw(){var c=gx;c.setTransform(gDpr,0,0,gDpr,0,0);var s=moonSky();drawSky(c,s[0],s[1]);
+  var es=earthSky();if(es&&MGL&&MGL.texE){var g=c.createRadialGradient(es.x,es.y,es.R*0.96,es.x,es.y,es.R*1.22);g.addColorStop(0,"rgba(120,170,255,.38)");g.addColorStop(0.35,"rgba(90,140,240,.14)");g.addColorStop(1,"rgba(60,100,220,0)");
+    c.fillStyle=g;c.beginPath();c.arc(es.x,es.y,es.R*1.22,0,6.2832);c.fill();}moonDraw(0,moonFull());gPins();moonLabels();}
 /* the Moon's spot in the sky drawn behind Earth, for a view centered at lon,lat (the same projection drawSky uses) */
 function skyPt(lon,lat,ra,dec){var a0=(lon+gmst()+180)*DEG,d0=-lat*DEG,sd0=Math.sin(d0),cd0=Math.cos(d0),sc=Math.max(gW,gH)/2/0.83,p1=Math.sin(dec*DEG),p2=Math.cos(dec*DEG),
   da=ra*DEG-a0,cda=Math.cos(da),cosc=sd0*p1+cd0*p2*cda,kk=2/(1+Math.max(cosc,-0.85));return [gW/2-sc*kk*p2*Math.sin(da),gH/2-sc*kk*(cd0*p1-sd0*p2*cda),cosc]}
