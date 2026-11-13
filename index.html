@@ -283,6 +283,17 @@ body.sat.mode-map .hint{bottom:40px}
 .node.haslogo{padding-left:50px}
 .node .nlg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 1px var(--hair);pointer-events:none}
 .node.hasflag{padding-left:60px}
+#cbar{display:flex;gap:4px;overflow-x:auto;flex:1 1 220px;min-width:0;max-width:100%;scrollbar-width:thin;padding:2px 0}
+@media (max-width:640px){html body.mode-tree header>.tb{width:100%;max-width:100%;flex:1 1 100%;min-width:0}#cbar{flex:none;overflow:visible}html body.mode-tree header>.tb>.seg{flex:none}}
+#cbar .cf{min-height:30px;padding:3px 5px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--card)}
+#cbar .cf img{width:26px;height:17px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--hair);display:block}
+#cbar .cf[aria-current="true"]{border-color:var(--focus);box-shadow:0 0 0 1px var(--focus)}
+#cname{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:8px;padding:5px 12px 5px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--hair);box-shadow:0 2px 8px rgba(0,0,0,.18);font:600 14px/1.2 Barlow,"Helvetica Neue",Arial,sans-serif;color:var(--ink);pointer-events:none}
+#cname[hidden]{display:none}
+#cname img{width:24px;height:16px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--hair)}
+#mini{position:absolute;right:12px;bottom:44px;z-index:3;background:var(--panel);border:1px solid var(--hair);border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.18);cursor:pointer;display:none;touch-action:none}
+.node.flash{animation:cflash 1.8s ease-out}
+@keyframes cflash{0%,30%{box-shadow:0 0 0 4px var(--focus),0 0 22px 6px var(--focus)}100%{box-shadow:0 0 0 0 transparent}}
 .node .nflag{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:40px;height:27px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.35),0 1px 3px rgba(0,0,0,.35);pointer-events:none}
 .pill.ctry{display:inline-flex;align-items:center;gap:6px}
 .pflag{width:18px;height:12px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px var(--hair)}
@@ -389,6 +400,7 @@ sup.cn a:hover,sup.cn a:focus-visible{background:var(--amber);color:#fff}
   /* the compass moves out from under the open details panel */
   #compass{transition:right .22s ease}
   body.dossier #compass{right:calc(min(var(--pw),100%) + 12px)}
+  body.dossier #mini{right:calc(min(var(--pw),100%) + 12px)}
   body.dossier #world .node,body.dossier #edges,body.dossier #tlitems .tlb,body.dossier #tlitems .tle,body.dossier #pins .pin .mk,body.dossier #pins .pin .lb{transition:opacity .25s ease}
   body.dossier #world .node:not(.sel){opacity:.35}
   body.dossier #edges{opacity:.35}
@@ -3054,9 +3066,9 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="srch" role="search"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.8" cy="6.8" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6L14.5 14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="q" type="search" placeholder="Search people, places, programs" aria-label="Search people, places, and programs" autocomplete="off" spellcheck="false" role="combobox" aria-controls="qr" aria-expanded="false" aria-autocomplete="list"><div id="qr" role="listbox" aria-label="Search results" hidden></div></div>'+
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
-'<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><select class="treeonly" id="jump" aria-label="Jump to a country"><option value="">Jump to country</option></select>'+
+'<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><span class="seg treeonly" role="group" aria-label="Countries shown"><button id="cUS" aria-pressed="true">U.S.</button><button id="cAll" aria-pressed="false">All countries</button></span><div id="cbar" class="treeonly" role="toolbar" aria-label="Jump to a country"></div>'+
 '<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
-'<div id="vp" role="main"><div id="world"><svg id="edges"></svg></div>'+
+'<div id="vp" role="main"><div id="cname" class="treeonly" aria-live="polite" hidden></div><canvas id="mini" class="treeonly" aria-hidden="true"></canvas><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
 '<div class="legend treeonly"><span><i class="sw a"></i>Active UAP office</span><span><i class="sw c"></i>Closed program</span><span><i class="sw s"></i>Secret project</span><span><i class="sw"></i>Parent body</span><span id="lgl" hidden><i class="sw l"></i>Succeeded by</span></div>'+
@@ -3928,6 +3940,41 @@ try{var mf0=JSON.parse(localStorage.getItem("watcher-mapkeys")||"{}");Object.key
 var SUBS={tree:"Who runs UAP work in the U.S. and other governments",map:"Bases, sightings, and secret sites around the world",timeline:"Programs, incidents, and books since 1900"};
 var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details and notes.",map:"Drag to spin the globe, scroll or pinch to zoom in to street level. Switch to Satellite for real imagery, and try 3D terrain (right-drag or two-finger drag to tilt). Pins mark major sites and notable cases, not every one.",timeline:"Drag sideways to travel through time. Tap any bar or event for details and links to the org chart and map."};
 
+/* org chart countries: the U.S. alone by default, or every country side by side; remembered on this device */
+var SHOWALL=(function(){try{return localStorage.getItem("watcher-countries")==="all"}catch(e){return false}})(),CSPAN={};
+function rootOfIn(id){var all=treeAll(),m={},n,g=0;all.forEach(function(x){m[x.id]=x});n=m[id];while(n&&n.p&&m[n.p]&&g++<40)n=m[n.p];return n?n.id:null}
+function treeShown(){var all=treeAll();if(SHOWALL)return all;var m={};all.forEach(function(x){m[x.id]=x});
+  return all.filter(function(x){var n=x,g=0;while(n&&n.p&&m[n.p]&&g++<40)n=m[n.p];return !n||n.id==="gov"})}
+function setCountries(all,then){if(all!==SHOWALL){SHOWALL=all;try{localStorage.setItem("watcher-countries",all?"all":"us")}catch(e){}}
+  document.getElementById("cUS").setAttribute("aria-pressed",!all);document.getElementById("cAll").setAttribute("aria-pressed",all);
+  if(mode==="tree"){renderTree();if(then)then();else if(!all)homeTree();else apply();}}
+function cbarSync(){var b=document.getElementById("cbar");if(!b)return;var roots=treeAll().filter(function(n){return !n.p&&n.cn});
+  if(b.childElementCount!==roots.length)b.innerHTML=roots.map(function(r){return '<button class="cf" data-c="'+r.id+'" title="'+esc(r.cn)+'" aria-label="'+esc(r.cn)+'">'+(FLAGS[r.id]?'<img src="'+FLAGS[r.id]+'" alt="">':esc(r.cn))+'</button>'}).join("");
+  document.getElementById("cUS").setAttribute("aria-pressed",!SHOWALL);document.getElementById("cAll").setAttribute("aria-pressed",SHOWALL);}
+/* jump to a country: turn on All countries if needed, bring its top box into view, and flash it so the eye finds it */
+function jumpCountry(id){function go(){var p=pos[id];if(!p)return;var r=vpR(),sm=r.width<640;k=Math.max(treeFitK(),sm?0.6:0.85);
+    var cs=CSPAN[id],cx=cs&&cs.x1>cs.x0?(cs.x0+cs.x1)/2:p.x+W/2;tx=r.width/2-cx*k;if((cs.x1-cs.x0)*k>r.width*0.9)tx=r.width*(sm?0.5:0.4)-(p.x+W/2)*k;ty=Math.max(24,r.height*0.1)-p.y*k+20;apply();
+    var el=world.querySelector('.node[data-id="'+id+'"]');if(el&&!RM){el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1800);}}
+  if(id!=="gov"&&!SHOWALL)setCountries(true,go);else go();}
+/* the country name and flag pinned to the top of the chart while you pan around its tree */
+function cnameSync(){var el=document.getElementById("cname");if(!el)return;if(mode!=="tree"||!SHOWALL){el.hidden=true;return;}
+  var r=vpR(),fp=fitPad(),cx=((fp.left+r.width-fp.right)/2-tx)/k,best=null;Object.keys(CSPAN).forEach(function(id){var c=CSPAN[id];if(cx>=c.x0-120&&cx<=c.x1+120&&(!best||Math.abs(cx-(c.x0+c.x1)/2)<Math.abs(cx-(CSPAN[best].x0+CSPAN[best].x1)/2)))best=id;});
+  if(!best){el.hidden=true;return;}if(el.dataset.c!==best){el.dataset.c=best;el.innerHTML=(FLAGS[best]?'<img src="'+FLAGS[best]+'" alt="">':'')+'<span>'+esc(CSPAN[best].t)+'</span>';}el.hidden=false;
+  document.querySelectorAll("#cbar .cf").forEach(function(b){b.setAttribute("aria-current",b.dataset.c===best?"true":"false")});}
+/* overview map: the whole chart in miniature with a box for the part on screen; click or drag on it to move there */
+var MINI=null;
+function miniDraw(){var c=document.getElementById("mini");if(!c)return;var r=vpR();if(mode!=="tree"||!bounds.w||r.width<640||!SHOWALL){c.style.display="none";MINI=null;return;}
+  var mw=Math.min(300,r.width*0.26),sc=mw/bounds.w,mh=bounds.h*sc;if(mh>120){sc=120/bounds.h;mh=120;mw=bounds.w*sc;}
+  var d=Math.min(2,window.devicePixelRatio||1);c.style.display="block";c.style.width=mw+"px";c.style.height=mh+"px";if(c.width!==Math.round(mw*d)||c.height!==Math.round(mh*d)){c.width=Math.round(mw*d);c.height=Math.round(mh*d);}
+  var x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,mw,mh);var cs=getComputedStyle(document.documentElement);
+  treeShown().forEach(function(n){var p=pos[n.id];if(!p)return;x.fillStyle=!n.p?"#14263D":n.k==="active"?"#D08A1E":n.k==="secret"?"#8A6BC8":"rgba(120,130,150,.55)";x.fillRect(p.x*sc,p.y*sc,Math.max(1.5,W*sc),Math.max(1.5,(p.h||70)*sc));});
+  var vx=-tx/k*sc,vy=-ty/k*sc,vw=r.width/k*sc,vh=r.height/k*sc;x.strokeStyle="#E06A36";x.lineWidth=1.5;x.strokeRect(Math.max(0.75,vx),Math.max(0.75,vy),Math.min(vw,mw-1.5),Math.min(vh,mh-1.5));
+  MINI={sc:sc};}
+function miniInit(){var c=document.getElementById("mini"),down=false;if(!c)return;
+  function go(e){if(!MINI)return;var b=c.getBoundingClientRect(),r=vpR();tx=r.width/2-((e.clientX-b.left)/MINI.sc)*k;ty=r.height/2-((e.clientY-b.top)/MINI.sc)*k;apply();}
+  c.addEventListener("pointerdown",function(e){down=true;c.setPointerCapture(e.pointerId);go(e);e.stopPropagation();});
+  c.addEventListener("pointermove",function(e){if(down)go(e)});c.addEventListener("pointerup",function(){down=false});c.addEventListener("pointercancel",function(){down=false});
+  document.getElementById("cbar").addEventListener("click",function(e){var b=e.target.closest(".cf");if(b)jumpCountry(b.dataset.c)});}
 function treeAll(){return BASE.concat(state.custom.map(function(c){return {id:c.id,p:c.p,t:c.t,s:c.s||"",k:"custom",d:[],custom:"tree"}}))}
 function pinAll(){return MAP.pins.concat(state.pins.map(function(p){return {id:p.id,c:"mine",t:p.t,s:p.s||"",lat:p.lat,lon:p.lon,d:[],custom:"pin"}}))}
 function findItem(id){return treeAll().find(function(x){return x.id===id})||pinAll().find(function(x){return x.id===id})}
@@ -3935,7 +3982,7 @@ function kids(list,id){return list.filter(function(n){return n.p===id})}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 
 function renderTree(){
-  var list=treeAll(),nx=PAD,heights={};
+  var list=treeShown(),nx=PAD,heights={};
   world.querySelectorAll(".node").forEach(function(e){e.remove()});
   list.forEach(function(n){
     var el=document.createElement("div");
@@ -3989,7 +4036,8 @@ function renderTree(){
   /* each country's government is its own tree, laid out left to right with a wide gap between countries */
   roots.forEach(function(r,i){if(i)nx+=CGAP;lay(r.id,0);});
   bounds={w:nx-GAP+PAD,h:bottom+PAD};
-  var jp=document.getElementById("jump");if(jp&&jp.options.length!==roots.length+1)jp.innerHTML='<option value="">Jump to country</option>'+roots.map(function(r){return '<option value="'+r.id+'">'+esc(r.cn||r.t)+'</option>'}).join("");
+  CSPAN={};roots.forEach(function(r){var x0=1e9,x1=-1e9;list.forEach(function(n){if(rootOfIn(n.id)===r.id&&pos[n.id]){x0=Math.min(x0,pos[n.id].x);x1=Math.max(x1,pos[n.id].x+W);}});CSPAN[r.id]={x0:x0,x1:x1,t:r.cn||r.t};});
+  list.forEach(function(n){if(pos[n.id])pos[n.id].h=heights[n.id];});cbarSync();
   world.querySelectorAll(".node").forEach(function(el){var p=pos[el.dataset.id];if(!p){el.remove();return;}el.style.left=p.x+"px";el.style.top=p.y+"px";});
   svg.setAttribute("width",bounds.w);svg.setAttribute("height",bounds.h);
   var paths=edges;
@@ -4031,7 +4079,7 @@ function tlAxis(){var el=document.getElementById("tlaxis");if(!el||mode!=="timel
     if(y%step===0){var room=y%10===0?44:36;if(x-lastX<room||used.some(function(u){return Math.abs(u-x)<room*0.75}))return;
       lastX=x;h+='<div class="tly'+(y%10===0?' dec':'')+'" style="left:'+x.toFixed(1)+'px">'+y+'</div>';}});
   h+='<div class="tly now" style="left:'+(tx+yx(NOWY)*k).toFixed(1)+'px">Now</div>';el.innerHTML=h;}
-function apply(){if(mode==="map"){gQueue();return;}clampPan();var el={tree:world,timeline:document.getElementById("tlw")}[mode];el.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";if(mode==="timeline"){var iz=Math.min(1,1/k);el.style.setProperty("--iz",iz.toFixed(4));}
+function apply(){if(mode==="map"){gQueue();return;}clampPan();var el={tree:world,timeline:document.getElementById("tlw")}[mode];el.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";if(mode==="tree"){miniDraw();cnameSync();}else{var cn0=document.getElementById("cname");if(cn0)cn0.hidden=true;}if(mode==="timeline"){var iz=Math.min(1,1/k);el.style.setProperty("--iz",iz.toFixed(4));}
   var g=40*k;vp.style.backgroundSize=g+"px "+g+"px";vp.style.backgroundPosition=tx+"px "+ty+"px";tlAxis();}
 function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBounds}
 /* Fit on the map shows the whole globe, upright and facing north, centered in the space beside (or above) an open
@@ -4063,7 +4111,7 @@ function pw(r){return Math.min(r.width,panel.offsetWidth||380)}
 function focusAt(x,y,minK){var r=vpR();var wide=r.width>640;
   var cx=wide?(r.width-pw(r))/2:r.width/2,cy=wide?r.height/2:r.height*0.2;
   if(k<minK)k=minK;tx=cx-x*k;ty=cy-y*k;apply();}
-function focusItem(id){if(mode==="timeline"){var t=tlPos[id];if(!t&&TLById[id]){TLF[TLById[id].kind]=true;tlFilter();t=tlPos[id];}if(t)focusAt(t.cx,t.cy,1.3);return;}if(mode==="tree"){var p=pos[id];if(p)focusAt(p.x+W/2,p.y+40,1.1);}else{var q=pinAll().find(function(x){return x.id===id});if(q&&q.lat!=null&&(q.body||"earth")!==BODY){if(!FLYING)goBody(q.body||"earth",function(){focusItem(id)});return;}
+function focusItem(id){if(mode==="timeline"){var t=tlPos[id];if(!t&&TLById[id]){TLF[TLById[id].kind]=true;tlFilter();t=tlPos[id];}if(t)focusAt(t.cx,t.cy,1.3);return;}if(mode==="tree"){var p=pos[id];if(p)focusAt(p.x+W/2,p.y+40,1.1);else if(isTree(id)&&!SHOWALL)setCountries(true,function(){var q=pos[id];if(q)focusAt(q.x+W/2,q.y+40,1.1);});}else{var q=pinAll().find(function(x){return x.id===id});if(q&&q.lat!=null&&(q.body||"earth")!==BODY){if(!FLYING)goBody(q.body||"earth",function(){focusItem(id)});return;}
   if(q&&q.lat!=null&&BODY!=="earth"){var r0=vpR(),w0=r0.width>640;gFly(q.lat,q.lon,Math.min(KMAX,Math.max(k,3)),w0?(r0.width-pw(r0))/2:r0.width/2,w0?r0.height/2:r0.height*0.2);return;}
   if(q&&q.lat!=null&&SAT&&satMap){var r=vpR(),wide=r.width>640;var zf=zoneFit(q.id);satMap.flyTo({center:zf?[zf.lon,zf.lat]:[q.lon,q.lat],zoom:zf?kToZ(zf.k):Math.max(satMap.getZoom(),kToZ(12)),offset:wide?[-pw(r)/2,0]:[0,-Math.round(r.height*0.3)],padding:{top:0,bottom:0,left:0,right:0},duration:RM?0:1600});}
   else if(q&&q.lat!=null){var r=vpR(),wide=r.width>640;var zf=zoneFit(q.id);gFly(zf?zf.lat:q.lat,zf?zf.lon:q.lon,zf?zf.k:Math.max(k,12),wide?(r.width-pw(r))/2:r.width/2,wide?r.height/2:r.height*0.2);}}}
@@ -4090,7 +4138,7 @@ function setMode(m){if(m===mode)return;if(m==="map"&&!mapWait(function(){setMode
   hint.textContent=HINTS[m];document.getElementById("vt").textContent=SUBS[m];if(m==="map"&&!SAT&&BODY==="earth"&&satWanted())setTimeout(function(){setSat(true)},0);document.getElementById("addpin").textContent="Add a pin";render();
   if(views[m]){tx=views[m].tx;ty=views[m].ty;k=views[m].k;if(m==="map"){gLon=views[m].lon;gLat=views[m].lat;gox=views[m].ox;goy=views[m].oy;}apply();}else if(m==="tree")homeTree();else if(m==="timeline")homeTL();else if(m==="map")homeMap();else fit();}
 document.getElementById("mt").onclick=function(){switchTo("tree")};
-document.getElementById("jump").onchange=function(){var id=this.value,p=pos[id];this.value="";if(!p)return;var r=vpR();k=Math.max(treeFitK(),r.width<640?0.6:0.85);tx=r.width*(r.width<640?0.5:0.4)-(p.x+W/2)*k;ty=Math.max(24,r.height*0.1)-p.y*k+20;apply();this.blur();};
+document.getElementById("cUS").onclick=function(){setCountries(false)};document.getElementById("cAll").onclick=function(){setCountries(true)};miniInit();
 document.getElementById("mm").onclick=function(){switchTo("map")};
 document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
@@ -4101,7 +4149,7 @@ document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.ease
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
-vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey,.keybtn"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
+vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey,.keybtn,#mini,#cname"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
   if(ptrs.size===2){var v=[...ptrs.values()];startDist=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);startK=k;}vp.classList.add("drag");});
 vp.addEventListener("pointermove",function(e){if(!ptrs.has(e.pointerId))return;var prev=ptrs.get(e.pointerId);var dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
   var r=vpR();
