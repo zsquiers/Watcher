@@ -179,6 +179,8 @@ body:not(.mode-tree) .treeonly,body:not(.mode-map) .maponly,body:not(.mode-timel
 #globe{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
 #sat{position:absolute;inset:0;display:none;background:transparent}
 #haze{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}
+body.satwait #sat{opacity:0}
+#sat{transition:opacity .25s ease}
 #moonc,#fly{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;display:none}
 body.travel #moonc,body.travel #fly,body.offworld #moonc,body.offworld #fly{display:block}
 body.travel #pins{visibility:hidden}
@@ -3094,7 +3096,11 @@ var vp=document.getElementById("vp"),world=document.getElementById("world"),svg=
 var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 var KMIN=0.6,KMAX=250,KC=10,KT=25,KS=14,SUBS2=null,gc=null,gx=null,gW=0,gH=0,gDpr=1,gLon=-60,gLat=25,gox=0,goy=0,gR=1,gS=1,gP=1e9,gcx=0,gcy=0,gProj=null,gStars=null,gQueued=false,gAnim=0,WD=null,TOWNS=null,PINS=[];
 function gInit(){gc=document.getElementById("globe");gx=gc.getContext("2d");gSize();}
-function gSize(){var r=vpR();gDpr=Math.min(2,window.devicePixelRatio||1);gW=r.width;gH=r.height;gc.width=Math.round(gW*gDpr);gc.height=Math.round(gH*gDpr);gStars=null;bodySize();}
+/* resizing a canvas wipes it, so only resize when the size really changes, and then keep the old picture until the
+   next redraw (mid-flight to the Moon nothing else redraws it, and a wiped sky showed as a black flash) */
+function canvasFit(cv,w,h){if(!cv||(cv.width===w&&cv.height===h))return;var old=null;if(cv.width&&cv.height&&cv.getContext&&cv.id!=="moonc"){old=document.createElement("canvas");old.width=cv.width;old.height=cv.height;old.getContext("2d").drawImage(cv,0,0);}
+  cv.width=w;cv.height=h;if(old){var x=cv.getContext("2d");x.setTransform(1,0,0,1,0,0);x.drawImage(old,0,0);}}
+function gSize(){var r=vpR();gDpr=Math.min(2,window.devicePixelRatio||1);gW=r.width;gH=r.height;canvasFit(gc,Math.round(gW*gDpr),Math.round(gH*gDpr));gStars=null;bodySize();}
 function gWrap(l){return ((l+540)%360+360)%360-180}
 function gClampLat(v){return Math.max(-85,Math.min(85,v))}
 /* the globe is drawn in perspective from the same spot as the satellite map's camera (MapLibre puts it 1.5 viewport
@@ -3640,7 +3646,7 @@ var MOONLBL=[["Mare Tranquillitatis",31.4,8.5,0],["Mare Serenitatis",17.5,28,0],
   ["Mare Moscoviense",147.9,27.3,0],["South Pole–Aitken basin",-169,-53,0],["Copernicus",-20.1,9.6,1],["Tycho",-11.4,-43.3,1],["Kepler",-38,8.1,1],["Plato",-9.4,51.6,1],
   ["Aristarchus",-47.4,23.7,1],["Clavius",-14.4,-58.4,1],["Grimaldi",-68.6,-5.2,1],["Tsiolkovskiy",129.1,-20.4,1]];
 function bodySize(){mc=mc||document.getElementById("moonc");fc=fc||document.getElementById("fly");if(!fc)return;fx=fx||fc.getContext("2d");
-  var w=Math.round(gW*gDpr),h=Math.round(gH*gDpr);if(fc.width!==w||fc.height!==h){fc.width=w;fc.height=h;}if(mc.width!==w||mc.height!==h){mc.width=w;mc.height=h;}}
+  var w=Math.round(gW*gDpr),h=Math.round(gH*gDpr);canvasFit(fc,w,h);if(mc.width!==w||mc.height!==h){mc.width=w;mc.height=h;if(!FLYING)gQueue();}}
 /* asked for with CORS: on preview hosts the file comes from another site, and WebGL refuses images it may not read */
 function moonTexLoad(src){var im=new Image();im.crossOrigin="anonymous";im.decoding="async";return new Promise(function(res,rej){im.onload=function(){res(im)};im.onerror=rej;im.src=src})}
 function moonFirst(){if(!MOONT)MOONT=moonTexLoad("img/moon/moon-2k.jpg").then(function(im){var G=moonGL();if(G)moonTexSet(G,im);return im},function(e){MOONT=null;throw e});return MOONT}
@@ -3710,6 +3716,14 @@ function bodyDraw(){var c=gx;c.setTransform(gDpr,0,0,gDpr,0,0);var s=moonSky();d
 /* the Moon's spot in the sky drawn behind Earth, for a view centered at lon,lat (the same projection drawSky uses) */
 function skyPt(lon,lat,ra,dec){var a0=(lon+gmst()+180)*DEG,d0=-lat*DEG,sd0=Math.sin(d0),cd0=Math.cos(d0),sc=Math.max(gW,gH)/2/0.83,p1=Math.sin(dec*DEG),p2=Math.cos(dec*DEG),
   da=ra*DEG-a0,cda=Math.cos(da),cosc=sd0*p1+cd0*p2*cda,kk=2/(1+Math.max(cosc,-0.85));return [gW/2-sc*kk*p2*Math.sin(da),gH/2-sc*kk*(cd0*p1-sd0*p2*cda),cosc]}
+/* the Moon's spot and the direction of its lit side in the sky for a view centered at lon,lat, computed the same way
+   drawSky draws the little Moon, but without drawing anything */
+function skyMoonAt(lon,lat){var now=Date.now(),mp=moonPos(now),sp=sunPos(now),m=skyPt(lon,lat,mp.ra,mp.dec);
+  function v(ra,dec){var r=ra*DEG,d=dec*DEG;return [Math.cos(d)*Math.cos(r),Math.cos(d)*Math.sin(r),Math.sin(d)]}
+  var a=v(mp.ra,mp.dec),b=v(sp.ra,sp.dec),q=[a[0]+(b[0]-a[0])*0.02,a[1]+(b[1]-a[1])*0.02,a[2]+(b[2]-a[2])*0.02],n=Math.hypot(q[0],q[1],q[2]),
+    Q=skyPt(lon,lat,Math.atan2(q[1],q[0])/DEG,Math.asin(q[2]/n)/DEG);return {x:m[0],y:m[1],ang:Math.atan2(Q[1]-m[1],Q[0]-m[0])}}
+/* the sky view with the Moon straight ahead: where the camera ends up looking when it arrives */
+function moonAhead(){var mp=moonPos(Date.now());return {lon:gWrap(mp.ra-gmst()-180),lat:Math.max(-85,Math.min(85,-mp.dec))}}
 /* turn Earth so the Moon shows beside it at screen point T */
 function moonView(T){var mp=moonPos(Date.now()),lon=gWrap(mp.ra-gmst()-180),lat=Math.max(-80,Math.min(80,-mp.dec));
   for(var i=0;i<16;i++){var f=skyPt(lon,lat,mp.ra,mp.dec),e=[f[0]-T[0],f[1]-T[1]];if(Math.hypot(e[0],e[1])<0.5)break;
@@ -3728,10 +3742,11 @@ function earthSnap(){return new Promise(function(res){
       cv.getContext("2d").drawImage(s,0,0);res(cv)});satMap.triggerRepaint();setTimeout(function(){if(!done){done=true;res(null)}},800);return;}
   gSetProj();var cv=document.createElement("canvas"),r=gR*1.25*gDpr;cv.width=gc.width;cv.height=gc.height;var c=cv.getContext("2d");c.beginPath();c.arc(gcx*gDpr,gcy*gDpr,r,0,6.2832);c.clip();c.drawImage(gc,0,0);res(cv);})}
 /* one frame of the trip: t runs 0 at Earth to 1 at the Moon */
-function flyFrame(t,F){var u=t*t*(3-2*t),c=gx,M=F.M,s=1+3*t*t;MOONHIDE=true;
+/* the stars are too far away to move as we fly, so the sky only turns: from the view behind Earth to the view
+   centered on the Moon, which is exactly the sky the Moon view starts with. No zoom and no crossfade, so nothing jumps */
+function flyFrame(t,F){var u=t*t*(3-2*t),c=gx,M=F.M;MOONHIDE=true;
   c.setTransform(1,0,0,1,0,0);c.fillStyle="#040812";c.fillRect(0,0,gc.width,gc.height);
-  c.setTransform(gDpr*s,0,0,gDpr*s,gDpr*M[0]*(1-s),gDpr*M[1]*(1-s));drawSky(c,F.ea.lon,F.ea.lat);
-  if(t>0.78){c.setTransform(gDpr,0,0,gDpr,0,0);c.globalAlpha=(t-0.78)/0.22;var q=[SKYB.lon,SKYB.lat];drawSky(c,q[0],q[1]);c.globalAlpha=1;}
+  c.setTransform(gDpr,0,0,gDpr,0,0);drawSky(c,gWrap(F.ea.lon+gWrap(F.sk.lon-F.ea.lon)*u),F.ea.lat+(F.sk.lat-F.ea.lat)*u);
   c.setTransform(1,0,0,1,0,0);
   var r=11*Math.pow(F.R1/11,Math.pow(t,1.7)),cx=M[0]+(F.C[0]-M[0])*u,cy=M[1]+(F.C[1]-M[1])*u;
   k=r/(Math.min(gW,gH)*0.42);gox=cx-gW/2;goy=cy-gH/2;gLon=0;gLat=0;moonDraw(F.th*(1-u),0);
@@ -3758,9 +3773,9 @@ function toMoon(then){FLYING=true;cancelAnimationFrame(gAnim);var btn=document.g
       :new Promise(function(res){gFly(v.lat,v.lon,kA,gW/2,gH/2);var n=0;(function w(){if(RM||Math.abs(k-kA)<1e-4||n++>80)res();else setTimeout(w,100);})();});
     Promise.all([phaseA,tex]).then(function(){return earthSnap()}).then(function(snap){
       if(wasSat){var c=satMap.getCenter();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=kFromScale(satScale());gox=0;goy=0;SAT=false;document.body.classList.remove("sat","street");}
-      gSetProj();EARTHA={lon:gLon,lat:gLat,k:k,ox:gox,oy:goy};SNAP=snap;SKYB={lon:EARTHA.lon,lat:EARTHA.lat};
-      MOONHIDE=false;gx.setTransform(gDpr,0,0,gDpr,0,0);drawSky(gx,gLon,gLat);var sm=SKYMOON||{x:gW*0.8,y:gH*0.3,ang:0},L=moonSun(),
-        F={M:[sm.x,sm.y],E:[gcx,gcy],snap:snap,ea:{lon:EARTHA.lon,lat:EARTHA.lat},th:sm.ang-(L[1]>=0?0:Math.PI)};
+      gSetProj();EARTHA={lon:gLon,lat:gLat,k:k,ox:gox,oy:goy};SNAP=snap;SKYB=moonAhead();
+      var sm=skyMoonAt(gLon,gLat),L=moonSun(),
+        F={M:[sm.x,sm.y],E:[gcx,gcy],snap:snap,ea:{lon:EARTHA.lon,lat:EARTHA.lat},sk:SKYB,th:sm.ang-(L[1]>=0?0:Math.PI)};
       var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;
       document.body.classList.add("travel");bodySize();
       return tween(2600,function(t){flyFrame(t,F)});}).then(function(){
@@ -3772,9 +3787,8 @@ function toEarth(then){FLYING=true;var btn=document.getElementById("goMoon");btn
   var B=freeBox(),C=[(B.x0+B.x1)/2,(B.y0+B.y1)/2];gFly(0,0,1,C[0],C[1]);
   wait(RM?0:800).then(function(){cancelAnimationFrame(gAnim);
     var ea=EARTHA||{lon:gLon,lat:gLat,k:0.62,ox:0,oy:0},sk=Math.min(gW,gH)*0.42;
-    gx.setTransform(gDpr,0,0,gDpr,0,0);BODY="earth";drawSky(gx,ea.lon,ea.lat);BODY="moon";
-    var sm=SKYMOON||{x:gW*0.8,y:gH*0.3,ang:0},L=moonSun(),Eo=[gW/2+(ea.ox||0),gH/2+(ea.oy||0)];
-    var F={M:[sm.x,sm.y],E:Eo,snap:SNAP,ea:ea,th:sm.ang-(L[1]>=0?0:Math.PI),C:C,R1:sk*k,ER:sk*(ea.k||0.62)};
+    var sm=skyMoonAt(ea.lon,ea.lat),L=moonSun(),Eo=[gW/2+(ea.ox||0),gH/2+(ea.oy||0)];
+    var F={M:[sm.x,sm.y],E:Eo,snap:SNAP,ea:ea,sk:SKYB,th:sm.ang-(L[1]>=0?0:Math.PI),C:C,R1:sk*k,ER:sk*(ea.k||0.62)};
     renderMap();document.body.classList.add("travel");
     return tween(2200,function(t){flyFrame(1-t,F)});}).then(function(){
     var ea=EARTHA||{lon:gLon,lat:gLat,k:0.62,ox:0,oy:0},ret=BODYRET||{sat:false,lon:ea.lon,lat:ea.lat,k:1,ox:0,oy:0};
@@ -3782,8 +3796,8 @@ function toEarth(then){FLYING=true;var btn=document.getElementById("goMoon");btn
     gLon=ea.lon;gLat=ea.lat;k=ea.k;gox=ea.ox||0;goy=ea.oy||0;
     if(selId&&(function(q){return q&&q.body})(pinAll().find(function(x){return x.id===selId})))closePanel();
     bodyUI();renderMap();
-    if(ret.sat){setSat(true);var fin=function(){FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);btn.disabled=false;
-        satMap.easeTo({center:[ret.lon,ret.lat],zoom:ret.z,pitch:ret.pitch,bearing:ret.bearing,duration:RM?0:1300});if(then)then();};
+    if(ret.sat){document.body.classList.add("satwait");setSat(true);var fin=function(){document.body.classList.remove("satwait");setTimeout(function(){FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);gQueue();
+          satMap.easeTo({center:[ret.lon,ret.lat],zoom:ret.z,pitch:ret.pitch,bearing:ret.bearing,duration:RM?0:1300});if(then)then();},RM?0:260);btn.disabled=false;};
       var tries=0;(function chk(){if(SAT&&satMap&&satReady){satMap.once("idle",fin);satMap.triggerRepaint();}else if(tries++<40)setTimeout(chk,150);else fin();})();}
     else{FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);btn.disabled=false;gQueue();gFly(ret.lat,ret.lon,ret.k,gW/2+ret.ox,gH/2+ret.oy);if(then)then();}});}
 gInit();
