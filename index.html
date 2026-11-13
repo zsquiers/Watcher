@@ -3731,7 +3731,15 @@ function moonLabels(){var c=fx;if(!c)return;c.setTransform(gDpr,0,0,gDpr,0,0);c.
     if(boxes.some(function(b){return r[0]<b[2]&&r[2]>b[0]&&r[1]<b[3]&&r[3]>b[1]}))return;boxes.push(r);
     c.fillStyle=L[3]?"rgba(236,240,248,.8)":"rgba(222,232,248,.75)";c.fillText(t,q[0],q[1]);});c.shadowBlur=0;}
 function moonSky(){return [gWrap(SKYB.lon+gLon),Math.max(-85,Math.min(85,SKYB.lat+gLat*0.5))]}
-function bodyDraw(){var c=gx;c.setTransform(gDpr,0,0,gDpr,0,0);var s=moonSky();drawSky(c,s[0],s[1]);
+var SKYROT=0;
+/* the Sun in the Moon view: placed by its direction from the Moon, the same direction that lights the Moon's surface,
+   so it always sits on the lit side; on arrival it lands exactly where the flight's sky showed it */
+function sunSky(){var L=moonSun(),l0=gLon*DEG,p0=gLat*DEG,sl=Math.sin(l0),cl=Math.cos(l0),sp=Math.sin(p0),cp=Math.cos(p0),
+    vx=-sl*L[0]+cl*L[1],vy=-sp*cl*L[0]-sp*sl*L[1]+cp*L[2],vz=cp*cl*L[0]+cp*sl*L[1]+sp*L[2],cc=-vz;if(cc<-0.2)return null;
+  var c=Math.acos(Math.max(-1,Math.min(1,cc))),sc=Math.max(gW,gH)/2/0.83,r=2*sc*Math.tan(c/2),n=Math.hypot(vx,vy)||1,x=gW/2+r*vx/n,y=gH/2-r*vy/n;
+  return x>-200&&x<gW+200&&y>-200&&y<gH+200?{x:x,y:y}:null}
+function bodyDraw(){var c=gx;c.setTransform(gDpr,0,0,gDpr,0,0);var s=moonSky();c.fillStyle="#040812";c.fillRect(0,0,gW,gH);c.translate(gW/2,gH/2);c.rotate(SKYROT);c.translate(-gW/2,-gH/2);drawSky(c,s[0],s[1]);c.setTransform(gDpr,0,0,gDpr,0,0);
+  var su=sunSky();if(su){var SP=sunSprite();c.drawImage(SP,su.x-SP.width/2,su.y-SP.height/2);}
   var es=earthSky();if(es&&MGL&&MGL.texE){var g=c.createRadialGradient(es.x,es.y,es.R*0.96,es.x,es.y,es.R*1.22);g.addColorStop(0,"rgba(120,170,255,.38)");g.addColorStop(0.35,"rgba(90,140,240,.14)");g.addColorStop(1,"rgba(60,100,220,0)");
     c.fillStyle=g;c.beginPath();c.arc(es.x,es.y,es.R*1.22,0,6.2832);c.fill();}moonDraw(0,moonFull());gPins();moonLabels();}
 /* the Moon's spot in the sky drawn behind Earth, for a view centered at lon,lat (the same projection drawSky uses) */
@@ -3767,7 +3775,7 @@ function earthSnap(){return new Promise(function(res){
    centered on the Moon, which is exactly the sky the Moon view starts with. No zoom and no crossfade, so nothing jumps */
 function flyFrame(t,F){var u=t*t*(3-2*t),c=gx,M=F.M;MOONHIDE=true;
   c.setTransform(1,0,0,1,0,0);c.fillStyle="#040812";c.fillRect(0,0,gc.width,gc.height);
-  c.setTransform(gDpr,0,0,gDpr,0,0);drawSky(c,gWrap(F.ea.lon+gWrap(F.sk.lon-F.ea.lon)*u),F.ea.lat+(F.sk.lat-F.ea.lat)*u);
+  c.setTransform(gDpr,0,0,gDpr,0,0);c.translate(gW/2,gH/2);c.rotate(-F.th*u);c.translate(-gW/2,-gH/2);drawSky(c,gWrap(F.ea.lon+gWrap(F.sk.lon-F.ea.lon)*u),F.ea.lat+(F.sk.lat-F.ea.lat)*u);
   c.setTransform(1,0,0,1,0,0);
   var r=11*Math.pow(F.R1/11,Math.pow(t,1.7)),cx=M[0]+(F.C[0]-M[0])*u,cy=M[1]+(F.C[1]-M[1])*u;
   k=r/(Math.min(gW,gH)*0.42);gox=cx-gW/2;goy=cy-gH/2;gLon=0;gLat=0;moonDraw(F.th*(1-u),0);
@@ -3797,7 +3805,7 @@ function toMoon(then){FLYING=true;cancelAnimationFrame(gAnim);var btn=document.g
       gSetProj();EARTHA={lon:gLon,lat:gLat,k:k,ox:gox,oy:goy};SNAP=snap;SKYB=moonAhead();
       var sm=skyMoonAt(gLon,gLat),L=moonSun(),
         F={M:[sm.x,sm.y],E:[gcx,gcy],snap:snap,ea:{lon:EARTHA.lon,lat:EARTHA.lat},sk:SKYB,th:sm.ang-(L[1]>=0?0:Math.PI)};
-      var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;
+      var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;SKYROT=-F.th;
       document.body.classList.add("travel");bodySize();
       return tween(2600,function(t){flyFrame(t,F)});}).then(function(){
       BODY="moon";KMAX=10;MOONHIDE=false;FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);
