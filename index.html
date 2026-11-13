@@ -283,6 +283,10 @@ body.sat.mode-map .hint{bottom:40px}
 .node.haslogo{padding-left:50px}
 .node .nlg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 1px var(--hair);pointer-events:none}
 .node.hasflag{padding-left:60px}
+.node.koff{opacity:.32}
+.orgkey #lgl{display:flex;align-items:center;gap:8px;padding:3px 6px}
+.orgkey #lgl[hidden]{display:none}
+.node.koff:hover,.node.koff:focus-visible{opacity:.75}
 #cbar{display:flex;gap:4px;overflow-x:auto;flex:1 1 220px;min-width:0;max-width:100%;scrollbar-width:thin;padding:2px 0}
 @media (max-width:640px){html body.mode-tree header>.tb{width:100%;max-width:100%;flex:1 1 100%;min-width:0}#cbar{flex:none;overflow:visible}html body.mode-tree header>.tb>.seg{flex:none}}
 #cbar .cf{min-height:30px;padding:3px 5px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--card)}
@@ -576,6 +580,14 @@ var TLF={};TLKEYS.forEach(function(r){TLF[r[0]]=r[0]!=="tech"});
 try{var tlf0=JSON.parse(localStorage.getItem("watcher-tlkeys")||"{}");Object.keys(tlf0).forEach(function(k){if(k in TLF)TLF[k]=!!tlf0[k]})}catch(e){}
 function tlShown(e){return TLF[e.kind]!==false}
 function tlKeySync(){keySync(".tlkey",TLKEYS,TLF)}
+/* org chart key: each box type can be switched off. A switched-off box disappears unless boxes still shown hang
+   beneath it; then it stays, faded, so the chart keeps its shape. Remembered on this device */
+var ORGKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["parent","sw","Parent body"]],ORGF={active:true,closed:true,secret:true,parent:true};
+try{var orf0=JSON.parse(localStorage.getItem("watcher-orgkeys")||"{}");Object.keys(orf0).forEach(function(k){if(k in ORGF)ORGF[k]=!!orf0[k]})}catch(e){}
+function orgType(n){return n.k==="active"||n.k==="closed"||n.k==="secret"?n.k:"parent"}
+function orgKeySync(){keySync(".orgkey",ORGKEYS,ORGF);var all=treeCountry(),c={};all.forEach(function(n){var t=orgType(n);c[t]=(c[t]||0)+1});
+  document.querySelectorAll(".orgkey [data-k]").forEach(function(b){var e=b.querySelector(".kn");if(e)e.textContent=c[b.dataset.k]||0})}
+function orgFilter(){try{localStorage.setItem("watcher-orgkeys",JSON.stringify(ORGF))}catch(e){}orgKeySync();if(mode==="tree"){renderTree();apply();}}
 function tlFilter(){try{localStorage.setItem("watcher-tlkeys",JSON.stringify(TLF))}catch(e){}tlKeySync();layoutTL();if(mode==="timeline"){renderTimeline();apply();}}
 var BASE=[
 {id:"gov",p:null,t:"United States government",s:"Federal branches",k:"root",cn:"United States",d:["The two branches that matter most for UAP work: the executive branch runs the offices, and Congress creates and funds them."]},
@@ -3071,7 +3083,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div id="vp" role="main"><div id="cname" class="treeonly" aria-live="polite" hidden></div><canvas id="mini" class="treeonly" aria-hidden="true"></canvas><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
-'<div class="legend treeonly"><span><i class="sw a"></i>Active UAP office</span><span><i class="sw c"></i>Closed program</span><span><i class="sw s"></i>Secret project</span><span><i class="sw"></i>Parent body</span><span id="lgl" hidden><i class="sw l"></i>Succeeded by</span></div>'+
+'<div class="legend treeonly orgkey fkey" role="group" aria-label="Show or hide on the org chart">'+ORGKEYS.map(function(r){return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+'<span class="kn"></span></button>'}).join("")+'<span id="lgl" hidden><i class="sw l"></i>Succeeded by</span><span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<div class="legend maponly mapkey fkey" role="group" aria-label="Show or hide on the map">'+MAPKEYS.map(function(r){var n=r[0]==="mine"?"":MAP.pins.filter(function(p){return pinKey(p)===r[0]}).length;return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+(n!==""?'<span class="kn">'+n+'</span>':'')+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<div class="legend tlonly tlkey fkey" role="group" aria-label="Show or hide on the timeline">'+TLKEYS.map(function(r){return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<button id="keyBtn" class="keybtn" aria-expanded="false"><i aria-hidden="true"></i><span>Key</span></button><div class="hint" id="hint"></div>'+
@@ -3943,11 +3955,15 @@ var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details a
 /* org chart countries: the U.S. alone by default, or every country side by side; remembered on this device */
 var SHOWALL=(function(){try{return localStorage.getItem("watcher-countries")==="all"}catch(e){return false}})(),CSPAN={};
 function rootOfIn(id){var all=treeAll(),m={},n,g=0;all.forEach(function(x){m[x.id]=x});n=m[id];while(n&&n.p&&m[n.p]&&g++<40)n=m[n.p];return n?n.id:null}
-function treeShown(){var all=treeAll();if(SHOWALL)return all;var m={};all.forEach(function(x){m[x.id]=x});
+function treeCountry(){var all=treeAll();if(SHOWALL)return all;var m={};all.forEach(function(x){m[x.id]=x});
   return all.filter(function(x){var n=x,g=0;while(n&&n.p&&m[n.p]&&g++<40)n=m[n.p];return !n||n.id==="gov"})}
+function treeShown(){var list=treeCountry(),keep={},kids0={};list.forEach(function(n){if(n.p)(kids0[n.p]=kids0[n.p]||[]).push(n.id)});
+  var by={};list.forEach(function(n){by[n.id]=n});
+  function k(id){if(id in keep)return keep[id];keep[id]=false;var v=ORGF[orgType(by[id])]!==false;(kids0[id]||[]).forEach(function(c){if(k(c))v=true});return keep[id]=v}
+  list.forEach(function(n){k(n.id)});return list.filter(function(n){return keep[n.id]})}
 function setCountries(all,then){if(all!==SHOWALL){SHOWALL=all;try{localStorage.setItem("watcher-countries",all?"all":"us")}catch(e){}}
   document.getElementById("cUS").setAttribute("aria-pressed",!all);document.getElementById("cAll").setAttribute("aria-pressed",all);
-  if(mode==="tree"){renderTree();if(then)then();else if(!all)homeTree();else apply();}}
+  orgKeySync();if(mode==="tree"){renderTree();if(then)then();else if(!all)homeTree();else apply();}}
 function cbarSync(){var b=document.getElementById("cbar");if(!b)return;var roots=treeAll().filter(function(n){return !n.p&&n.cn});
   if(b.childElementCount!==roots.length)b.innerHTML=roots.map(function(r){return '<button class="cf" data-c="'+r.id+'" title="'+esc(r.cn)+'" aria-label="'+esc(r.cn)+'">'+(FLAGS[r.id]?'<img src="'+FLAGS[r.id]+'" alt="">':esc(r.cn))+'</button>'}).join("");
   document.getElementById("cUS").setAttribute("aria-pressed",!SHOWALL);document.getElementById("cAll").setAttribute("aria-pressed",SHOWALL);}
@@ -3986,7 +4002,7 @@ function renderTree(){
   world.querySelectorAll(".node").forEach(function(e){e.remove()});
   list.forEach(function(n){
     var el=document.createElement("div");
-    el.className="node"+(n.k?" "+n.k:"")+(n.id===selId?" sel":"");
+    el.className="node"+(n.k?" "+n.k:"")+(n.id===selId?" sel":"")+(ORGF[orgType(n)]===false?" koff":"");
     el.dataset.id=n.id;el.tabIndex=0;el.setAttribute("role","button");
     el.setAttribute("aria-label",n.t+(n.s?", "+n.s:""));
     var lg=FLAGS[n.id]?'<img class="nflag" src="'+FLAGS[n.id]+'" alt="" aria-hidden="true">':logoImg(n,"nlg");if(lg)el.classList.add(FLAGS[n.id]?"hasflag":"haslogo");
@@ -4111,7 +4127,7 @@ function pw(r){return Math.min(r.width,panel.offsetWidth||380)}
 function focusAt(x,y,minK){var r=vpR();var wide=r.width>640;
   var cx=wide?(r.width-pw(r))/2:r.width/2,cy=wide?r.height/2:r.height*0.2;
   if(k<minK)k=minK;tx=cx-x*k;ty=cy-y*k;apply();}
-function focusItem(id){if(mode==="timeline"){var t=tlPos[id];if(!t&&TLById[id]){TLF[TLById[id].kind]=true;tlFilter();t=tlPos[id];}if(t)focusAt(t.cx,t.cy,1.3);return;}if(mode==="tree"){var p=pos[id];if(p)focusAt(p.x+W/2,p.y+40,1.1);else if(isTree(id)&&!SHOWALL)setCountries(true,function(){var q=pos[id];if(q)focusAt(q.x+W/2,q.y+40,1.1);});}else{var q=pinAll().find(function(x){return x.id===id});if(q&&q.lat!=null&&(q.body||"earth")!==BODY){if(!FLYING)goBody(q.body||"earth",function(){focusItem(id)});return;}
+function focusItem(id){if(mode==="timeline"){var t=tlPos[id];if(!t&&TLById[id]){TLF[TLById[id].kind]=true;tlFilter();t=tlPos[id];}if(t)focusAt(t.cx,t.cy,1.3);return;}if(mode==="tree"){var p=pos[id];if(p)focusAt(p.x+W/2,p.y+40,1.1);else if(isTree(id)){var it=findItem(id);if(it&&ORGF[orgType(it)]===false){ORGF[orgType(it)]=true;orgFilter();}if(!pos[id]&&!SHOWALL)setCountries(true,function(){var q=pos[id];if(q)focusAt(q.x+W/2,q.y+40,1.1);});else{var q2=pos[id];if(q2)focusAt(q2.x+W/2,q2.y+40,1.1);}}}else{var q=pinAll().find(function(x){return x.id===id});if(q&&q.lat!=null&&(q.body||"earth")!==BODY){if(!FLYING)goBody(q.body||"earth",function(){focusItem(id)});return;}
   if(q&&q.lat!=null&&BODY!=="earth"){var r0=vpR(),w0=r0.width>640;gFly(q.lat,q.lon,Math.min(KMAX,Math.max(k,3)),w0?(r0.width-pw(r0))/2:r0.width/2,w0?r0.height/2:r0.height*0.2);return;}
   if(q&&q.lat!=null&&SAT&&satMap){var r=vpR(),wide=r.width>640;var zf=zoneFit(q.id);satMap.flyTo({center:zf?[zf.lon,zf.lat]:[q.lon,q.lat],zoom:zf?kToZ(zf.k):Math.max(satMap.getZoom(),kToZ(12)),offset:wide?[-pw(r)/2,0]:[0,-Math.round(r.height*0.3)],padding:{top:0,bottom:0,left:0,right:0},duration:RM?0:1600});}
   else if(q&&q.lat!=null){var r=vpR(),wide=r.width>640;var zf=zoneFit(q.id);gFly(zf?zf.lat:q.lat,zf?zf.lon:q.lon,zf?zf.k:Math.max(k,12),wide?(r.width-pw(r))/2:r.width/2,wide?r.height/2:r.height*0.2);}}}
@@ -4189,6 +4205,8 @@ document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||e.al
 document.getElementById("zi").onclick=function(){var c=center();zoomAt(1.25,c[0],c[1])};
 document.getElementById("zo").onclick=function(){var c=center();zoomAt(0.8,c[0],c[1])};
 document.getElementById("fit").onclick=fit;
+document.querySelector(".orgkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
+  if(b.dataset.k)ORGF[b.dataset.k]=!ORGF[b.dataset.k];else ORGKEYS.forEach(function(r){ORGF[r[0]]=b.dataset.all==="1"});orgFilter();});orgKeySync();
 document.querySelector(".tlkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
   if(b.dataset.k)TLF[b.dataset.k]=!TLF[b.dataset.k];else TLKEYS.forEach(function(r){TLF[r[0]]=b.dataset.all==="1"});tlFilter();});tlKeySync();
 document.getElementById("lin").onclick=function(){showLin=!showLin;this.setAttribute("aria-pressed",showLin);this.textContent=showLin?"Hide lineage":"Show lineage";document.getElementById("lgl").hidden=!showLin;renderTree();};
