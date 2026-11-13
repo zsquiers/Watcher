@@ -3817,9 +3817,9 @@ function toEarth(then){FLYING=true;var btn=document.getElementById("goMoon");btn
     gLon=ea.lon;gLat=ea.lat;k=ea.k;gox=ea.ox||0;goy=ea.oy||0;
     if(selId&&(function(q){return q&&q.body})(pinAll().find(function(x){return x.id===selId})))closePanel();
     bodyUI();renderMap();
-    if(ret.sat){document.body.classList.add("satwait");setSat(true);var fin=function(){document.body.classList.remove("satwait");setTimeout(function(){FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);gQueue();
+    if(ret.sat){document.body.classList.add("satwait");setSat(true);var finDone=false,fin=function(){if(finDone)return;finDone=true;document.body.classList.remove("satwait");setTimeout(function(){FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);gQueue();
           satMap.easeTo({center:[ret.lon,ret.lat],zoom:ret.z,pitch:ret.pitch,bearing:ret.bearing,duration:RM?0:1300});if(then)then();},RM?0:260);btn.disabled=false;};
-      var tries=0;(function chk(){if(SAT&&satMap&&satReady){satMap.once("idle",fin);satMap.triggerRepaint();}else if(tries++<40)setTimeout(chk,150);else fin();})();}
+      var tries=0;(function chk(){if(SAT&&satMap&&satReady){satMap.once("idle",fin);satMap.triggerRepaint();setTimeout(fin,2500);}else if(tries++<40)setTimeout(chk,150);else fin();})();}
     else{FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);btn.disabled=false;gQueue();gFly(ret.lat,ret.lon,ret.k,gW/2+ret.ox,gH/2+ret.oy);if(then)then();}});}
 gInit();
 
