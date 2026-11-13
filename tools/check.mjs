@@ -51,6 +51,25 @@ function literal(name, after = "var " + name + "=") {
   try { return vm.runInNewContext("(" + app.slice(j, k + 1) + ")", {NOWY: 2100}); }
   catch (e) { err(`${name} couldn't be read: ${e.message}`); return null; }
 }
+/* a key written twice in one of these tables silently replaces the first (that once hid citations), so it's an error */
+function dupKeys(name) {
+  const after = "var " + name + "=", i = app.indexOf(after);
+  if (i < 0) return;
+  const seen = new Set();
+  let d = 0, str = null;
+  for (let k = i + after.length; k < app.length; k++) {
+    const c = app[k];
+    if (str) { if (c === "\\") { k++; continue; } if (c === str) str = null; continue; }
+    if (c === '"' && d === 1) {
+      const e = app.indexOf('"', k + 1);
+      if (/^\s*:/.test(app.slice(e + 1, e + 4))) { const key = app.slice(k + 1, e); if (seen.has(key)) err(`${name} lists "${key}" twice; the second copy replaces the first`); seen.add(key); k = e; continue; }
+      str = c; continue;
+    }
+    if (c === '"' || c === "'") { str = c; continue; }
+    if (c === "{" || c === "[") d++; else if ((c === "}" || c === "]") && !--d) break;
+  }
+}
+for (const t of ["SRC", "CITE", "IMG", "PHOTO", "LINKS", "PALIAS"]) dupKeys(t);
 const SRC = literal("SRC") || {}, CITE = literal("CITE") || {}, CLAIMS = literal("CLAIMS") || [], CLST = literal("CLST") || {};
 const BASE = literal("BASE") || [], TLM = literal("TLM") || [], TLE = literal("TLE") || [], TLP = literal("TLP") || [], TLBK = literal("TLBK") || [];
 const PEOPLE = (literal("PEOPLE") || []).concat(literal("PEOPLE+", "PEOPLE=PEOPLE.concat(") || []);
