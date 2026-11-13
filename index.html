@@ -3775,7 +3775,7 @@ function earthSnap(){return new Promise(function(res){
    centered on the Moon, which is exactly the sky the Moon view starts with. No zoom and no crossfade, so nothing jumps */
 function flyFrame(t,F){var u=t*t*(3-2*t),c=gx,M=F.M;MOONHIDE=true;
   c.setTransform(1,0,0,1,0,0);c.fillStyle="#040812";c.fillRect(0,0,gc.width,gc.height);
-  c.setTransform(gDpr,0,0,gDpr,0,0);c.translate(gW/2,gH/2);c.rotate(-F.th*u);c.translate(-gW/2,-gH/2);drawSky(c,gWrap(F.ea.lon+gWrap(F.sk.lon-F.ea.lon)*u),F.ea.lat+(F.sk.lat-F.ea.lat)*u);
+  c.setTransform(gDpr,0,0,gDpr,0,0);c.translate(gW/2,gH/2);c.rotate(-F.thE*u);c.translate(-gW/2,-gH/2);drawSky(c,gWrap(F.ea.lon+gWrap(F.sk.lon-F.ea.lon)*u),F.ea.lat+(F.sk.lat-F.ea.lat)*u);
   c.setTransform(1,0,0,1,0,0);
   var r=11*Math.pow(F.R1/11,Math.pow(t,1.7)),cx=M[0]+(F.C[0]-M[0])*u,cy=M[1]+(F.C[1]-M[1])*u;
   k=r/(Math.min(gW,gH)*0.42);gox=cx-gW/2;goy=cy-gH/2;gLon=0;gLat=0;moonDraw(F.th*(1-u),0);
@@ -3805,7 +3805,7 @@ function toMoon(then){FLYING=true;cancelAnimationFrame(gAnim);var btn=document.g
       gSetProj();EARTHA={lon:gLon,lat:gLat,k:k,ox:gox,oy:goy};SNAP=snap;SKYB=moonAhead();
       var sm=skyMoonAt(gLon,gLat),L=moonSun(),
         F={M:[sm.x,sm.y],E:[gcx,gcy],snap:snap,ea:{lon:EARTHA.lon,lat:EARTHA.lat},sk:SKYB,th:sm.ang-(L[1]>=0?0:Math.PI)};
-      var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;SKYROT=-F.th;
+      var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;F.thE=skyMoonAt(SKYB.lon,SKYB.lat).ang-(L[1]>=0?0:Math.PI);SKYROT=-F.thE;
       document.body.classList.add("travel");bodySize();
       return tween(2600,function(t){flyFrame(t,F)});}).then(function(){
       BODY="moon";KMAX=10;MOONHIDE=false;FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);
@@ -3817,7 +3817,7 @@ function toEarth(then){FLYING=true;var btn=document.getElementById("goMoon");btn
   wait(RM?0:800).then(function(){cancelAnimationFrame(gAnim);
     var ea=EARTHA||{lon:gLon,lat:gLat,k:0.62,ox:0,oy:0},sk=Math.min(gW,gH)*0.42;
     var sm=skyMoonAt(ea.lon,ea.lat),L=moonSun(),Eo=[gW/2+(ea.ox||0),gH/2+(ea.oy||0)];
-    var F={M:[sm.x,sm.y],E:Eo,snap:SNAP,ea:ea,sk:SKYB,th:sm.ang-(L[1]>=0?0:Math.PI),C:C,R1:sk*k,ER:sk*(ea.k||0.62)};
+    var F={M:[sm.x,sm.y],E:Eo,snap:SNAP,ea:ea,sk:SKYB,th:sm.ang-(L[1]>=0?0:Math.PI),thE:SKYROT?-SKYROT:skyMoonAt(SKYB.lon,SKYB.lat).ang-(L[1]>=0?0:Math.PI),C:C,R1:sk*k,ER:sk*(ea.k||0.62)};
     renderMap();document.body.classList.add("travel");
     return tween(2200,function(t){flyFrame(1-t,F)});}).then(function(){
     var ea=EARTHA||{lon:gLon,lat:gLat,k:0.62,ox:0,oy:0},ret=BODYRET||{sat:false,lon:ea.lon,lat:ea.lat,k:1,ox:0,oy:0};
