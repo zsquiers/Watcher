@@ -194,6 +194,59 @@ body.street #cloud{display:none}
 #terr[aria-pressed="true"],#sun[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
 body.sat #sat{display:block}
 body.sat.mode-map .hint{bottom:40px}
+/* map tools: overlay, grouped pins, hover card, time bar, What's here */
+#ovl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none}
+body.travel #ovl,body.offworld #ovl{display:none!important}
+body.offworld #heat,body.offworld #paths{display:none}
+#grp[aria-pressed="true"],#heat[aria-pressed="true"],#paths[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
+.clu{position:absolute;left:0;top:0;--d:28px;width:var(--d);height:var(--d);margin:calc(var(--d)/-2) 0 0 calc(var(--d)/-2);box-sizing:border-box;border-radius:50%;border:2px solid rgba(239,230,210,.9);background:rgba(14,21,36,.92);color:#EFE6D2;font:600 14px/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;padding:0;min-height:0;cursor:zoom-in;pointer-events:auto;box-shadow:0 0 0 4px rgba(14,21,36,.3),0 2px 6px rgba(0,0,0,.5)}
+.clu.u{border-color:#FF7A45}
+.clu:hover{background:#24324E}.clu:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.clu[hidden]{display:none}
+.pin{-webkit-touch-callout:none;user-select:none}
+body.tcut .pin.nd .mk{opacity:.3}body.tcut .pin.nd .lb{opacity:.55}
+.pin.now .mk{animation:pnow 1.2s ease-out}
+@keyframes pnow{0%{box-shadow:0 0 0 0 rgba(255,214,140,.95)}100%{box-shadow:0 0 0 16px rgba(255,214,140,0)}}
+@media (prefers-reduced-motion:reduce){.pin.now .mk{animation:none}}
+#pcard{position:absolute;left:0;top:0;z-index:4;width:250px;background:var(--panel);color:var(--ink);border:1px solid var(--hair);border-radius:9px;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#pcard[hidden]{display:none}
+#pcard .pci{height:112px;background:#0C111C}#pcard .pci img{width:100%;height:100%;object-fit:cover;display:block}
+#pcard .pcb{padding:8px 11px 10px;display:flex;flex-direction:column;gap:3px}
+#pcard b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:16px;letter-spacing:.03em;text-transform:uppercase;line-height:1.15}
+#pcard .pcs{font-size:13px;color:var(--ink2)}#pcard .pcm{font-size:12px;color:var(--ink2)}
+#pcard .pcc{font-size:12.5px;line-height:1.3;margin-top:3px}
+#pcard .pcc i{font-style:normal;font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--sc);border:1.5px solid var(--sc);border-radius:10px;padding:0 6px;margin-right:6px;white-space:nowrap}
+#tbar{position:absolute;left:250px;right:250px;bottom:12px;max-width:560px;margin:0 auto;z-index:3;display:flex;align-items:center;gap:10px;padding:5px 14px 5px 5px;background:var(--panel);border:1px solid var(--hair);border-radius:26px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+#tplay{flex:none;width:34px;height:34px;min-height:0;padding:0;border-radius:50%;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;letter-spacing:-2px}
+#tplay[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
+#trange{flex:1;min-width:60px;accent-color:#FF7A45;cursor:pointer}
+#tlab{flex:none;min-width:96px;display:flex;flex-direction:column;line-height:1.15}
+#tlab b{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:16px;letter-spacing:.03em}
+#tlab span{font-size:11.5px;color:var(--ink2);white-space:nowrap}
+#tclr{flex:none;min-height:28px;padding:2px 10px;font-size:12.5px;border-radius:14px}#tclr[hidden]{display:none}
+body.sat.mode-map .hint,body.mode-map .hint{bottom:62px}
+#wh{position:absolute;top:84px;right:12px;z-index:3;width:min(290px,calc(100% - 24px));display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+#wh>*{pointer-events:auto}
+#whb{display:flex;align-items:center;gap:8px;border-radius:18px;padding:4px 12px;min-height:32px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#whb .kn{font-size:12px;color:var(--ink2)}
+#whb[aria-expanded="true"]{background:var(--amber-bg);border-color:var(--amber)}
+#whp{width:100%;background:var(--panel);border:1px solid var(--hair);border-radius:9px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:flex;flex-direction:column;max-height:calc(100vh - 340px);min-height:120px}
+#whp[hidden]{display:none}
+.whs{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);padding:7px 10px;border-bottom:1px solid var(--hair)}
+.whs select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--hair);border-radius:5px;padding:2px 4px}
+#whl{list-style:none;margin:0;padding:4px;overflow-y:auto;flex:1}
+#whl button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;border-radius:6px;padding:5px 6px;min-height:0;font-size:13px;color:var(--ink);cursor:pointer}
+#whl button:hover,#whl button[aria-current="true"]{background:var(--amber-bg)}
+#whl i{flex:none;transform:scale(.9)}
+#whl .wt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+#whl small{font-size:11.5px;color:var(--ink2)}
+#whl .wy{flex:none;font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums}
+#whl .whe{font-size:13px;color:var(--ink2);padding:8px}
+.route{font-size:13.5px;line-height:1.45;margin:10px 0;padding:8px 10px;border-left:3px solid #FF9A5C;background:var(--amber-bg);border-radius:0 6px 6px 0}
+.route b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-bottom:2px}
+@media (min-width:641px){body.dossier #wh{right:calc(min(var(--pw),100%) + 12px)}body.dossier #tbar{right:calc(min(var(--pw),100%) + 24px);left:250px}}
+@media (max-width:640px){#tbar{left:104px;right:10px;bottom:10px;padding:3px 10px 3px 3px;gap:7px;max-width:none}#tplay{width:30px;height:30px}#tlab{min-width:0}#tlab span{display:none}#tclr{display:none}
+  body.mode-map .hint{display:none}#wh{top:80px;right:10px}#whp{max-height:calc(100vh - 330px)}#pcard{width:220px}#pcard .pci{height:92px}
+  #panel.open~#tbar,body.keyopen #tbar{display:none}}
 #sat .maplibregl-ctrl-attrib{font-size:11px}
 #compass{position:absolute;top:12px;right:12px;width:60px;height:60px;padding:0;border-radius:50%;border:1px solid rgba(239,230,210,.35);background:rgba(12,17,28,.85);display:none;z-index:2;cursor:pointer}
 #compass{display:block}
@@ -3098,15 +3151,17 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><button class="treeonly terr" id="cAll" aria-pressed="false" title="Show every country side by side">All countries</button><div id="cbar" class="treeonly" role="toolbar" aria-label="Jump to a country"></div>'+
-'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
+'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="grp" class="terr" aria-pressed="true" title="Gather pins that overlap into numbered bubbles that split apart as you zoom in">Group pins</button><button id="heat" class="terr" aria-pressed="false" title="Shade where UAP and anomaly sites cluster">Heat map</button><button id="paths" class="terr" aria-pressed="true" title="Show the routes of sightings and chases that moved">Flight paths</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="vp" role="main"><div id="cname" class="treeonly" aria-live="polite" hidden></div><canvas id="mini" class="treeonly" aria-hidden="true"></canvas><div id="world"><svg id="edges"></svg></div>'+
-'<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div></div>'+
+'<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><canvas id="ovl" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div><div id="pcard" hidden aria-hidden="true"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
 '<div class="legend treeonly orgkey fkey" role="group" aria-label="Show or hide on the org chart">'+ORGKEYS.map(function(r){return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+'<span class="kn"></span></button>'}).join("")+'<span id="lgl" hidden><i class="sw l"></i>Succeeded by</span><span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<div class="legend maponly mapkey fkey" role="group" aria-label="Show or hide on the map">'+MAPKEYS.map(function(r){var n=r[0]==="mine"?"":MAP.pins.filter(function(p){return pinKey(p)===r[0]}).length;return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+(n!==""?'<span class="kn">'+n+'</span>':'')+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<div class="legend tlonly tlkey fkey" role="group" aria-label="Show or hide on the timeline">'+TLKEYS.map(function(r){return '<button data-k="'+r[0]+'" aria-pressed="true"><i class="'+r[1]+'"></i>'+r[2]+'</button>'}).join("")+'<span class="tlkall"><button data-all="1">Show all</button><button data-all="0">Hide all</button></span></div>'+
 '<button id="keyBtn" class="keybtn" aria-expanded="false"><i aria-hidden="true"></i><span>Key</span></button><div class="hint" id="hint"></div>'+
-'<aside id="panel" aria-label="Details"></aside></div>');
+'<aside id="panel" aria-label="Details"></aside>'+
+'<div id="tbar" class="maponly" role="group" aria-label="Time"><button id="tplay" aria-label="Play through the years" aria-pressed="false">\u25B6</button><input id="trange" type="range" min="0" step="1" aria-label="Show places up to this year"><span id="tlab" aria-live="polite"></span><button id="tclr" hidden title="Show every year">All years</button></div>'+
+'<div id="wh" class="maponly"><button id="whb" aria-expanded="false" aria-controls="whp"><span>What\u2019s here</span><span class="kn" id="whn"></span></button><div id="whp" hidden><label class="whs">Sort by <select id="whsort"><option value="yr">Year</option><option value="t">Name</option><option value="c">Type</option></select></label><ul id="whl"></ul></div></div></div>');
 
 var vp=document.getElementById("vp"),world=document.getElementById("world"),svg=document.getElementById("edges"),panel=document.getElementById("panel"),mapw=document.getElementById("mapw"),pinsEl=document.getElementById("pins"),hint=document.getElementById("hint");
 
@@ -3424,18 +3479,16 @@ function satLines(){if(satLinesDone||!satMap||!satReady||satMap.getZoom()<7)retu
   satMap.addSource("towns",{type:"geojson",data:satLinesFC(),tolerance:0.5});
   satMap.addLayer({id:"towns",type:"line",source:"towns",minzoom:8,paint:{"line-color":"rgba(255,248,230,.6)","line-width":["interpolate",["linear"],["zoom"],8,0.4,12,0.9,15,1.4]}});}
 function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(),l0=c.lng*DEG,sp0=Math.sin(c.lat*DEG),cp0=Math.cos(c.lat*DEG),
-    T=satMap.transform,occ=T&&T.isLocationOccluded,dep=T&&T.lngLatToCameraDepth,shown=[],lab=satMap.getZoom()>=kToZ(1.4);
+    T=satMap.transform,occ=T&&T.isLocationOccluded,dep=T&&T.lngLatToCameraDepth,shown=[],lab=satMap.getZoom()>=kToZ(1.4);HP.length=0;
   for(var i=0;i<PINS.length;i++){var o=PINS[i],ph=o.p.lat*DEG,dl=o.p.lon*DEG-l0,front=sp0*Math.sin(ph)+cp0*Math.cos(ph)*Math.cos(dl)>0.05;
     var hidden=occ?T.isLocationOccluded({lng:o.p.lon,lat:o.p.lat}):!front;
     /* tilted low, places behind the camera or past the far edge of the view still project onto the screen, bunched up
        along the horizon, so pins whose depth falls outside the camera's view are hidden too */
     if(!hidden&&dep){var d=T.lngLatToCameraDepth({lng:o.p.lon,lat:o.p.lat},0);hidden=!(d>-1&&d<1);}
     var pt=hidden?null:satMap.project([o.p.lon,o.p.lat]);
-    var X=pt&&pt.x,Y=pt&&pt.y,vis=!!pt&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
-    if(vis!==o.v){o.v=vis;o.el.classList.toggle("off",!vis);}
-    if(!vis)continue;shown.push([o,X,Y]);
-    o.el.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";}
-  pinLabels(shown,lab);}
+    var X=pt&&pt.x,Y=pt&&pt.y;o.x=X;o.y=Y;o.on=!!pt&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
+    if(pt&&o.p.c==="uap")HP.push(X,Y);if(o.on)shown.push([o,X,Y]);}
+  pinFrame(shown,lab);}
 function setSat(on){var bm=document.getElementById("stMap"),bs=document.getElementById("stSat");
   function mark(){markStyle();}
   if(on===SAT){if(on)streetApply();mark();return;}
@@ -3628,20 +3681,18 @@ function gDraw(){gQueued=false;if(mode!=="map"||!gW||FLYING)return;if(BODY!=="ea
    neither another label nor any pin marker on screen */
 var PLC=null;function pinLabW(o){if(!o.mw){PLC=PLC||document.createElement("canvas").getContext("2d");
     PLC.font='600 12px "Barlow Condensed","Arial Narrow",sans-serif';o.mw=PLC.measureText(o.p.t.toUpperCase()).width+o.p.t.length*0.6+12;}return o.mw}
-function pinLabels(shown,lab){var boxes=shown.map(function(s){return [s[1]-8,s[2]-8,s[1]+8,s[2]+8]}),labs=[];
+function pinLabels(shown,lab,extra){var boxes=shown.map(function(s){return [s[1]-8,s[2]-8,s[1]+8,s[2]+8]}).concat(extra||[]),labs=[];
   shown.forEach(function(s,i){var o=s[0],on=false;
     if(lab||o.sel){var r=[s[1]+10,s[2]-10,s[1]+14+pinLabW(o),s[2]+10],hit=function(q){return r[0]<q[2]&&r[2]>q[0]&&r[1]<q[3]&&r[3]>q[1]};
       on=o.sel||!(labs.some(hit)||boxes.some(function(q,j){return j!==i&&hit(q)}));if(on)labs.push(r);}
     if(on!==o.l){o.l=on;o.el.classList.toggle("lbon",on);}});
   return boxes.concat(labs);}
 /* pins sit in an HTML layer on top; labels show wherever they fit without overlapping */
-function gPins(){var l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=Math.cos(gLat*DEG),shown=[],lab=k>=1.4;
+function gPins(){var l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=Math.cos(gLat*DEG),shown=[],lab=k>=1.4;HP.length=0;
   for(var i=0;i<PINS.length;i++){var o=PINS[i],ph=o.p.lat*DEG,dl=o.p.lon*DEG-l0,sp=Math.sin(ph),cp=Math.cos(ph),cd=Math.cos(dl);
-    var q=gPt(sp,cp,Math.sin(dl),cd,sp0,cp0,0.03),X=q?q[0]:-999,Y=q?q[1]:-999,vis=!!q&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
-    if(vis!==o.v){o.v=vis;o.el.classList.toggle("off",!vis);}
-    if(!vis)continue;shown.push([o,X,Y]);
-    o.el.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";}
-  gBoxes=pinLabels(shown,lab);}
+    var q=gPt(sp,cp,Math.sin(dl),cd,sp0,cp0,0.03),X=q?q[0]:-999,Y=q?q[1]:-999;o.x=X;o.y=Y;o.on=!!q&&X>-40&&X<gW+40&&Y>-40&&Y<gH+40;
+    if(q&&o.p.c==="uap")HP.push(X,Y);if(o.on)shown.push([o,X,Y]);}
+  gBoxes=pinFrame(shown,lab);}
 function gRot(dx,dy){var R=Math.min(gW,gH)*0.42*k;gLon=gWrap(gLon-dx/(R*Math.max(0.2,Math.cos(gLat*DEG)))/DEG);gLat=gClampLat(gLat+dy/R/DEG);gQueue();}
 function gZoom(f,cx,cy){var a=gInv(cx,cy);k=Math.min(KMAX,Math.max(KMIN,k*f));
   if(a)for(var i=0;i<3;i++){var b=gInv(cx,cy);if(!b)break;gLon=gWrap(gLon+gWrap(a[0]-b[0]));gLat=gClampLat(gLat+a[1]-b[1]);}
@@ -4113,13 +4164,153 @@ function renderTree(){
 }
 function visible(p){return filt[pinKey(p)]!==false;}
 function renderMap(){
-  var h="",list=[];
-  pinAll().forEach(function(p){if(!visible(p)||p.lat==null||(p.body||"earth")!==BODY)return;list.push(p);
-    h+='<div class="pin off '+p.c+(p.u?' u':'')+(p.id===selId?' sel':'')+'" data-id="'+p.id+'" tabindex="0" role="button" aria-label="'+esc(p.t+", "+p.s)+'"><span class="pk"><i class="mk"></i><span class="lb">'+esc(p.t)+'</span></span></div>';});
-  pinsEl.innerHTML=h;var els=pinsEl.children,pr={mine:1,uap:2,gov:3,civ:3.5,co:3.6,anc:3.8,sec:4,mil:5};
+  var h="",list=[],cut=tCut();
+  pinAll().forEach(function(p){if(!visible(p)||p.lat==null||(p.body||"earth")!==BODY)return;var y=cut==null?null:pinYear(p);if(y!=null&&y>cut)return;list.push(p);
+    h+='<div class="pin off '+p.c+(p.u?' u':'')+(p.id===selId?' sel':'')+(cut!=null&&y==null?' nd':'')+(y!=null&&y===cut?' now':'')+'" data-id="'+p.id+'" tabindex="0" role="button" aria-label="'+esc(p.t+", "+p.s)+'"><span class="pk"><i class="mk"></i><span class="lb">'+esc(p.t)+'</span></span></div>';});
+  pinsEl.innerHTML=h;CLU=[];pcHide();var els=pinsEl.children,pr={mine:1,uap:2,gov:3,civ:3.5,co:3.6,anc:3.8,sec:4,mil:5};
   PINS=list.map(function(p,i){var sel=p.id===selId;return {p:p,el:els[i],v:false,l:false,sel:sel,r:sel?0:p.c==="mil"&&p.u?4.5:pr[p.c]||6}}).sort(function(a,b){return a.r-b.r});
   gQueue();
 }
+/* map tools: a time slider, grouped pins, hover previews, a list of what's on screen, a heat map of sightings and the
+   routes of events that moved. A pin's year is its timeline year, or else a year in its place line */
+var PYR=null;function pinYear(p){if(!PYR){PYR={};TLE.forEach(function(r){if(!(r[0] in PYR))PYR[r[0]]=r[1]});}
+  if(p.id in PYR)return PYR[p.id];var m=(p.s||"").match(/\b(1[0-9]\d\d|20[0-2]\d)\b/);return m?+m[1]:null}
+var TYRS=null,TY=null,TPLAY=0;
+function tYears(){if(!TYRS){var s={};MAP.pins.forEach(function(p){var y=pinYear(p);if(y!=null)s[y]=1});TYRS=Object.keys(s).map(Number).sort(function(a,b){return a-b});}return TYRS}
+function tCut(){return TY==null?null:tYears()[TY]}
+function tSync(){var ys=tYears(),r=document.getElementById("trange"),l=document.getElementById("tlab"),b=document.getElementById("tplay"),x=document.getElementById("tclr");if(!r)return;
+  r.max=ys.length;r.value=TY==null?ys.length:TY;var cut=tCut();
+  if(cut==null)l.innerHTML='<b>All years</b>';else{var n=MAP.pins.filter(function(p){var y=pinYear(p);return y!=null&&y<=cut}).length;
+    l.innerHTML='<b>'+(cut<0?(-cut)+" BC":cut)+'</b><span>'+n+' dated place'+(n===1?'':'s')+' so far</span>';}
+  r.setAttribute("aria-valuetext",cut==null?"All years":"Up to "+cut);
+  b.textContent=TPLAY?"❚❚":"▶";b.setAttribute("aria-label",TPLAY?"Pause":"Play through the years");b.setAttribute("aria-pressed",!!TPLAY);x.hidden=cut==null;
+  document.body.classList.toggle("tcut",cut!=null);}
+function setTY(i){TY=i==null||i>=tYears().length?null:i;tSync();if(mode==="map")renderMap();}
+function tPlay(on){clearInterval(TPLAY);TPLAY=0;if(on){if(TY==null)TY=-1;TPLAY=setInterval(function(){var n=TY+1;if(n>=tYears().length){tPlay(false);setTY(null);return;}setTY(n);},RM?900:420);}tSync();}
+
+/* grouped pins: pins that would sit on top of each other on screen become one numbered bubble, which splits apart as
+   you zoom in. The selected pin always stands on its own */
+var GROUP=(function(){try{return localStorage.getItem("watcher-group")!=="0"}catch(e){return true}})(),CLU=[],CLB=[],HP=[];
+function cluEl(i){var e=CLU[i];if(!e){e=document.createElement("button");e.type="button";e.className="clu";pinsEl.appendChild(e);CLU[i]=e;}return e}
+function pinGroup(shown){var solo=shown,ng=0;CLB=[];for(var q=0;q<PINS.length;q++)PINS[q].g=false;
+  if(GROUP&&shown.length>2){var R=16,used=[];solo=[];
+    for(var i=0;i<shown.length;i++){if(used[i])continue;var a=shown[i];used[i]=1;if(a[0].sel){solo.push(a);continue;}var m=[a];
+      for(var j=i+1;j<shown.length;j++){if(used[j]||shown[j][0].sel)continue;var dx=shown[j][1]-a[1],dy=shown[j][2]-a[2];if(dx*dx+dy*dy<R*R){m.push(shown[j]);used[j]=1;}}
+      if(m.length<3){solo.push(a);continue;}
+      var X=0,Y=0,u=false;m.forEach(function(s){X+=s[1];Y+=s[2];s[0].g=true;if(s[0].p.c==="uap"||s[0].p.u)u=true});X/=m.length;Y/=m.length;
+      var e=cluEl(ng++),n=m.length,d=n<5?26:n<15?32:n<40?38:44;e.hidden=false;e._m=m.map(function(s){return s[0]});
+      if(e._n!==n){e._n=n;e.textContent=n;e.setAttribute("aria-label",n+" places here. Zoom in to see them");e.style.setProperty("--d",d+"px");}
+      e.classList.toggle("u",u);e.style.transform="translate("+X.toFixed(1)+"px,"+Y.toFixed(1)+"px)";CLB.push([X-d/2,Y-d/2,X+d/2,Y+d/2]);}}
+  for(var h=ng;h<CLU.length;h++)if(!CLU[h].hidden)CLU[h].hidden=true;
+  return solo;}
+function cluZoom(e){var m=e._m||[];if(!m.length)return;pcHide();var ref=m[0].p.lon,la=0,lo=0;m.forEach(function(o){la+=o.p.lat;lo+=ref+gWrap(o.p.lon-ref)});la/=m.length;lo=gWrap(lo/m.length);
+  if(SAT&&satMap){satMap.easeTo({center:[lo,la],zoom:Math.min(18,satMap.getZoom()+1.6),duration:RM?0:700});return;}
+  gFly(la,lo,Math.min(KMAX,k*3),gW/2+gox,gH/2+goy);}
+/* after the pins are projected each frame: group them, show or hide each one, place the labels, draw the overlay */
+function pinFrame(shown,lab){var solo=pinGroup(shown);
+  for(var i=0;i<PINS.length;i++){var o=PINS[i],w=!!o.on&&!o.g;if(w!==o.v){o.v=w;o.el.classList.toggle("off",!w);}
+    if(w)o.el.style.transform="translate("+o.x.toFixed(1)+"px,"+o.y.toFixed(1)+"px)";}
+  var b=pinLabels(solo,lab,CLB);ovDraw();whQueue();pcFollow();return b;}
+
+/* hover previews: a small card with the photo, year, type and claim status; on a phone, press and hold a pin */
+var PC=null,pcT=0,pcO=null,pcLP=false,lpT=0,lpXY=null;
+function pinOf(el){var id=el&&el.dataset.id;for(var i=0;i<PINS.length;i++)if(PINS[i].p.id===id)return PINS[i];return null}
+function pcHtml(p){var b=IMG[p.id],y=pinYear(p),cs=claimsFor(p.id),ty=p.c==="mil"&&p.u?"Base with UAP history":CATS[p.c]||"",fp=FPBy[p.id];
+  var meta=[ty];if(y!=null&&(p.s||"").indexOf(String(y))<0)meta.unshift(y<0?(-y)+" BC":y);
+  return (b?'<div class="pci"><img src="img/places/'+p.id+'.'+b[0]+'" alt=""'+(b[5]?' style="object-position:'+b[5]+'"':'')+' onerror="this.parentNode.remove()"></div>':'')+
+    '<div class="pcb"><b>'+esc(p.t)+'</b>'+(p.s?'<span class="pcs">'+esc(p.s)+'</span>':'')+'<span class="pcm">'+esc(meta.join(" · "))+(fp?' · route on map':'')+'</span>'+
+    cs.slice(0,2).map(function(c){return '<span class="pcc" style="--sc:var(--st-'+c.st+')"><i>'+CLST[c.st][0]+'</i>'+esc(c.t)+'</span>'}).join("")+
+    (cs.length>2?'<span class="pcm">+'+(cs.length-2)+' more claim'+(cs.length>3?'s':'')+'</span>':'')+'</div>'}
+function pcShow(o){if(!o)return;PC=PC||document.getElementById("pcard");pcO=o;PC.innerHTML=pcHtml(o.p);PC.hidden=false;pcPlace();}
+function pcPlace(){if(!PC||!pcO)return;var w=PC.offsetWidth,h=PC.offsetHeight,x=pcO.x+18,y=pcO.y-h/2;if(x+w>gW-8)x=pcO.x-18-w;
+  if(x<8){x=Math.max(8,Math.min(gW-w-8,pcO.x-w/2));y=pcO.y-h-18<8?pcO.y+18:pcO.y-h-18;}y=Math.max(8,Math.min(gH-h-8,y));PC.style.transform="translate("+Math.round(x)+"px,"+Math.round(y)+"px)";pcO.px=pcO.x;pcO.py=pcO.y;}
+function pcFollow(){if(!pcO)return;if(!pcO.v){pcHide();return;}if(pcO.px!==pcO.x||pcO.py!==pcO.y)pcPlace();}
+function pcHide(){clearTimeout(pcT);pcO=null;if(PC)PC.hidden=true;}
+
+/* What's here: the places on screen right now, sorted by year, name or type; it follows the map as you move */
+var WHO=(function(){try{return localStorage.getItem("watcher-wh")==="1"}catch(e){return false}})(),WHS=(function(){try{return localStorage.getItem("watcher-whsort")||"yr"}catch(e){return "yr"}})(),whT=0,whKey="";
+function whQueue(){if(!whT)whT=setTimeout(whUpdate,180)}
+function whUpdate(){whT=0;var n=document.getElementById("whn"),l=document.getElementById("whl");if(!n)return;
+  var on=PINS.filter(function(o){return o.on}).map(function(o){return o.p});n.textContent=on.length;if(!WHO)return;
+  var ty=function(p){return p.c==="mil"&&p.u?"Base with UAP history":CATS[p.c]||""},yr=function(p){var y=pinYear(p);return y==null?1e9:y};
+  on.sort(WHS==="t"?function(a,b){return a.t.localeCompare(b.t)}:WHS==="c"?function(a,b){return ty(a).localeCompare(ty(b))||a.t.localeCompare(b.t)}:function(a,b){return yr(a)-yr(b)||a.t.localeCompare(b.t)});
+  var key=WHS+"|"+selId+"|"+on.map(function(p){return p.id}).join(",");if(key===whKey)return;whKey=key;var mk={};MAPKEYS.forEach(function(r){mk[r[0]]=r[1]});
+  l.innerHTML=on.length?on.map(function(p){var y=pinYear(p);return '<li><button data-id="'+p.id+'"'+(p.id===selId?' aria-current="true"':'')+'><i class="'+mk[pinKey(p)]+'" aria-hidden="true"></i><span class="wt">'+esc(p.t)+'<small>'+esc(ty(p))+'</small></span><span class="wy">'+(y==null?'':y<0?(-y)+' BC':y)+'</span></button></li>'}).join(""):'<li class="whe">No places on screen. Zoom out or move the map.</li>';}
+function whSet(o){WHO=o;try{localStorage.setItem("watcher-wh",o?"1":"0")}catch(e){}var b=document.getElementById("whb");b.setAttribute("aria-expanded",o);document.getElementById("whp").hidden=!o;whKey="";whUpdate();}
+
+/* the overlay above the map: the heat map of UAP and anomaly sites, and the routes of events that moved */
+var HEAT=(function(){try{return localStorage.getItem("watcher-heat")==="1"}catch(e){return false}})(),PATHS=(function(){try{return localStorage.getItem("watcher-paths")!=="0"}catch(e){return true}})(),OVC=null,HB=null,HRAMP=null,HSPR={};
+/* each route follows its source: solid where the source traces the path, dashed where it only names the two ends,
+   so the line between is a guide, not a track */
+var FPATHS=[
+ {pid:"m-phoenix",src:"wk-phoenix-lights",note:"First reported over Henderson, Nevada, heading southeast, then seen across Arizona “from the Nevada line, through Phoenix, to the edge of Tucson.”",
+  pts:[[36.0395,-114.9817,"Henderson, Nevada"],[34.8856,-112.4682,"Paulden"],[34.61,-112.3157,"Prescott Valley"],[33.4484,-112.074,"Phoenix"],[32.1665,-110.8833,"Tucson"]]},
+ {pid:"m-arnold",src:"wk-kenneth-arnold-ufo-sighting",note:"Arnold said the nine objects passed from Mount Rainier to Mount Adams, about 50 miles, in one minute and 42 seconds, heading south.",
+  pts:[[46.8523,-121.7603,"Mount Rainier"],[46.2024,-121.4909,"Mount Adams"]]},
+ {pid:"m-mantell",src:"wk-mantell-ufo-incident",ends:1,note:"Mantell took off from Godman Field at Fort Knox and crashed on a farm south of Franklin. His exact track isn't recorded, so the line only joins the two.",
+  pts:[[37.9067,-85.9721,"Godman Field"],[36.7238,-86.5759,"Crash site"]]},
+ {pid:"m-jal1628",src:"wk-japan-air-lines-cargo-flight-1628-incide",ends:1,note:"The captain said the objects followed the plane for about 400 miles over eastern Alaska before it landed in Anchorage. The line joins the encounter area and Anchorage.",
+  pts:[[64.0012,-145.7124,"Encounter"],[61.1743,-149.9963,"Anchorage"]]},
+ {pid:"w-valentich",src:"wk-disappearance-of-frederick-valentich",ends:1,note:"Valentich's planned route from Moorabbin Airport to King Island. He never arrived, and where contact was lost is not known.",
+  pts:[[-37.9758,145.1022,"Moorabbin Airport"],[-39.8775,143.8781,"King Island"]]},
+ {pid:"w-tehran",src:"wk-1976-tehran-ufo-incident",ends:1,note:"The two F-4 interceptors were launched from Hamadan toward the object reported over Tehran.",
+  pts:[[35.2117,48.6533,"Shahrokhi Air Base, Hamadan"],[35.8,51.47,"Shemiran, Tehran"]]}],FPBy={};FPATHS.forEach(function(f){FPBy[f.pid]=f});
+function routeHtml(id){var f=FPBy[id];if(!f)return "";var s=SRC[f.src];
+  return '<div class="route"><b>Route on the map</b> '+f.pts.map(function(q){return esc(q[2])}).join(" → ")+'. '+esc(f.note)+(s?' <a href="'+esc(s[3])+'" target="_blank" rel="noopener">'+esc(s[0])+(s[1]?', '+esc(s[1]):'')+'</a>':'')+'</div>'}
+function ovProj(){if(SAT&&satMap){var T=satMap.transform;return function(lon,lat){if(T&&T.isLocationOccluded&&T.isLocationOccluded({lng:lon,lat:lat}))return null;var p=satMap.project([lon,lat]);return [p.x,p.y]}}
+  var l0=gLon*DEG,sp0=Math.sin(gLat*DEG),cp0=Math.cos(gLat*DEG);
+  return function(lon,lat){var ph=lat*DEG,dl=lon*DEG-l0;return gPt(Math.sin(ph),Math.cos(ph),Math.sin(dl),Math.cos(dl),sp0,cp0,0)}}
+function pxPerKm(){return SAT&&satMap?512*Math.pow(2,satMap.getZoom())/(2*Math.PI)/6371:Math.min(gW,gH)*0.42*k/6371}
+function ovDraw(){OVC=OVC||document.getElementById("ovl");if(!OVC)return;var on=mode==="map"&&BODY==="earth"&&!FLYING&&(HEAT||PATHS);OVC.style.display=on?"block":"none";if(!on)return;
+  var W=Math.round(gW*gDpr),H=Math.round(gH*gDpr);if(OVC.width!==W||OVC.height!==H){OVC.width=W;OVC.height=H;}var c=OVC.getContext("2d");c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);c.setTransform(gDpr,0,0,gDpr,0,0);
+  if(HEAT)heatDraw(c);if(PATHS)pathsDraw(c);}
+function heatRamp(){if(HRAMP)return HRAMP;var cv=document.createElement("canvas");cv.width=256;cv.height=1;var x=cv.getContext("2d"),g=x.createLinearGradient(0,0,256,0);
+  g.addColorStop(0,"rgba(70,30,140,0)");g.addColorStop(0.12,"rgba(90,40,170,.32)");g.addColorStop(0.35,"rgba(190,45,150,.5)");g.addColorStop(0.6,"rgba(255,105,55,.66)");g.addColorStop(0.82,"rgba(255,190,70,.78)");g.addColorStop(1,"rgba(255,248,215,.88)");
+  x.fillStyle=g;x.fillRect(0,0,256,1);HRAMP=x.getImageData(0,0,256,1).data;return HRAMP}
+function heatSprite(r){var s=HSPR[r];if(s)return s;s=document.createElement("canvas");s.width=s.height=r*2;var x=s.getContext("2d"),g=x.createRadialGradient(r,r,0,r,r,r);
+  g.addColorStop(0,"rgba(0,0,0,1)");g.addColorStop(0.45,"rgba(0,0,0,.45)");g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,r*2,r*2);HSPR={};HSPR[r]=s;return s}
+/* sightings are drawn as soft spots into a half-size buffer; where they overlap the buffer gets denser, and that
+   density is then colored from violet through orange to white */
+function heatDraw(c){var w=Math.ceil(gW/2),h=Math.ceil(gH/2);if(!HB)HB=document.createElement("canvas");if(HB.width!==w||HB.height!==h){HB.width=w;HB.height=h;}
+  var x=HB.getContext("2d",{willReadFrequently:true});x.clearRect(0,0,w,h);var r=Math.round(Math.max(9,Math.min(80,150*pxPerKm()))),sp=heatSprite(r);x.globalAlpha=0.5;
+  for(var i=0;i<HP.length;i+=2){var px=HP[i]/2,py=HP[i+1]/2;if(px<-r||py<-r||px>w+r||py>h+r)continue;x.drawImage(sp,px-r,py-r);}
+  x.globalAlpha=1;if(!HP.length)return;var im=x.getImageData(0,0,w,h),d=im.data,R=heatRamp();
+  for(var j=3;j<d.length;j+=4){var a=d[j];if(!a)continue;var q=a*4;d[j-3]=R[q];d[j-2]=R[q+1];d[j-1]=R[q+2];d[j]=R[q+3];}
+  x.putImageData(im,0,0);c.imageSmoothingEnabled=true;c.drawImage(HB,0,0,gW,gH);}
+/* a route as a great circle, split where it goes behind the globe; an arrow at the far end shows the direction */
+function gcPts(a,b){var p1=a[0]*DEG,l1=a[1]*DEG,p2=b[0]*DEG,l2=b[1]*DEG,A=[Math.cos(p1)*Math.cos(l1),Math.cos(p1)*Math.sin(l1),Math.sin(p1)],B=[Math.cos(p2)*Math.cos(l2),Math.cos(p2)*Math.sin(l2),Math.sin(p2)],
+    om=Math.acos(Math.max(-1,Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2]))),n=Math.max(2,Math.ceil(om/DEG/0.2)),out=[];
+  for(var i=0;i<=n;i++){var t=i/n,s=Math.sin(om)||1,fa=om?Math.sin((1-t)*om)/s:1-t,fb=om?Math.sin(t*om)/s:t,v=[fa*A[0]+fb*B[0],fa*A[1]+fb*B[1],fa*A[2]+fb*B[2]];
+    out.push([Math.atan2(v[1],v[0])/DEG,Math.atan2(v[2],Math.hypot(v[0],v[1]))/DEG]);}return out}
+function pathsDraw(c){var P=ovProj(),onMap={};PINS.forEach(function(o){onMap[o.p.id]=o});var zoomed=SAT&&satMap?satMap.getZoom()>=kToZ(4):k>=4;
+  FPATHS.forEach(function(f){var o=onMap[f.pid];if(!o)return;var hi=o.sel,segs=[],cur=null,pts=[];
+    for(var i=1;i<f.pts.length;i++){var g=gcPts(f.pts[i-1],f.pts[i]);g.forEach(function(q,j){if(i>1&&j===0)return;var s=P(q[0],q[1]);if(!s){cur=null;return;}if(!cur){cur=[];segs.push(cur);}cur.push(s);});}
+    if(!segs.length)return;c.lineJoin="round";c.lineCap="round";
+    [[hi?6:4.5,"rgba(10,14,24,.7)"],[hi?3:2,hi?"#FFD08A":"#FF9A5C"]].forEach(function(st,k2){c.setLineDash(f.ends?[7,6]:[]);c.lineWidth=st[0];c.strokeStyle=st[1];
+      segs.forEach(function(sg){if(sg.length<2)return;c.beginPath();c.moveTo(sg[0][0],sg[0][1]);for(var m=1;m<sg.length;m++)c.lineTo(sg[m][0],sg[m][1]);c.stroke();});});
+    c.setLineDash([]);var last=segs[segs.length-1];if(last.length>=2){var e=last[last.length-1],q=last[Math.max(0,last.length-4)],an=Math.atan2(e[1]-q[1],e[0]-q[0]),L=hi?13:10;
+      c.beginPath();c.moveTo(e[0],e[1]);c.lineTo(e[0]-L*Math.cos(an-0.45),e[1]-L*Math.sin(an-0.45));c.lineTo(e[0]-L*Math.cos(an+0.45),e[1]-L*Math.sin(an+0.45));c.closePath();
+      c.fillStyle=hi?"#FFD08A":"#FF9A5C";c.strokeStyle="rgba(10,14,24,.8)";c.lineWidth=1.5;c.stroke();c.fill();}
+    f.pts.forEach(function(q,i){var s=P(q[1],q[0]);if(!s)return;c.beginPath();c.arc(s[0],s[1],hi?4:3,0,Math.PI*2);c.fillStyle="#FFF4E0";c.fill();c.strokeStyle="rgba(10,14,24,.85)";c.lineWidth=1.5;c.stroke();
+      if(hi||zoomed){c.font='600 11px "Barlow Condensed","Arial Narrow",sans-serif';c.lineWidth=3;c.strokeStyle="rgba(10,14,24,.9)";c.fillStyle="#FFE7C8";c.textBaseline="middle";var t=q[2].toUpperCase();
+        c.strokeText(t,s[0]+7,s[1]-9);c.fillText(t,s[0]+7,s[1]-9);}});});}
+function toolSet(key,id,v){try{localStorage.setItem(key,v?"1":"0")}catch(e){}document.getElementById(id).setAttribute("aria-pressed",v);if(mode==="map")renderMap();}
+function mapToolsWire(){var r=document.getElementById("trange");tSync();r.oninput=function(){tPlay(false);setTY(+r.value)};
+  document.getElementById("tplay").onclick=function(){tPlay(!TPLAY)};document.getElementById("tclr").onclick=function(){tPlay(false);setTY(null)};
+  document.getElementById("grp").setAttribute("aria-pressed",GROUP);document.getElementById("grp").onclick=function(){GROUP=!GROUP;toolSet("watcher-group","grp",GROUP)};
+  document.getElementById("heat").setAttribute("aria-pressed",HEAT);document.getElementById("heat").onclick=function(){HEAT=!HEAT;toolSet("watcher-heat","heat",HEAT)};
+  document.getElementById("paths").setAttribute("aria-pressed",PATHS);document.getElementById("paths").onclick=function(){PATHS=!PATHS;toolSet("watcher-paths","paths",PATHS)};
+  var s=document.getElementById("whsort");s.value=WHS;s.onchange=function(){WHS=s.value;try{localStorage.setItem("watcher-whsort",WHS)}catch(e){}whUpdate()};
+  document.getElementById("whb").onclick=function(){whSet(!WHO)};whSet(WHO);
+  document.getElementById("whl").addEventListener("click",function(e){var b=e.target.closest("button[data-id]");if(b)open(b.dataset.id)});
+  /* hover with a mouse; press and hold with a finger */
+  pinsEl.addEventListener("pointerover",function(e){if(e.pointerType!=="mouse")return;var el=e.target.closest(".pin");if(!el)return;var o=pinOf(el);clearTimeout(pcT);if(o&&o!==pcO)pcT=setTimeout(function(){pcShow(o)},pcO?0:140);});
+  pinsEl.addEventListener("pointerout",function(e){if(e.pointerType!=="mouse")return;var el=e.target.closest(".pin");if(el&&!(e.relatedTarget&&el.contains(e.relatedTarget)))pcHide();});
+  vp.addEventListener("pointerdown",function(e){clearTimeout(lpT);pcHide();pcLP=false;if(e.pointerType==="mouse")return;var el=e.target.closest&&e.target.closest(".pin");if(!el)return;
+    lpXY=[e.clientX,e.clientY];lpT=setTimeout(function(){var o=pinOf(el);if(o){pcShow(o);pcLP=true;}},450);},true);
+  vp.addEventListener("pointermove",function(e){if(lpXY&&Math.hypot(e.clientX-lpXY[0],e.clientY-lpXY[1])>8){clearTimeout(lpT);lpXY=null;}},true);
+  pinsEl.addEventListener("contextmenu",function(e){if(e.target.closest(".pin"))e.preventDefault()});
+  vp.addEventListener("wheel",function(){pcHide()},{passive:true,capture:true});}
 function render(){if(mode==="tree")renderTree();else if(mode==="map")renderMap();else renderTimeline();}
 
 /* keep the org chart and timeline on screen: a small margin past each edge (just 24px for the timeline, so it stops near
@@ -4210,7 +4401,7 @@ document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.ease
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
 var ptrs=new Map(),moved=0,startDist=0,startK=1,downTarget=null,downPt=null;
-vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey,.keybtn,#mini,#cname"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
+vp.addEventListener("pointerdown",function(e){if(e.target.closest("#panel,.fkey,.keybtn,#mini,#cname,#tbar,#wh"))return;if(mode==="map"&&SAT&&!e.target.closest(".pin,.clu"))return;vp.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;downTarget=e.target.closest(".node,.pin,.clu,.tlb,.tle");downPt={x:e.clientX,y:e.clientY};
   if(ptrs.size===2){var v=[...ptrs.values()];startDist=Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y);startK=k;}vp.classList.add("drag");});
 vp.addEventListener("pointermove",function(e){if(!ptrs.has(e.pointerId))return;var prev=ptrs.get(e.pointerId);var dx=e.clientX-prev.x,dy=e.clientY-prev.y;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved+=Math.abs(dx)+Math.abs(dy);
   var r=vpR();
@@ -4222,7 +4413,7 @@ function placePin(lon,lat){placing=false;vp.classList.remove("placing");document
 function up(e){if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(ptrs.size<2)startDist=0;
   if(!ptrs.size){vp.classList.remove("drag");if(moved<8){
     if(mode==="map"&&placing&&downPt&&!e.target.closest(".legend")){var r=vpR(),ll=gInv(downPt.x-r.left,downPt.y-r.top);if(!ll)return;placePin(ll[0],ll[1]);}
-    else if(downTarget)open(downTarget.dataset.id);}}}
+    else if(pcLP){pcLP=false;}else if(downTarget&&downTarget.classList.contains("clu"))cluZoom(downTarget);else if(downTarget)open(downTarget.dataset.id);}}}
 vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
 vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
   /* in Satellite view the pins sit on a layer above the map, so a scroll over a pin is passed on to the map to zoom */
@@ -4231,7 +4422,7 @@ vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
   if(e.ctrlKey){var d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);d=Math.max(-25,Math.min(25,d));zoomAt(Math.exp(-d*0.008),cx,cy);}
   else if(e.deltaMode===0&&(Math.abs(e.deltaX)>0||Math.abs(e.deltaY)<50)){if(mode==="map")gRot(-e.deltaX,-e.deltaY);else{tx-=e.deltaX;ty-=e.deltaY;apply();}}
   else{zoomAt(Math.exp(-Math.sign(e.deltaY)*0.15),cx,cy);}},{passive:false});
-vp.addEventListener("keydown",function(e){var n=e.target.closest&&e.target.closest(".node,.pin,.tlb,.tle");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();open(n.dataset.id);}});
+vp.addEventListener("keydown",function(e){var n=e.target.closest&&e.target.closest(".node,.pin,.clu,.tlb,.tle");if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();if(n.classList.contains("clu"))cluZoom(n);else open(n.dataset.id);}});mapToolsWire();
 /* Ctrl+scroll and Ctrl+plus/minus anywhere on the page zoom the view instead of the whole webpage,
    so the org chart's Fit limit always applies */
 var LZ=1;function lgOpen(){var l=document.getElementById("ledger");return l&&!l.hidden?l:null}
@@ -4351,7 +4542,7 @@ function open(id,editName){
   var edit=n.custom?'<h3>Name and description</h3><input id="en" maxlength="60" value="'+esc(n.t)+'" aria-label="Name"><input id="es" maxlength="60" style="margin-top:8px" value="'+esc(n.s||"")+'" placeholder="Short description (optional)" aria-label="Description"><div class="err" id="ee"></div><div class="row"><button id="eb">Save name</button></div>':'';
   var branch=!isTree(n.id)||n.custom==="pin"||n.c?'':'<h3>Add a branch under this box</h3><input id="cn" placeholder="Name, such as Senate Intelligence Committee" maxlength="60"><input id="cs" placeholder="Short description (optional)" maxlength="60" style="margin-top:8px"><div class="err" id="ce"></div><div class="row"><button id="ca">Add branch</button></div>';
   panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+linkBtn()+wideBtn()+minBtn(n.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
-  '<div class="pb">'+banHtml(tl&&IMG[tl.id]?tl.id:cid,n.t)+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
+  '<div class="pb">'+banHtml(tl&&IMG[tl.id]?tl.id:cid,n.t)+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+routeHtml(cid)+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
