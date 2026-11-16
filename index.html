@@ -3866,12 +3866,24 @@ function sphereDraw(G,tex,tw,cx,cy,S,P,rot,lon,lat,L,full,amb,atm){var gl=G.gl,u
 function earthSky(){var l0=gLon*DEG,p0=gLat*DEG,vx=-Math.sin(l0),vy=-Math.sin(p0)*Math.cos(l0),vz=Math.cos(p0)*Math.cos(l0),cc=-vz;
   if(cc<0.2)return null;var c=Math.acos(Math.min(1,cc)),sc=Math.max(gW,gH)/2/0.83,r=2*sc*Math.tan(c/2),n=Math.hypot(vx,vy)||1,R=0.05*Math.min(gW,gH),
     x=gW/2+r*vx/n,y=gH/2-r*vy/n;if(x<-R||x>gW+R||y<-R||y>gH+R)return null;return {x:x,y:y,R:R}}
+/* Earth in the Moon's sky is drawn from its own sunlight (the real day side facing the Moon right now), but with its
+   north pole up it would sit at a different angle from the Moon, whose frame is tilted by Earth's axis and the Moon's
+   orbit. So it is turned until its lit side faces the Sun's direction as seen from Earth's place in the sky, the same
+   direction that lights the Moon, and the two terminators line up */
+function skyVec(L){var l0=gLon*DEG,p0=gLat*DEG,sl=Math.sin(l0),cl=Math.cos(l0),sp=Math.sin(p0),cp=Math.cos(p0);
+  return [-sl*L[0]+cl*L[1],-sp*cl*L[0]-sp*sl*L[1]+cp*L[2],cp*cl*L[0]+cp*sl*L[1]+sp*L[2]]}
+function skyXY(v){var c=Math.acos(Math.max(-1,Math.min(1,-v[2]))),r=2*Math.tan(c/2),n=Math.hypot(v[0],v[1])||1;return [r*v[0]/n,-r*v[1]/n]}
+function earthRoll(lon,lat,L){var vE=skyVec([1,0,0]),vS=skyVec(moonSun()),d=vS[0]*vE[0]+vS[1]*vE[1]+vS[2]*vE[2],t=[vS[0]-d*vE[0],vS[1]-d*vE[1],vS[2]-d*vE[2]],m=Math.hypot(t[0],t[1],t[2]);
+  if(m<1e-6)return 0;var p=[vE[0]+0.01*t[0]/m,vE[1]+0.01*t[1]/m,vE[2]+0.01*t[2]/m],q=Math.hypot(p[0],p[1],p[2]);p=[p[0]/q,p[1]/q,p[2]/q];
+  var a=skyXY(vE),b=skyXY(p),aT=Math.atan2(-(b[1]-a[1]),b[0]-a[0]),l0=lon*DEG,p0=lat*DEG,
+    E=[-Math.sin(l0),Math.cos(l0),0],N=[-Math.sin(p0)*Math.cos(l0),-Math.sin(p0)*Math.sin(l0),Math.cos(p0)],
+    aE=Math.atan2(L[0]*N[0]+L[1]*N[1]+L[2]*N[2],L[0]*E[0]+L[1]*E[1]+L[2]*E[2]);return aE-aT}
 function moonDraw(rot,full){var G=moonGL();if(!G)return;var gl=G.gl;bodySize();gl.viewport(0,0,mc.width,mc.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);if(!G.tex)return;
   gSetProj();gl.useProgram(G.pr);gl.bindBuffer(gl.ARRAY_BUFFER,G.buf);gl.enableVertexAttribArray(G.ap);gl.vertexAttribPointer(G.ap,2,gl.FLOAT,false,0,0);
   gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
   var es=!FLYING&&BODY==="moon"&&earthSky();
-  if(es){if(G.texE){var now=Date.now(),mp=moonPos(now),sn=sunPos(now),la=sn.lat*DEG,lo=sn.lon*DEG;
-      sphereDraw(G,G.texE,G.texEW,es.x,es.y,es.R,1000,0,gWrap(mp.ra-gmst()),mp.dec,[Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la)],NIGHT?0:1,0.1,1);}
+  if(es){if(G.texE){var now=Date.now(),mp=moonPos(now),sn=sunPos(now),la=sn.lat*DEG,lo=sn.lon*DEG,eLon=gWrap(mp.ra-gmst()),LE=[Math.cos(la)*Math.cos(lo),Math.cos(la)*Math.sin(lo),Math.sin(la)];
+      sphereDraw(G,G.texE,G.texEW,es.x,es.y,es.R,1000,earthRoll(eLon,mp.dec,LE),eLon,mp.dec,LE,NIGHT?0:1,0.1,1);}
     else earthTex();}
   sphereDraw(G,G.tex,G.tw,gcx,gcy,gS,gP,rot,gLon,gLat,moonSun(),full,0.24);}
 var EARTHT=null;function earthTex(){if(EARTHT)return;EARTHT=moonTexLoad("img/earth/earth-2k.jpg").then(function(im){var G=moonGL();if(G){moonTexSet(G,im,"texE");gQueue();}},function(){EARTHT=null});}
