@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script>try{var t=localStorage.getItem("watcher-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Watcher</title>
@@ -40,6 +41,12 @@ button:hover{border-color:var(--line)}
 button:focus-visible,textarea:focus-visible,input:focus-visible,.node:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber);color:var(--ink)}
 .sq{width:36px;padding:0;font-size:18px}
+#themeBtn svg{width:18px;height:18px;display:block;margin:auto}
+#themeBtn .ti-sun{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #themeBtn .ti-sun{display:inline}:root:not([data-theme="light"]) #themeBtn .ti-moon{display:none}}
+:root[data-theme="dark"] #themeBtn .ti-sun{display:inline}:root[data-theme="dark"] #themeBtn .ti-moon{display:none}
+#panel .pb>*{zoom:var(--pz,1)}
+
 .pbk{font-size:17px}
 /* collapsed details panel: on wider screens a slim strip down the right edge with the entry's name, on phones just
    the title bar at the bottom, until expanded */
@@ -541,7 +548,7 @@ header .tools>.seg{order:0}
 header .tools .seg button{min-height:32px;padding:4px 9px;font-size:13.5px;white-space:nowrap}
 .srch{order:1;flex:1 1 170px;min-width:0}
 #q{font-size:16px;min-height:34px;padding:4px 12px 4px 32px}
-#ledgerBtn,#fit{order:2;min-height:34px;padding:4px 10px;font-size:13.5px}
+#ledgerBtn,#fit,#themeBtn{order:2;min-height:34px;padding:4px 10px;font-size:13.5px}
 #zo,#zi{display:none}
 header>.tb{order:3;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none}
 header>.tb::-webkit-scrollbar{display:none}
@@ -3221,7 +3228,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<header><h1><span class="brand" role="img" aria-label="Watcher"><i class="lgm" aria-hidden="true"></i></span><span class="vt" id="vt">Who runs UAP work in the U.S. and other governments</span></h1>'+
 '<div class="srch" role="search"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.8" cy="6.8" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6L14.5 14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="q" type="search" placeholder="Search people, places, programs" aria-label="Search people, places, and programs" autocomplete="off" spellcheck="false" role="combobox" aria-controls="qr" aria-expanded="false" aria-autocomplete="list"><div id="qr" role="listbox" aria-label="Search results" hidden></div></div>'+
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
-'<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button></div>'+
+'<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button><button class="sq" id="themeBtn" aria-label="Switch to dark mode" title="Switch to dark mode"><svg viewBox="0 0 20 20" aria-hidden="true"><g class="ti-sun"><circle cx="10" cy="10" r="3.6" fill="currentColor"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g><path class="ti-moon" d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2z" fill="currentColor"/></svg></button></div>'+
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><button class="treeonly terr" id="cAll" aria-pressed="false" title="Show every country side by side">All countries</button><div id="cbar" class="treeonly" role="toolbar" aria-label="Jump to a country"></div>'+
 '<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="vp" role="main"><div id="cname" class="treeonly" aria-live="polite" hidden></div><canvas id="mini" class="treeonly" aria-hidden="true"></canvas><div id="world"><svg id="edges"></svg></div>'+
@@ -4349,7 +4356,7 @@ function up(e){if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);if(ptrs
     if(mode==="map"&&placing&&downPt&&!e.target.closest(".legend")){var r=vpR(),ll=gInv(downPt.x-r.left,downPt.y-r.top);if(!ll)return;placePin(ll[0],ll[1]);}
     else if(downTarget)open(downTarget.dataset.id);}}}
 vp.addEventListener("pointerup",up);vp.addEventListener("pointercancel",up);
-vp.addEventListener("wheel",function(e){if(e.target.closest("#panel"))return;
+vp.addEventListener("wheel",function(e){if(e.target.closest("#panel")){if(e.ctrlKey){e.preventDefault();var pd=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);panelZoom(Math.exp(-Math.max(-25,Math.min(25,pd))*0.006));}return;}
   /* in Satellite view the pins sit on a layer above the map, so a scroll over a pin is passed on to the map to zoom */
   if(mode==="map"&&SAT){if(satMap&&e.target.closest&&e.target.closest("#pins")){e.preventDefault();satMap.getCanvas().dispatchEvent(new WheelEvent("wheel",{deltaX:e.deltaX,deltaY:e.deltaY,deltaZ:e.deltaZ,deltaMode:e.deltaMode,
     clientX:e.clientX,clientY:e.clientY,screenX:e.screenX,screenY:e.screenY,ctrlKey:e.ctrlKey,shiftKey:e.shiftKey,altKey:e.altKey,metaKey:e.metaKey,bubbles:true,cancelable:true}));}return;}e.preventDefault();var r=vpR(),cx=e.clientX-r.left,cy=e.clientY-r.top;
@@ -4367,11 +4374,24 @@ document.addEventListener("wheel",function(e){if(!e.ctrlKey||vp.contains(e.targe
   if(e.target.closest&&e.target.closest("#panel,#qr"))return;e.preventDefault();
   if(mode==="map"&&SAT)return;var c=center(),d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?100:1);d=Math.max(-25,Math.min(25,d));zoomAt(Math.exp(-d*0.008),c[0],c[1]);},{passive:false});
 document.addEventListener("keydown",function(e){if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
+  if(PHOVER&&panel.classList.contains("open")&&!lgOpen()){if(e.key==="-"||e.key==="_"){e.preventDefault();panelZoom(1/1.15)}else if(e.key==="="||e.key==="+"){e.preventDefault();panelZoom(1.15)}else if(e.key==="0"){e.preventDefault();panelZoom(0)}return;}
   if(lgOpen()){if(e.key==="-"||e.key==="_"){e.preventDefault();ledgerZoom(1/1.15)}else if(e.key==="="||e.key==="+"){e.preventDefault();ledgerZoom(1.15)}else if(e.key==="0"){e.preventDefault();ledgerZoom(0)}return;}
   var c=center();
   if(e.key==="-"||e.key==="_"){e.preventDefault();zoomAt(0.8,c[0],c[1]);}
   else if(e.key==="="||e.key==="+"){e.preventDefault();zoomAt(1.25,c[0],c[1]);}
   else if(e.key==="0"){e.preventDefault();fit();}});
+/* the reading pane zooms its own text with Ctrl+scroll (or Ctrl+plus/minus while the pointer is over it), and keeps the
+   size for next time; the rest of the page stays as it is */
+var PHOVER=false,PZ=(function(){try{var v=+localStorage.getItem("watcher-pz");return v?Math.max(.8,Math.min(1.8,v)):1}catch(e){return 1}})();
+document.documentElement.style.setProperty("--pz",PZ.toFixed(3));
+panel.addEventListener("pointerenter",function(){PHOVER=true});panel.addEventListener("pointerleave",function(){PHOVER=false});
+function panelZoom(f){var b=panel.querySelector(".pb"),top=b?b.scrollTop/Math.max(1,b.scrollHeight):0;PZ=f===0?1:Math.max(.8,Math.min(1.8,PZ*f));
+  document.documentElement.style.setProperty("--pz",PZ.toFixed(3));try{localStorage.setItem("watcher-pz",PZ.toFixed(3))}catch(e){}if(b)b.scrollTop=top*b.scrollHeight;}
+/* light or dark: follows the device until the button is used, then remembers the choice */
+function themeNow(){var t=document.documentElement.getAttribute("data-theme");return t||(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
+function themeSync(){var b=document.getElementById("themeBtn");if(!b)return;var n=themeNow()==="dark"?"light":"dark",l="Switch to "+n+" mode";b.setAttribute("aria-label",l);b.title=l;}
+document.getElementById("themeBtn").onclick=function(){var n=themeNow()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("watcher-theme",n)}catch(e){}themeSync();render();};themeSync();
+if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",themeSync)}catch(e){}
 document.getElementById("zi").onclick=function(){var c=center();zoomAt(1.25,c[0],c[1])};
 document.getElementById("zo").onclick=function(){var c=center();zoomAt(0.8,c[0],c[1])};
 document.getElementById("fit").onclick=fit;
