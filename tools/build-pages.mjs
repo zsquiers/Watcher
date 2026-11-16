@@ -69,7 +69,7 @@ function slugify(s) {
 /* ---- every entry, with its section, address and the link back into the interactive site ---- */
 const SECTIONS = {
   people: {title: "People", blurb: "Officials, scientists, witnesses, researchers and claimants in UFO and UAP history."},
-  places: {title: "Places", blurb: "Sighting sites, bases, secret project sites, research groups, companies and ancient sites, on Earth and the Moon."},
+  places: {title: "Places", blurb: "Sighting sites, bases, secret project sites, research groups, companies and ancient sites, on Earth, the Moon and Mars."},
   programs: {title: "Programs and offices", blurb: "Government offices and programs that have handled UFO and UAP work, in the U.S. and other countries."},
   claims: {title: "Claims", blurb: "Public claims set beside the official record, with sources for both sides."},
   timeline: {title: "Timeline", blurb: "Milestones in UFO and UAP history."},
@@ -156,7 +156,7 @@ function image(e) {
 function metaLine(e) {
   const r = e.raw;
   if (e.sec === "people") return r.a && r.a !== r.t ? `Also known as ${r.a}` : "";
-  if (e.sec === "places") return [r.s, r.body === "moon" ? "On the Moon" : "", CATS[r.c] || "", r.lat != null ? `${Math.abs(r.lat).toFixed(3)}°${r.lat >= 0 ? "N" : "S"}, ${Math.abs(r.lon).toFixed(3)}°${r.lon >= 0 ? "E" : "W"}` : ""].filter(Boolean).join(" · ");
+  if (e.sec === "places") return [r.s, r.body === "moon" ? "On the Moon" : r.body === "mars" ? "On Mars" : "", CATS[r.c] || "", r.lat != null ? `${Math.abs(r.lat).toFixed(3)}°${r.lat >= 0 ? "N" : "S"}, ${Math.abs(r.lon).toFixed(3)}°${r.lon >= 0 ? "E" : "W"}` : ""].filter(Boolean).join(" · ");
   if (e.sec === "programs") {
     let n = r, g = 0; const chain = []; while (n && n.p && g++ < 40) { n = BASE.find(b => b.id === n.p); if (n) chain.unshift(n.t); }
     const root = n && n.cn ? n.cn : "";
@@ -174,8 +174,8 @@ function jsonld(e, url, img) {
   let o;
   if (e.sec === "people") o = {"@type": "Person", name: r.t, alternateName: r.a && r.a !== r.t ? r.a.split(/,\s*/) : undefined, description: d, image};
   else if (e.sec === "places") o = {"@type": "Place", name: r.t, description: d, image,
-    geo: r.body === "moon" || r.lat == null ? undefined : {"@type": "GeoCoordinates", latitude: r.lat, longitude: r.lon},
-    containedInPlace: r.body === "moon" ? {"@type": "Place", name: "Moon"} : undefined};
+    geo: r.body || r.lat == null ? undefined : {"@type": "GeoCoordinates", latitude: r.lat, longitude: r.lon},
+    containedInPlace: r.body === "moon" ? {"@type": "Place", name: "Moon"} : r.body === "mars" ? {"@type": "Place", name: "Mars"} : undefined};
   else if (e.sec === "programs") o = {"@type": r.p ? "GovernmentOrganization" : "GovernmentOrganization", name: r.t, alternateName: r.s || undefined, description: d};
   else if (e.sec === "claims") o = {"@type": "ClaimReview", claimReviewed: r.t, url,
     itemReviewed: {"@type": "Claim", author: {"@type": r.by ? "Person" : "Organization", name: r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt}, datePublished: String(r.yr)},
