@@ -197,6 +197,7 @@ Banner images and book covers in `img/places/` are resized copies of public-doma
 | Joint Base San Antonio | `img/places/m-jbsa.jpg` | Rich McFadden, U.S. Air Force | Public domain | [Randolph-air-force-base-taj-mahal.jpg](https://commons.wikimedia.org/wiki/File:Randolph-air-force-base-taj-mahal.jpg) |
 | Kadena Air Base | `img/places/w-kadena.jpg` | U.S. Air Force | Public domain | [150821-F-ZC102-051.jpg](https://commons.wikimedia.org/wiki/File:150821-F-ZC102-051.jpg) |
 | Kecksburg incident | `img/places/m-kecksburg.jpg` | Ryright | CC BY-SA 3.0 | [Kecksburg UFO.JPG](https://commons.wikimedia.org/wiki/File:Kecksburg_UFO.JPG) |
+| Japan Air Lines Flight 1628 | `img/places/m-jal1628.jpg` | simon butler | CC BY 2.0 | [FRANKFURT MAY 1985 JAPAN AIRLINES CARGO BOEING 747F JA8160 (46411188075).jpg](https://commons.wikimedia.org/wiki/File:FRANKFURT_MAY_1985_JAPAN_AIRLINES_CARGO_BOEING_747F_JA8160_%2846411188075%29.jpg) |
 | Kenneth Arnold sighting | `img/places/m-arnold.jpg` | UPI, Chicago Sun | Public domain | [Chicago Sun 1947-06-26-2 Flying Saucer headline-th.jpg](https://commons.wikimedia.org/wiki/File:Chicago_Sun_1947-06-26-2_Flying_Saucer_headline-th.jpg) |
 | Kirtland AFB | `img/places/m-kirtland.jpg` | Joe Mabel | CC BY 3.0 | [Kirtland Air Force Base 01.jpg](https://commons.wikimedia.org/wiki/File:Kirtland_Air_Force_Base_01.jpg) |
 | Little America IV | `img/places/w-littleamerica.jpg` | U.S. Navy | Public domain | [USS Sennet (SS-408) in Antartica 1947.jpg](https://commons.wikimedia.org/wiki/File:USS_Sennet_%28SS-408%29_in_Antartica_1947.jpg) |
