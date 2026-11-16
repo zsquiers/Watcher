@@ -4107,9 +4107,12 @@ function flyFrame(t,F){var u=t*t*(3-2*t),c=gx,M=F.M;MOONHIDE=true;
   c.setTransform(1,0,0,1,0,0);c.fillStyle="#040812";c.fillRect(0,0,gc.width,gc.height);
   c.setTransform(gDpr,0,0,gDpr,0,0);c.translate(gW/2,gH/2);c.rotate(-F.thE*u);c.translate(-gW/2,-gH/2);drawSky(c,gWrap(F.ea.lon+gWrap(F.sk.lon-F.ea.lon)*u),F.ea.lat+(F.sk.lat-F.ea.lat)*u);
   c.setTransform(1,0,0,1,0,0);
-  var r=11*Math.pow(F.R1/11,Math.pow(t,1.7)),cx=M[0]+(F.C[0]-M[0])*u,cy=M[1]+(F.C[1]-M[1])*u;
+  var r0=F.r0||11,r=r0*Math.pow(F.R1/r0,Math.pow(t,F.r0?2.2:1.7)),cx=M[0]+(F.C[0]-M[0])*u,cy=M[1]+(F.C[1]-M[1])*u;
   k=r/(Math.min(gW,gH)*0.42);gox=cx-gW/2;goy=cy-gH/2;gLon=0;gLat=0;moonDraw(F.th*(1-u),0);
   var x=fx;x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,fc.width,fc.height);
+  /* Mars starts as it looks in the sky, a reddish point of light, and the point fades as its disc grows */
+  if(F.r0&&r<6){var pa=Math.min(1,(6-r)/4),px=cx*gDpr,py=cy*gDpr,g=x.createRadialGradient(px,py,0,px,py,7*gDpr);g.addColorStop(0,"rgba(255,214,170,"+pa+")");g.addColorStop(0.25,"rgba(255,150,90,"+(pa*0.55)+")");g.addColorStop(1,"rgba(255,120,60,0)");
+    x.fillStyle=g;x.beginPath();x.arc(px,py,7*gDpr,0,6.2832);x.fill();}
   if(F.snap){/* Earth swings out of the way on the side away from the Moon, always fast enough that its edge stays
       clear of the Moon as it grows, so the camera passes beside Earth and never through it (tight on a phone) */
     var e=1+4*u*u,dx=F.E[0]-M[0],dy=F.E[1]-M[1],dl=Math.hypot(dx,dy)||1,ux=dx/dl,uy=dy/dl,
@@ -4135,9 +4138,9 @@ function toMoon(then,b){b=b||"moon";TGT=b;FLYING=true;cancelAnimationFrame(gAnim
       gSetProj();EARTHA={lon:gLon,lat:gLat,k:k,ox:gox,oy:goy};SNAP=snap;SKYB=moonAhead();
       var sm=skyMoonAt(gLon,gLat),L=bodySunL(),
         F={M:[sm.x,sm.y],E:[gcx,gcy],snap:snap,ea:{lon:EARTHA.lon,lat:EARTHA.lat},sk:SKYB,th:b==="mars"?0:sm.ang-(L[1]>=0?0:Math.PI)};
-      var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;F.thE=b==="mars"?0:skyMoonAt(SKYB.lon,SKYB.lat).ang-(L[1]>=0?0:Math.PI);SKYROT=-F.thE;
+      var B2=freeBox();F.C=[(B2.x0+B2.x1)/2,(B2.y0+B2.y1)/2];F.R1=Math.min(gW,gH)*0.42;F.ER=gR;if(b==="mars")F.r0=0.9;F.thE=b==="mars"?0:skyMoonAt(SKYB.lon,SKYB.lat).ang-(L[1]>=0?0:Math.PI);SKYROT=-F.thE;
       document.body.classList.add("travel");bodySize();
-      return tween(2600,function(t){flyFrame(t,F)});}).then(function(){
+      return tween(b==="mars"?3400:2600,function(t){flyFrame(t,F)});}).then(function(){
       BODY=b;KMAX=10;MOONHIDE=false;FLYING=false;document.body.classList.remove("travel");fx.clearRect(0,0,fc.width,fc.height);
       btn.disabled=false;bodyUI();renderMap();MOONFILL=0;if(!NIGHT)tween(1400,function(t){MOONFILL=t*t*(3-2*t);gQueue();});
       if(b==="mars"&&!MARSUP&&MGL&&MGL.max>=4096){MARSUP=true;moonTexLoad("img/mars/mars-4k.jpg").then(function(im){moonTexSet(MGL,im,"texM");gQueue();}).catch(function(){});}
@@ -4148,7 +4151,7 @@ function toEarth(then){FLYING=true;var btn=document.getElementById("goMoon");btn
   wait(RM?0:800).then(function(){cancelAnimationFrame(gAnim);
     var ea=EARTHA||{lon:gLon,lat:gLat,k:0.62,ox:0,oy:0},sk=Math.min(gW,gH)*0.42;
     var sm=skyMoonAt(ea.lon,ea.lat),L=bodySunL(),Eo=[gW/2+(ea.ox||0),gH/2+(ea.oy||0)],mz=TGT==="mars";
-    var F={M:[sm.x,sm.y],E:Eo,snap:SNAP,ea:ea,sk:SKYB,th:mz?0:sm.ang-(L[1]>=0?0:Math.PI),thE:mz?0:SKYROT?-SKYROT:skyMoonAt(SKYB.lon,SKYB.lat).ang-(L[1]>=0?0:Math.PI),C:C,R1:sk*k,ER:sk*(ea.k||0.62)};
+    var F={r0:mz?0.9:0,M:[sm.x,sm.y],E:Eo,snap:SNAP,ea:ea,sk:SKYB,th:mz?0:sm.ang-(L[1]>=0?0:Math.PI),thE:mz?0:SKYROT?-SKYROT:skyMoonAt(SKYB.lon,SKYB.lat).ang-(L[1]>=0?0:Math.PI),C:C,R1:sk*k,ER:sk*(ea.k||0.62)};
     renderMap();document.body.classList.add("travel");
     return tween(2200,function(t){flyFrame(1-t,F)});}).then(function(){
     var ea=EARTHA||{lon:gLon,lat:gLat,k:0.62,ox:0,oy:0},ret=BODYRET||{sat:false,lon:ea.lon,lat:ea.lat,k:1,ox:0,oy:0};
