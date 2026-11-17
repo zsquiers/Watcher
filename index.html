@@ -193,13 +193,13 @@ body.travel #moonc,body.travel #fly,body.offworld #moonc,body.offworld #fly{disp
 body.travel #pins{visibility:hidden}
 body:not(.offworld) #earthrise{display:none}
 body.onmars #earthrise,body.offworld #goMars{display:none}
-body.offworld .seg[aria-label="Map style"],body.offworld #terr,body.offworld #cloud,body.offworld #addpin{display:none}
+body.offworld .seg[aria-label="Map style"],body.offworld #terr,body.offworld #truesc,body:not(.terr3d) #truesc,body.offworld #cloud,body.offworld #addpin{display:none}
 body:not(.offworld) .fkey [data-k="msn"]{display:none}
 body.offworld .fkey [data-k]:not([data-k="uap"]):not([data-k="msn"]){display:none}
 .pin.msn .mk,.lg-msn{background:#EAF2FF;border-radius:50%;width:10px;height:10px;box-shadow:0 0 0 2px #4C8C96}body.sat.mode-map #haze{display:block}
 #cloud[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
 body.street #cloud{display:none}
-#terr[aria-pressed="true"],#sun[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
+#terr[aria-pressed="true"],#truesc[aria-pressed="true"],#sun[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber)}
 body.sat #sat{display:block}
 body.sat.mode-map .hint{bottom:40px}
 /* map tools: overlay, grouped pins, hover card, time bar, What's here */
@@ -3451,7 +3451,7 @@ document.body.insertAdjacentHTML("beforeend",
 '<div class="tools"><div class="seg" role="group" aria-label="View"><button id="mt" aria-pressed="true">Org chart</button><button id="mm" aria-pressed="false">Map</button><button id="ml" aria-pressed="false">Timeline</button></div>'+
 '<button id="ledgerBtn" title="Claims ledger: what has been claimed, and what the official record says">Claims</button><button class="sq" id="zo" aria-label="Zoom out">&minus;</button><button class="sq" id="zi" aria-label="Zoom in">+</button><button id="fit">Fit</button><button class="sq" id="themeBtn" aria-label="Switch to dark mode" title="Switch to dark mode"><svg viewBox="0 0 20 20" aria-hidden="true"><g class="ti-sun"><circle cx="10" cy="10" r="3.6" fill="currentColor"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g><path class="ti-moon" d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2z" fill="currentColor"/></svg></button></div>'+
 '<div class="tb"><button class="treeonly" id="lin" aria-pressed="false">Show lineage</button><button class="treeonly terr" id="cAll" aria-pressed="false" title="Show every country side by side">All countries</button><div id="cbar" class="treeonly" role="toolbar" aria-label="Jump to a country"></div>'+
-'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view">3D terrain</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="grp" class="terr" aria-pressed="true" title="Gather pins that overlap into numbered bubbles that split apart as you zoom in">Group pins</button><button id="heat" class="terr" aria-pressed="false" title="Shade where UAP and anomaly sites cluster">Heat map</button><button id="paths" class="terr" aria-pressed="true" title="Show the routes of sightings and chases that moved">Flight paths</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="goMars" title="Fly to Mars">Mars</button><button id="addpin">Add a pin</button></span></div></header>'+
+'<span class="maponly tb" style="width:auto"><span class="seg" role="group" aria-label="Map style"><button id="stMap" aria-pressed="true">Map</button><button id="stSat" aria-pressed="false">Satellite</button></span><button id="terr" class="terr" aria-pressed="false" title="Raise mountains and buildings and tilt the view. Heights are exaggerated so relief shows: about 4 times when zoomed out, easing to 1.4 times up close. Use True scale for real proportions.">3D terrain</button><button id="truesc" class="terr" aria-pressed="false" title="Show mountains at their real height, with no vertical exaggeration">True scale</button><button id="cloud" class="terr" aria-pressed="true" title="Show the latest clouds from NASA satellites">Clouds</button><button id="night" class="terr" aria-pressed="true" title="Show the real day and night sides of Earth (in Satellite view) and the Moon">Day and night</button><button id="grp" class="terr" aria-pressed="true" title="Gather pins that overlap into numbered bubbles that split apart as you zoom in">Group pins</button><button id="heat" class="terr" aria-pressed="false" title="Shade where UAP and anomaly sites cluster">Heat map</button><button id="paths" class="terr" aria-pressed="true" title="Show the routes of sightings and chases that moved">Flight paths</button><button id="earthrise" title="Swing around the Moon until Earth rises over its edge">Earthrise</button><button id="goMoon" title="Fly to the Moon">Moon</button><button id="goMars" title="Fly to Mars">Mars</button><button id="addpin">Add a pin</button></span></div></header>'+
 '<div id="vp" role="main"><div id="cname" class="treeonly" aria-live="polite" hidden></div><canvas id="mini" class="treeonly" aria-hidden="true"></canvas><div id="world"><svg id="edges"></svg></div>'+
 '<div id="mapw"><canvas id="globe" aria-hidden="true"></canvas><canvas id="moonc" aria-hidden="true"></canvas><canvas id="fly" aria-hidden="true"></canvas><div id="sat"></div><canvas id="haze" aria-hidden="true"></canvas><canvas id="ovl" aria-hidden="true"></canvas><button id="compass" title="Click to turn north up and level the view" aria-label="Turn north up"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="21" fill="none" stroke="rgba(239,230,210,.25)"/><g id="cneedle"><text x="26" y="13" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="10" fill="#FF7A45">N</text><path d="M26 15 L31 27 L26 25 L21 27 Z" fill="#FF7A45"/><path d="M26 39 L31 27 L26 29 L21 27 Z" fill="#EFE6D2"/></g></svg></button><div id="pins"></div><div id="pcard" hidden aria-hidden="true"></div></div>'+
 '<div id="tlw"><svg id="tlsvg" aria-hidden="true"></svg><div id="tlitems"></div></div><div id="tlaxis" class="tlonly" aria-hidden="true"></div>'+
@@ -3811,7 +3811,7 @@ function satPins(){if(!satMap||!SAT||mode!=="map")return;var c=satMap.getCenter(
 function setSat(on){var bm=document.getElementById("stMap"),bs=document.getElementById("stSat");
   function mark(){markStyle();}
   if(on===SAT){if(on)streetApply();mark();return;}
-  if(!on){SAT=false;mark();document.body.classList.remove("sat","street");if(TERR){TERR=false;document.getElementById("terr").setAttribute("aria-pressed",false);try{localStorage.setItem("watcher-terrain","off")}catch(e){}if(satMap){satMap.setTerrain(null);satMap.setPitch(0);}}
+  if(!on){SAT=false;mark();document.body.classList.remove("sat","street");if(TERR){TERR=false;document.body.classList.remove("terr3d");document.getElementById("terr").setAttribute("aria-pressed",false);try{localStorage.setItem("watcher-terrain","off")}catch(e){}if(satMap){satMap.setTerrain(null);satMap.setPitch(0);}}
     /* the satellite map has no padding, so the drawn globe takes its center with no offset and nothing jumps */
     if(satMap){var c=satMap.getCenter();gLon=gWrap(c.lng);gLat=gClampLat(c.lat);k=Math.min(KMAX,Math.max(KMIN,kFromScale(satScale())));gox=0;goy=0;}
     PINS.forEach(function(o){o.v=null});compassUpdate();gQueue();return;}
@@ -3824,7 +3824,9 @@ function setSat(on){var bm=document.getElementById("stMap"),bs=document.getEleme
 /* 3D terrain on the satellite globe: free AWS Terrain Tiles elevation, raised a little so relief reads well */
 var TERR=false,satReady=false;
 function terrWanted(){try{return localStorage.getItem("watcher-terrain")==="on"}catch(e){return false}}
-function terrEx(z){return z<6?4:z<9?2.6:z<12?1.8:1.4}
+var TRUESC=(function(){try{return localStorage.getItem("watcher-truescale")==="on"}catch(e){return false}})();
+/* vertical exaggeration by zoom; True scale turns it off */
+function terrEx(z){if(TRUESC)return 1;return z<6?4:z<9?2.6:z<12?1.8:1.4}
 var DEM_URL="https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",DEM_ATT='Terrain &copy; <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Mapzen / AWS Terrain Tiles</a>';
 /* 3D models of famous pyramids: MapLibre can only raise flat-topped shapes, so each is a stack of thin
    shrinking layers. Rows: name, lat, lon, rotation (degrees clockwise from north), color, profile.
@@ -3852,7 +3854,7 @@ function pyrFC(){var F=[];
     else pr[1].forEach(function(t){sq(t[0],t[1],t[2],t[3])});
     F=F.concat(slabs);});
   return {type:"FeatureCollection",features:F}}
-function setTerrain(on){TERR=on;document.getElementById("terr").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-terrain",on?"on":"off")}catch(e){}
+function setTerrain(on){TERR=on;document.body.classList.toggle("terr3d",on);document.getElementById("terr").setAttribute("aria-pressed",on);try{localStorage.setItem("watcher-terrain",on?"on":"off")}catch(e){}
   if(on&&!SAT){setSat(true);return;}
   if(!satMap||!satReady)return;
   if(on){if(!satMap.getSource("dem")){
@@ -4524,8 +4526,8 @@ function renderMap(){
 }
 /* map tools: a time slider, grouped pins, hover previews, a list of what's on screen, a heat map of sightings and the
    routes of events that moved. A pin's year is its timeline year, or else a year in its place line */
-var PYR=null;function pinYear(p){if(!PYR){PYR={};TLE.forEach(function(r){if(!(r[0] in PYR))PYR[r[0]]=r[1]});}
-  if(p.id in PYR)return PYR[p.id];var m=(p.s||"").match(/\b(1[0-9]\d\d|20[0-2]\d)\b/);return m?+m[1]:null}
+var PINYR=null;function pinYear(p){if(!PINYR){PINYR={};TLE.forEach(function(r){if(!(r[0] in PINYR))PINYR[r[0]]=r[1]});}
+  if(p.id in PINYR)return PINYR[p.id];var m=(p.s||"").match(/\b(1[0-9]\d\d|20[0-2]\d)\b/);return m?+m[1]:null}
 var TYRS=null,TY=null,TPLAY=0;
 function tYears(){if(!TYRS){var s={};MAP.pins.forEach(function(p){var y=pinYear(p);if(y!=null)s[y]=1});TYRS=Object.keys(s).map(Number).sort(function(a,b){return a-b});}return TYRS}
 function tCut(){return TY==null?null:tYears()[TY]}
@@ -4747,7 +4749,7 @@ document.getElementById("ml").onclick=function(){switchTo("timeline")};
 document.querySelector(".mapkey").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;
   if(b.dataset.k)filt[b.dataset.k]=!filt[b.dataset.k];else MAPKEYS.forEach(function(r){filt[r[0]]=b.dataset.all==="1"});mapFilter();});mapKeySync();
 /* compass: turn back to north; outside 3D terrain it also levels the view, so the whole Earth sits upright again */
-document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setMapStyle("map")};compassUpdate();document.getElementById("terr").onclick=function(){setTerrain(!TERR)};NIGHT=nightWanted();document.getElementById("night").setAttribute("aria-pressed",NIGHT);document.getElementById("night").onclick=function(){setNight(!NIGHT)};document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setMapStyle("sat")};
+document.getElementById("compass").onclick=function(){if(SAT&&satMap)satMap.easeTo(TERR?{bearing:0,duration:RM?0:700}:{bearing:0,pitch:0,duration:RM?0:900})};document.getElementById("stMap").onclick=function(){setMapStyle("map")};compassUpdate();document.getElementById("terr").onclick=function(){setTerrain(!TERR)};document.getElementById("truesc").setAttribute("aria-pressed",TRUESC);document.getElementById("truesc").onclick=function(){TRUESC=!TRUESC;this.setAttribute("aria-pressed",TRUESC);try{localStorage.setItem("watcher-truescale",TRUESC?"on":"off")}catch(e){}if(TERR&&satMap&&satMap.getTerrain())satMap.setTerrain({source:"dem",exaggeration:terrEx(satMap.getZoom())})};NIGHT=nightWanted();document.getElementById("night").setAttribute("aria-pressed",NIGHT);document.getElementById("night").onclick=function(){setNight(!NIGHT)};document.getElementById("cloud").onclick=function(){setClouds(!CLOUDS)};CLOUDS=cloudsWanted();document.getElementById("cloud").setAttribute("aria-pressed",CLOUDS);TERR=terrWanted();document.getElementById("terr").setAttribute("aria-pressed",TERR);document.getElementById("stSat").onclick=function(){setMapStyle("sat")};
 (function(){var b=document.getElementById("goMoon");b.onclick=function(){goBody(BODY==="earth"?"moon":"earth")};var bm=document.getElementById("goMars");bm.onclick=function(){goBody("mars")};bm.addEventListener("pointerenter",function(){marsFirst().catch(function(){})},{once:true});b.addEventListener("pointerenter",function(){moonFirst().catch(function(){})},{once:true});document.getElementById("earthrise").onclick=earthrise;})();
 document.getElementById("addpin").onclick=function(){placing=!placing;vp.classList.toggle("placing",placing);this.textContent=placing?"Cancel":"Add a pin";hint.textContent=placing?"Tap the globe where the new pin goes.":HINTS.map;};
 
