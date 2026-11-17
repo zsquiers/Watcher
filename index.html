@@ -602,6 +602,7 @@ header .tools>.seg{order:0}
 header .tools .seg button{min-height:32px;padding:4px 9px;font-size:13.5px;white-space:nowrap}
 .srch{order:1;flex:1 1 170px;min-width:0}
 #q{font-size:16px;min-height:34px;padding:4px 12px 4px 32px}
+#qr{position:fixed;left:10px;right:10px;width:auto;top:var(--qrt,110px);max-height:calc(100dvh - var(--qrt,110px) - 12px)}
 #ledgerBtn,#fit,#themeBtn{order:2;min-height:34px;padding:4px 10px;font-size:13.5px}
 #zo,#zi{display:none}
 header>.tb{order:3;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none}
@@ -5309,7 +5310,7 @@ function sRender(){var q=qEl.value;qHits=sRun(q);qAct=qHits.length?0:-1;
       '<div class="qt"><span class="qk '+e.k+'">'+(e.k==="person"&&PBy[e.id]&&PBy[e.id].kind?"Being":KLAB[e.k])+'</span>'+logoImg({id:e.id,tid:e.k==="timeline"||e.k==="book"?(TLById[e.id]||{}).tid:null},"qlg")+'<b>'+sMark(e.t,q)+'</b></div>'+
       (e.s?'<div class="qs">'+sMark(e.s,q)+'</div>':'')+(sn?'<div class="qsn">'+sMark(sn,q)+'</div>':'')+
       (vb?'<div class="qv">'+vb+'</div>':'')+'</div>';});
-  qrEl.innerHTML=h;qrEl.hidden=false;qEl.setAttribute("aria-expanded","true");sAct(qAct);}
+  qrEl.innerHTML=h;qrEl.style.setProperty("--qrt",Math.round(qEl.getBoundingClientRect().bottom+6)+"px");qrEl.hidden=false;qEl.setAttribute("aria-expanded","true");sAct(qAct);}
 function sAct(i){qAct=i;qrEl.querySelectorAll(".qrow").forEach(function(r){var on=+r.dataset.i===i;r.classList.toggle("act",on);r.setAttribute("aria-selected",on);if(on)r.scrollIntoView({block:"nearest"})});
   if(i>=0)qEl.setAttribute("aria-activedescendant","qo"+i);else qEl.removeAttribute("aria-activedescendant");}
 function sClose(){qrEl.hidden=true;qEl.setAttribute("aria-expanded","false");}
