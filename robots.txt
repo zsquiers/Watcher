@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://zsquiers.github.io/Watcher/sitemap.xml
+Sitemap: https://uapwatcher.net/sitemap.xml
