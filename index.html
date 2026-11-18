@@ -4,15 +4,15 @@
 <script>try{var t=localStorage.getItem("watcher-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Watcher</title>
+<title>UAP Watcher</title>
 <meta name="description" content="An interactive, sourced guide to UFO and UAP history: who in the U.S. government handles it, where reported incidents happened, and when, from 1639 to today.">
-<link rel="canonical" href="https://zsquiers.github.io/Watcher/">
+<link rel="canonical" href="https://uapwatcher.net/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Watcher">
-<meta property="og:title" content="Watcher">
+<meta property="og:site_name" content="UAP Watcher">
+<meta property="og:title" content="UAP Watcher">
 <meta property="og:description" content="An interactive, sourced guide to UFO and UAP history: who in the U.S. government handles it, where reported incidents happened, and when, from 1639 to today.">
-<meta property="og:url" content="https://zsquiers.github.io/Watcher/">
-<meta property="og:image" content="https://zsquiers.github.io/Watcher/brand/watcher-icon-180.png">
+<meta property="og:url" content="https://uapwatcher.net/">
+<meta property="og:image" content="https://uapwatcher.net/brand/watcher-icon-180.png">
 <meta name="twitter:card" content="summary">
 <link rel="icon" type="image/svg+xml" href="brand/watcher-icon.svg">
 <link rel="icon" type="image/png" sizes="64x64" href="brand/watcher-icon-64.png">
@@ -4846,7 +4846,7 @@ var pWide=null,pWideSync=function(){};
 /* entry links: every open panel puts its own address in the URL (#/person/pp-grusch, #/map/m-roswell, #/timeline/tl-mj12,
    #/claim/cl-roswell), so an entry can be shared or bookmarked, and opening that address goes straight to it */
 var HVIEW={tree:"org",map:"map",timeline:"timeline"},HMODE={org:"tree",map:"map",timeline:"timeline"},DOCT=document.title;
-function setHash(h,t){try{var u=h||location.pathname+location.search;if((location.hash||"")!==(h||""))history.replaceState(null,"",u)}catch(e){}document.title=t?t+" \u00b7 Watcher":DOCT;}
+function setHash(h,t){try{var u=h||location.pathname+location.search;if((location.hash||"")!==(h||""))history.replaceState(null,"",u)}catch(e){}document.title=t?t+" \u00b7 UAP Watcher":DOCT;}
 function entryHash(v){return v.k==="person"?"#/person/"+v.id:"#/"+(HVIEW[v.m]||"org")+"/"+v.id}
 function parseHash(h){var m=/^#\/(person|org|map|timeline|claim|claims|about)(?:\/([A-Za-z0-9_-]+))?$/.exec(h||"");return m?{v:m[1],id:m[2]||""}:null}
 function routeOK(r){return !!r&&(r.v==="person"?!!PBy[r.id]:r.v==="claims"||r.v==="about"?true:r.v==="claim"?CLAIMS.some(function(c){return c.id===r.id}):!!r.id&&!!(TLById[r.id]||findItem(r.id)))}

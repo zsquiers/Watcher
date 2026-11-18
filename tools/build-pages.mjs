@@ -170,7 +170,7 @@ function metaLine(e) {
 }
 function jsonld(e, url, img) {
   const r = e.raw, d = describe(plain(e.d), 300), image = img ? SITE + img.src : undefined;
-  const site = {"@type": "WebSite", name: "Watcher", url: SITE};
+  const site = {"@type": "WebSite", name: "UAP Watcher", alternateName: "Watcher", url: SITE};
   let o;
   if (e.sec === "people") o = {"@type": "Person", name: r.t, alternateName: r.a && r.a !== r.t ? r.a.split(/,\s*/) : undefined, description: d, image};
   else if (e.sec === "places") o = {"@type": "Place", name: r.t, description: d, image,
@@ -179,7 +179,7 @@ function jsonld(e, url, img) {
   else if (e.sec === "programs") o = {"@type": r.p ? "GovernmentOrganization" : "GovernmentOrganization", name: r.t, alternateName: r.s || undefined, description: d};
   else if (e.sec === "claims") o = {"@type": "ClaimReview", claimReviewed: r.t, url,
     itemReviewed: {"@type": "Claim", author: {"@type": r.by ? "Person" : "Organization", name: r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt}, datePublished: String(r.yr)},
-    reviewRating: {"@type": "Rating", alternateName: (CLST[r.st] || [r.st])[0]}, author: {"@type": "Organization", name: "Watcher", url: SITE}};
+    reviewRating: {"@type": "Rating", alternateName: (CLST[r.st] || [r.st])[0]}, author: {"@type": "Organization", name: "UAP Watcher", url: SITE}};
   else if (e.sec === "books") o = {"@type": "Book", name: r[2], datePublished: String(r[1]), description: d, image,
     author: (r[3] || []).map(a => { const t = authorPage(a); return {"@type": "Person", name: t ? t.title : a, url: t ? SITE + t.path : undefined}; }).filter(a => a.name)};
   else if (e.sec === "authors") o = {"@type": "Person", name: r.name, description: d, jobTitle: "Author",
@@ -187,7 +187,7 @@ function jsonld(e, url, img) {
   else o = {"@type": "Article", headline: e.title, description: d, image};
   const page = {"@context": "https://schema.org", "@type": "WebPage", name: e.title, url, isPartOf: site, mainEntity: o,
     breadcrumb: {"@type": "BreadcrumbList", itemListElement: [
-      {"@type": "ListItem", position: 1, name: "Watcher", item: SITE},
+      {"@type": "ListItem", position: 1, name: "UAP Watcher", item: SITE},
       {"@type": "ListItem", position: 2, name: SECTIONS[e.sec].title, item: SITE + e.sec + "/"},
       {"@type": "ListItem", position: 3, name: e.title, item: url}]}};
   return JSON.stringify(page, (k, v) => v === undefined ? undefined : v).replace(/</g, "\\u003c");
@@ -203,7 +203,7 @@ function shell({title, desc, url, depth, image, ld, body}) {
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${esc(url)}">
-<meta property="og:site_name" content="Watcher">
+<meta property="og:site_name" content="UAP Watcher">
 <meta property="og:type" content="article">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
@@ -242,7 +242,7 @@ ${bodyParas(e, ci, heads)}
 ${related(e)}
 ${sourceList(ci)}
 </article>`;
-  const title = `${e.title}${e.sec === "claims" ? " — claim" : ""} · Watcher`;
+  const title = `${e.title}${e.sec === "claims" ? " — claim" : ""} · UAP Watcher`;
   return shell({title, desc: describe(plain(e.d)), url, depth: 2, image: img && img.src, ld: jsonld(e, url, img), body});
 }
 function sectionPage(sec) {
@@ -255,8 +255,8 @@ function sectionPage(sec) {
 <ul class="list">
 ${list.map(e => `<li><a href="${e.slug}/">${esc(e.title)}</a>${e.sub ? ` <span>${esc(e.sub)}</span>` : ""}</li>`).join("\n")}
 </ul>`;
-  return shell({title: `${s.title} · Watcher`, desc: s.blurb, url: SITE + sec + "/", depth: 1, body,
-    ld: JSON.stringify({"@context": "https://schema.org", "@type": "CollectionPage", name: s.title, url: SITE + sec + "/", isPartOf: {"@type": "WebSite", name: "Watcher", url: SITE}})});
+  return shell({title: `${s.title} · UAP Watcher`, desc: s.blurb, url: SITE + sec + "/", depth: 1, body,
+    ld: JSON.stringify({"@context": "https://schema.org", "@type": "CollectionPage", name: s.title, url: SITE + sec + "/", isPartOf: {"@type": "WebSite", name: "UAP Watcher", url: SITE}})});
 }
 function authorsPage() {
   const s = SECTIONS.authors, rows = [];
@@ -269,8 +269,8 @@ function authorsPage() {
 <ul class="list">
 ${rows.map(r => `<li><a href="../${r.t.path}">${esc(r.t.title)}</a> <span>${esc(r.list.slice().sort((x, y) => x[1] - y[1]).map(b => b[2] + " (" + b[1] + ")").join("; "))}</span></li>`).join("\n")}
 </ul>`;
-  return shell({title: `${s.title} · Watcher`, desc: s.blurb, url: SITE + "authors/", depth: 1, body,
-    ld: JSON.stringify({"@context": "https://schema.org", "@type": "CollectionPage", name: s.title, url: SITE + "authors/", isPartOf: {"@type": "WebSite", name: "Watcher", url: SITE}})});
+  return shell({title: `${s.title} · UAP Watcher`, desc: s.blurb, url: SITE + "authors/", depth: 1, body,
+    ld: JSON.stringify({"@context": "https://schema.org", "@type": "CollectionPage", name: s.title, url: SITE + "authors/", isPartOf: {"@type": "WebSite", name: "UAP Watcher", url: SITE}})});
 }
 function browsePage() {
   const body = `<h1>Browse Watcher</h1>
@@ -278,7 +278,7 @@ function browsePage() {
 <ul class="hub">
 ${Object.keys(SECTIONS).map(k => `<li><a href="../${k}/"><strong>${esc(SECTIONS[k].title)}</strong></a> <span>${k === "authors" ? booksBy.size + " authors" : entries.filter(e => e.sec === k).length + " entries"}</span><p>${esc(SECTIONS[k].blurb)}</p></li>`).join("\n")}
 </ul>`;
-  return shell({title: "Browse · Watcher", desc: "Every entry in Watcher, the sourced guide to UFO and UAP history, as a plain page: people, places, programs, claims, milestones and books.", url: SITE + "browse/", depth: 1, body});
+  return shell({title: "Browse · UAP Watcher", desc: "Every entry in Watcher, the sourced guide to UFO and UAP history, as a plain page: people, places, programs, claims, milestones and books.", url: SITE + "browse/", depth: 1, body});
 }
 const CSS = `:root{--bg:#F4F1EA;--card:#FFFFFF;--ink:#14263D;--ink2:#4A5566;--hair:rgba(20,38,61,.14);--link:#1F5C8C;--amber:#94580A}
 @media (prefers-color-scheme:dark){:root{--bg:#0B1220;--card:#121B2C;--ink:#ECE6D8;--ink2:#A7B0BE;--hair:rgba(236,230,216,.14);--link:#8CC0EA;--amber:#E0A040}}

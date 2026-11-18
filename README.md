@@ -8,7 +8,7 @@ An interactive, sourced guide to UFO and UAP history. It has three views:
 
 There's also a **claims ledger**, which sets each public claim beside the official record with sources for both, and a **quiz** built from the site's own data.
 
-Live site: <https://zsquiers.github.io/Watcher/>
+Live site: <https://uapwatcher.net/>
 
 ## How it's built
 
