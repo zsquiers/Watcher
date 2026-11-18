@@ -209,7 +209,9 @@ function shell({title, desc, url, depth, image, ld, body}) {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(url)}">
 ${image ? `<meta property="og:image" content="${esc(SITE + image)}">\n<meta name="twitter:card" content="summary_large_image">` : `<meta name="twitter:card" content="summary">`}
-<link rel="icon" href="${up}brand/watcher-icon.svg" type="image/svg+xml">
+<link rel="icon" href="${up}favicon.ico" sizes="48x48">
+<link rel="icon" href="${up}brand/watcher-icon.svg" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="${up}brand/watcher-icon-180.png">
 <link rel="stylesheet" href="${up}pages.css">
 ${ld ? `<script type="application/ld+json">${ld}</script>` : ""}
 </head>
