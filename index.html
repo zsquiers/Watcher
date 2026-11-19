@@ -41,10 +41,10 @@ button:hover{border-color:var(--line)}
 button:focus-visible,textarea:focus-visible,input:focus-visible,.node:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 button[aria-pressed="true"]{background:var(--amber-bg);border-color:var(--amber);color:var(--ink)}
 .sq{width:36px;padding:0;font-size:18px}
-#themeBtn svg{width:18px;height:18px;display:block;margin:auto}
-#themeBtn .ti-sun{display:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #themeBtn .ti-sun{display:inline}:root:not([data-theme="light"]) #themeBtn .ti-moon{display:none}}
-:root[data-theme="dark"] #themeBtn .ti-sun{display:inline}:root[data-theme="dark"] #themeBtn .ti-moon{display:none}
+#themeBtn svg,#cgtheme svg{width:18px;height:18px;display:block;margin:auto}
+#themeBtn .ti-sun,#cgtheme .ti-sun{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #themeBtn .ti-sun,:root:not([data-theme="light"]) #cgtheme .ti-sun{display:inline}:root:not([data-theme="light"]) #themeBtn .ti-moon,:root:not([data-theme="light"]) #cgtheme .ti-moon{display:none}}
+:root[data-theme="dark"] #themeBtn .ti-sun,:root[data-theme="dark"] #cgtheme .ti-sun{display:inline}:root[data-theme="dark"] #themeBtn .ti-moon,:root[data-theme="dark"] #cgtheme .ti-moon{display:none}
 #panel .pb>*{zoom:var(--pz,1)}
 
 .pbk{font-size:17px}
@@ -513,7 +513,7 @@ body.lgopen #panel{position:fixed;z-index:45}
 #cgcard li button:hover{background:var(--amber-bg)}
 .cghint{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));margin:0;font-size:12.5px;color:var(--ink2);background:color-mix(in srgb,var(--bg) 80%,transparent);padding:4px 8px;border-radius:6px;max-width:calc(100% - 24px)}
 @media (max-width:760px){#cgcard{top:auto;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));width:auto;bottom:max(10px,env(safe-area-inset-bottom,0px));max-height:46%}
-  .cgtl h2{font-size:18px}.cgsearch{flex-basis:100%;max-width:none;order:3}.cghint{display:none}}
+  .cgbar{gap:8px}.cgtl{flex-basis:120px}.cgtl h2{font-size:18px}.cgsearch{flex-basis:100%;max-width:none;order:3}.cghint{display:none}}
 #about{position:fixed;inset:0;z-index:47;background:var(--bg);overflow-y:auto}
 #about[hidden]{display:none}
 .ab{max-width:780px}
@@ -4896,7 +4896,7 @@ function panelZoom(f){var b=panel.querySelector(".pb"),top=b?b.scrollTop/Math.ma
   document.documentElement.style.setProperty("--pz",PZ.toFixed(3));try{localStorage.setItem("watcher-pz",PZ.toFixed(3))}catch(e){}if(b)b.scrollTop=top*b.scrollHeight;}
 /* light or dark: follows the device until the button is used, then remembers the choice */
 function themeNow(){var t=document.documentElement.getAttribute("data-theme");return t||(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}
-function themeSync(){var b=document.getElementById("themeBtn");if(!b)return;var n=themeNow()==="dark"?"light":"dark",l="Switch to "+n+" mode";b.setAttribute("aria-label",l);b.title=l;}
+function themeSync(){var n=themeNow()==="dark"?"light":"dark",l="Switch to "+n+" mode";["themeBtn","cgtheme"].forEach(function(id){var b=document.getElementById(id);if(b){b.setAttribute("aria-label",l);b.title=l;}});}
 document.getElementById("themeBtn").onclick=function(){var n=themeNow()==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("watcher-theme",n)}catch(e){}themeSync();render();};themeSync();
 if(window.matchMedia)try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",themeSync)}catch(e){}
 document.getElementById("zi").onclick=function(){var c=center();zoomAt(1.25,c[0],c[1])};
@@ -5698,13 +5698,13 @@ function openConnections(focus){var O=document.getElementById("conn");
   if(!O){document.body.insertAdjacentHTML("beforeend",'<div id="conn" role="dialog" aria-modal="true" aria-labelledby="cgt" hidden>'+
       '<div class="cgbar"><div class="cgtl"><p class="eb">Connections</p><h2 id="cgt">How it all links together</h2></div>'+
       '<div class="cgsearch"><input id="cgq" type="search" placeholder="Find a person, place, program…" aria-label="Find an entry in the connections map" autocomplete="off" spellcheck="false"><div id="cgqr" role="listbox" hidden></div></div>'+
-      '<button id="cgfit">Fit</button><button class="sq" id="cgx" aria-label="Close connections">&times;</button></div>'+
+      '<button id="cgfit">Fit</button><button class="sq" id="cgtheme"><svg viewBox="0 0 20 20" aria-hidden="true"><g class="ti-sun"><circle cx="10" cy="10" r="3.6" fill="currentColor"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></g><path class="ti-moon" d="M15.6 12.6A6.6 6.6 0 0 1 7.4 4.4a6.6 6.6 0 1 0 8.2 8.2z" fill="currentColor"/></svg></button><button class="sq" id="cgx" aria-label="Close connections">&times;</button></div>'+
       '<div class="cgf" id="cgf" role="group" aria-label="Show or hide kinds of entry"></div>'+
       '<div class="cgwrap"><canvas id="cgc" role="img" aria-label="Network of Watcher entries; each dot is an entry and each line a link between two entries. Use the search box to find one."></canvas>'+
       '<div id="cgtip" hidden></div><aside id="cgcard" hidden></aside>'+
       '<p class="cghint">Drag to move, scroll or pinch to zoom. Tap a dot to see what it links to. Dots grow with the number of links.</p></div></div>');
-    O=document.getElementById("conn");O.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();if(!document.getElementById("cgqr").hidden){document.getElementById("cgqr").hidden=true;return;}if(CGSEL)cgSelect(null);else closeConnections();}});
-    document.getElementById("cgx").onclick=function(){closeConnections()};document.getElementById("cgfit").onclick=function(){CGV.set=false;cgFit()};
+    O=document.getElementById("conn");themeSync();O.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();if(!document.getElementById("cgqr").hidden){document.getElementById("cgqr").hidden=true;return;}if(CGSEL)cgSelect(null);else closeConnections();}});
+    document.getElementById("cgx").onclick=function(){closeConnections()};document.getElementById("cgtheme").onclick=function(){document.getElementById("themeBtn").click();cgDraw();};document.getElementById("cgfit").onclick=function(){CGV.set=false;cgFit()};
     cgWire();}
   if(!CG)cgBuild();cgChips();O.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("cgopen");
   var f=focus&&CG.byId[focus];requestAnimationFrame(function(){cgDraw();if(CG.alpha>0.03)cgRun();else if(!CGV.set)cgFit();
