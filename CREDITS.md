@@ -49,6 +49,7 @@ Portraits in `img/people/` are 250-pixel copies of images hosted on Wikimedia Co
 | Jimmy Carter | `img/people/pp-carter.jpg` | U.S. Navy, Naval Photographic Center | Public domain | [Jimmy Carter Official Portrait2 (3x4 cropped).jpg](https://commons.wikimedia.org/wiki/File:Jimmy_Carter_Official_Portrait2_%283x4_cropped%29.jpg) |
 | Joe Nickell | `img/people/pp-nickell.jpg` | Susan Gerbic | CC BY-SA 4.0 | [Joe Nickell CSICon 2018 (cropped).jpg](https://commons.wikimedia.org/wiki/File:Joe_Nickell_CSICon_2018_%28cropped%29.jpg) |
 | John Keel | `img/people/pp-keel.jpg` | Uncredited book jacket | Public domain | ["Jadoo", by John A. Keel (cropped).jpg](https://commons.wikimedia.org/wiki/File:%22Jadoo%22%2C_by_John_A._Keel_%28cropped%29.jpg) |
+| Jack Parsons | `img/people/pp-parsons.jpg` | NASA/JPL | Public domain | [Jack Parsons 2.jpg](https://commons.wikimedia.org/wiki/File:Jack_Parsons_2.jpg) |
 | John McCone | `img/people/pp-mccone.jpg` | Central Intelligence Agency | Public domain | [John McCone (cropped).jpg](https://commons.wikimedia.org/wiki/File:John_McCone_%28cropped%29.jpg) |
 | John Podesta | `img/people/pp-podesta.jpg` | U.S. Department of the Interior | Public domain | [John Podesta February 2024 (1).jpg](https://commons.wikimedia.org/wiki/File:John_Podesta_February_2024_%281%29.jpg) |
 | John von Neumann | `img/people/pp-vonneumann.gif` | Los Alamos National Laboratory | Public domain | [JohnvonNeumann-LosAlamos.gif](https://commons.wikimedia.org/wiki/File:JohnvonNeumann-LosAlamos.gif) |
