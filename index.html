@@ -3447,17 +3447,26 @@ function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*
   /* a surname on the skip list still links inside entries connected to that person (their own profile's links, or a
      book they wrote), where it can only mean them: "Fort" in Charles Fort's books, "Colby" in a CIA director's entry */
   PREL={};PEOPLE.forEach(function(q){q.L.forEach(function(l){(PREL[l[1]]=PREL[l[1]]||{})[q.id]=1})});
-  Object.keys(sn).forEach(function(k){if(sn[k].length===1&&k.length>=4&&SURSKIP[k]&&!LNK[k])LNK[k]={person:sn[k][0],amb:1}});
+  Object.keys(sn).forEach(function(k){if(k.length>=4&&(SURSKIP[k]||sn[k].length>1)&&!LNK[k])LNK[k]={amb:1,people:sn[k]}});
   TL.forEach(function(e){var t=e.t.replace(/\s*\([^)]*\)\s*$/,"");if(e.kind==="book"&&(/\s/.test(t)||t.length>=9))add(t,{go:"timeline",id:e.id})});
   var ks=Object.keys(LNK).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")});
   LNKRE=new RegExp("(^|[^\\w-])("+ks.join("|")+")(?![\\w-])","g");}
 var LNKGEN={"Air Force":1,"Navy":1,"Army":1};
-function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={},near={};(self||[]).forEach(function(x){if(!x)return;done[x]=1;
-    var r=PREL[x];if(r)for(var q in r)near[q]=1;var e=TLById[x];if(e&&e.au)e.au.forEach(function(a){near[a]=1})});
+function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={},near={};
+  /* people named in full in a piece of text (the entry itself, or a claim's byline) give a bare surname its context */
+  var scan=function(t){if(!t)return;LNKRE.lastIndex=0;var m;while((m=LNKRE.exec(t))){var v=LNK[m[2]];if(v.person&&!v.amb)near[v.person]=1}};
+  (self||[]).forEach(function(x){if(!x)return;done[x]=1;
+    var r=PREL[x];if(r)for(var q in r)near[q]=1;var e=TLById[x];if(e&&e.au)e.au.forEach(function(a){near[a]=1});
+    var c=CLAIMS.find(function(y){return y.id===x});if(c){if(c.by)near[c.by]=1;scan(c.byt);scan(c.venue)}});
+  scan(root.textContent);
   root.querySelectorAll("p").forEach(function(pe){var w=document.createTreeWalker(pe,NodeFilter.SHOW_TEXT,null),nodes=[],t;while((t=w.nextNode()))if(!t.parentNode.closest("a,button,sup"))nodes.push(t);
     nodes.forEach(function(tn){var s=tn.nodeValue,m,last=0,frag=null;LNKRE.lastIndex=0;
       while((m=LNKRE.exec(s))){var name=m[2],v=LNK[name],key=v.person||v.id,st=m.index+m[1].length;
-        if(v.amb&&!near[v.person])continue;
+        if(v.amb){var cs=v.people.filter(function(q){return near[q]&&!done[q]});if(cs.length!==1)continue;
+          /* not when it is part of another name or place: "Timothy Cooper", "Caxton Hall", "Fort Meade" */
+          if(/[A-Z][\w.'’-]*\s$/.test(s.slice(0,st))&&!/(^|[.!?:;"“(]\s*)[A-Z][\w'’-]*\s$/.test(s.slice(0,st)))continue;
+          if(/^\s[A-Z]/.test(s.slice(st+name.length)))continue;
+          v={person:cs[0]};key=v.person;}
         if(done[key])continue;
         if(LNKGEN[name]){var before=s.slice(0,st);if(/[A-Z][a-z]+\s$/.test(before)&&!/U\.S\.\s$/.test(before))continue;if(name==="Army"&&/^ Air/.test(s.slice(st+name.length)))continue;}
         done[key]=1;frag=frag||document.createDocumentFragment();frag.appendChild(document.createTextNode(s.slice(last,st)));
