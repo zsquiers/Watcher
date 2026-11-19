@@ -495,6 +495,8 @@ body.lgopen #panel{position:fixed;z-index:45}
 .abst .stb{flex:none;min-width:150px;justify-content:flex-start}
 .abn{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--ink2);font-size:14px;margin:4px 0 6px}
 .wabout{margin:14px 0 0;text-align:center}
+.wtip{margin:4px 0 0;text-align:center;font-size:13.5px;color:var(--ink2)}.wtip a{color:inherit}.wtip a:hover{color:var(--ink)}
+.tipbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:#0074D4;color:#fff!important;font-weight:600;text-decoration:none!important}.tipbtn span{font-weight:400;opacity:.85}.tipbtn:hover{background:#005FAD}
 .wabout button,.lgab{font:inherit;font-size:14px;color:var(--ink2);background:none;border:0;padding:2px 4px;text-decoration:underline;cursor:pointer}
 .wabout button:hover,.lgab:hover{color:var(--ink)}
 @media (max-width:640px){.abst li{flex-direction:column;gap:2px}.abst .stb{min-width:0}}
@@ -4202,6 +4204,7 @@ function moonView(T){var mp=tgtPos(Date.now()),lon=gWrap(mp.ra-gmst()-180),lat=M
 function freeBox(){var p=fitPad();return {x0:p.left,x1:gW-p.right,y0:p.top,y1:gH-p.bottom}}
 function bodyUI(){var on=BODY!=="earth",b=document.getElementById("goMoon"),mars=BODY==="mars";document.body.classList.toggle("offworld",on);document.body.classList.toggle("onmars",mars);
   if(b){b.textContent=on?"Back to Earth":"Moon";b.title=on?"Fly back to Earth":"Fly to the Moon";}
+  var bm=document.getElementById("goMars");if(bm)bm.textContent="Mars";
   if(mode==="map"){hint.textContent=mars?"Drag to spin Mars, scroll or pinch to zoom. Tap a pin for its story. Day and night shows the real sunlit side of Mars right now.":on?"Drag to spin the Moon, scroll or pinch to zoom. Tap a pin for its story. Earthrise turns you to where Earth hangs over the edge.":HINTS.map;
     document.getElementById("vt").textContent=mars?"Landing sites and claims on Mars":on?"Claims and landing sites on the Moon":SUBS.map;}}
 function tween(dur,f){return new Promise(function(res){if(RM||dur<=0){f(1);res();return;}var t0=performance.now();(function st(){var t=Math.min(1,(performance.now()-t0)/dur);f(t);if(t<1)requestAnimationFrame(st);else res();})();})}
@@ -5539,13 +5542,14 @@ function openAbout(){var A=document.getElementById("about");
     '<h3>What we leave out</h3><p>Private individuals aren’t made the subjects of conspiracy theories, and deaths aren’t tied to theories that no evidence supports. Living people’s claims are reported as their claims, alongside the strongest response to them.</p>'+
     '<h3>Images and credits</h3><p>Photos of people and places come from Wikimedia Commons and are public domain or under free licenses; each is credited where it appears, and all are listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>. Book covers are shown only when they are in the public domain. Agency seals and program emblems on the org chart are used only to identify each organization and do not imply endorsement by any government agency; the icons for programs such as MKUltra, Mogul, Stargate, AATIP and the UAP Task Force are simple illustrations, not official insignia. Satellite imagery and place labels © Esri, Maxar, Earthstar Geographics and the GIS User Community. Street map © OpenFreeMap, OpenMapTiles and OpenStreetMap contributors. Terrain: Mapzen / AWS Terrain Tiles. Clouds and night lights: NASA GIBS.</p>'+
     '<h3>License</h3><p>Watcher\'s own text and research are shared under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>: you may reuse and adapt them, even commercially, if you credit Watcher and link to the license. The site\'s code is under the <a href="https://github.com/zsquiers/Watcher/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>. Quotations, images and map data keep their own licenses, listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>.</p>'+
-    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking cookies. Notes and pins you add, and settings such as the map style, are saved only in your own browser (its local storage) and are never sent anywhere; clearing your browser’s site data removes them.</p>'+
+    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking cookies. Notes and pins you add, and settings such as the map style, are saved only in your own browser (its local storage) and are never sent anywhere; clearing your browser’s site data removes them. The tip link opens Venmo, whose own privacy policy applies there.</p>'+
     '<p>Like any website, Watcher is fetched from outside services, and each one receives your IP address and basic browser details when it is used:</p><ul>'+
     '<li>GitHub Pages, which hosts the site (<a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>)</li>'+
     '<li>Google Fonts, for the typefaces, on every visit (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google privacy policy</a>)</li>'+
     '<li>Only when you open the map: OpenFreeMap for street maps (<a href="https://openfreemap.org/privacy/" target="_blank" rel="noopener">OpenFreeMap privacy</a>), Esri for satellite imagery (<a href="https://www.esri.com/en-us/privacy/overview" target="_blank" rel="noopener">Esri privacy</a>), Amazon Web Services for terrain (<a href="https://aws.amazon.com/privacy/" target="_blank" rel="noopener">AWS privacy</a>) and NASA for clouds and night lights (<a href="https://www.nasa.gov/privacy/" target="_blank" rel="noopener">NASA privacy</a>)</li></ul>'+
     '<p>Links to sources open the source’s own site, which has its own privacy terms.</p>'+
     '<h3>Corrections</h3><p>If something is wrong, out of date or missing a source, please <a href="https://github.com/zsquiers/Watcher/issues" target="_blank" rel="noopener">report it on GitHub</a>, naming the entry (its link, from the link button in its panel, is ideal). Corrections are checked against the sources before they’re made.</p>'+
+    '<h3>Support Watcher</h3><p>Watcher is free to use, with no ads or paywall. If you find it useful, you can leave a tip to help cover running costs such as the domain and map services.</p><p><a class="tipbtn" href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Tip with Venmo <span>@uapwatcher</span></a></p>'+
     '<h3>Disclaimer</h3><p>This site is for information and research. It may contain errors and is not a substitute for the sources it cites; check them before relying on anything here.</p></div>';
   A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;
   document.getElementById("abx").onclick=closeAbout;document.getElementById("abx").focus();setHash("#/about","About");}
@@ -5683,6 +5687,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     '<button class="wled wquiz" id="wquiz"><b>Quiz</b><span>Ten questions drawn from the site: which claims hold up, when things happened, and where.</span><em>Take the quiz \u2192</em></button>'+
     '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
     '<p class="wabout"><button id="wabout">About Watcher: how it\u2019s sourced, claim statuses, credits and privacy</button></p>'+
+    '<p class="wtip">Find Watcher useful? <a href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Leave a tip on Venmo</a></p>'+
     '</div></div>');
   var W=document.getElementById("welcome"),last=null;
   function shut(then){try{sessionStorage.setItem("watcher-welcomed","1")}catch(e){}
@@ -5696,7 +5701,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wabout").onclick=function(){shut(openAbout)};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};
   W.addEventListener("click",function(e){if(e.target===W)shut()});
   W.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();shut();return;}
-    if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button")),a=f.indexOf(document.activeElement);
+    if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button,a[href]")),a=f.indexOf(document.activeElement);
       if(e.shiftKey&&a<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&a===f.length-1){e.preventDefault();f[0].focus()}}});
   var br=document.querySelector("header .brand");br.classList.add("wopen");br.setAttribute("role","button");br.setAttribute("tabindex","0");br.setAttribute("aria-label","Watcher: open the welcome screen");
   br.onclick=show;br.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};
