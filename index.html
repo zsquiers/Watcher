@@ -4204,6 +4204,7 @@ function moonView(T){var mp=tgtPos(Date.now()),lon=gWrap(mp.ra-gmst()-180),lat=M
 function freeBox(){var p=fitPad();return {x0:p.left,x1:gW-p.right,y0:p.top,y1:gH-p.bottom}}
 function bodyUI(){var on=BODY!=="earth",b=document.getElementById("goMoon"),mars=BODY==="mars";document.body.classList.toggle("offworld",on);document.body.classList.toggle("onmars",mars);
   if(b){b.textContent=on?"Back to Earth":"Moon";b.title=on?"Fly back to Earth":"Fly to the Moon";}
+  var bm=document.getElementById("goMars");if(bm)bm.textContent="Mars";
   if(mode==="map"){hint.textContent=mars?"Drag to spin Mars, scroll or pinch to zoom. Tap a pin for its story. Day and night shows the real sunlit side of Mars right now.":on?"Drag to spin the Moon, scroll or pinch to zoom. Tap a pin for its story. Earthrise turns you to where Earth hangs over the edge.":HINTS.map;
     document.getElementById("vt").textContent=mars?"Landing sites and claims on Mars":on?"Claims and landing sites on the Moon":SUBS.map;}}
 function tween(dur,f){return new Promise(function(res){if(RM||dur<=0){f(1);res();return;}var t0=performance.now();(function st(){var t=Math.min(1,(performance.now()-t0)/dur);f(t);if(t<1)requestAnimationFrame(st);else res();})();})}
