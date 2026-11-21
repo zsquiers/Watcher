@@ -522,6 +522,20 @@ body.lgopen #panel{position:fixed;z-index:45}
 .cghint{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));margin:0;font-size:12.5px;color:var(--ink2);background:color-mix(in srgb,var(--bg) 80%,transparent);padding:4px 8px;border-radius:6px;max-width:calc(100% - 24px)}
 @media (max-width:760px){#cgcard{top:auto;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));width:auto;bottom:max(10px,env(safe-area-inset-bottom,0px));max-height:46%}
   .cgbar{gap:8px}.cgtl{flex-basis:120px}.cgtl h2{font-size:18px}.cgsearch{flex-basis:100%;max-width:none;order:3}.cghint{display:none}}
+#mine{position:fixed;inset:0;z-index:48;background:var(--bg);overflow-y:auto}
+#mine[hidden]{display:none}
+.mysub{color:var(--ink2);margin:4px 0 6px}
+.myrow{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;margin:0 0 8px;padding:10px 14px;border:1px solid var(--hair);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;min-height:0}
+.myrow:hover{border-color:var(--focus)}.myrow b{font-size:16.5px}.myrow span{font-size:14px;color:var(--ink2);white-space:pre-line}
+.myrow small{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+.myempty{color:var(--ink2);font-size:14.5px}.myc{font-size:14px;color:var(--ink2);font-weight:500;margin-left:6px}
+.myq{display:flex;gap:22px;flex-wrap:wrap;margin:4px 0}.myq b{font-size:20px}
+.myh{list-style:none;padding:0!important;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--ink2)}.myh b{color:var(--ink)}
+.myact{display:flex;gap:10px;flex-wrap:wrap}
+.qzhist{font-size:14.5px;color:var(--ink2);margin:10px 0 0}.qzhist b{color:var(--ink)}.qzhist a{color:inherit}
+h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-ui,sans-serif;letter-spacing:0;text-transform:none;color:var(--ink2)}
+.wcont{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;margin:0 0 18px;padding:10px 16px;border:1px solid var(--hair);border-left:4px solid var(--focus);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.wcont small{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}.wcont b{font-size:17px}.wcont span{font-size:13.5px;color:var(--ink2)}
 #about{position:fixed;inset:0;z-index:47;background:var(--bg);overflow-y:auto}
 #about[hidden]{display:none}
 .ab{max-width:780px}
@@ -3540,7 +3554,7 @@ var GEO=window.UAPGEO,DEG=Math.PI/180;
 
 var state;
 try{state=JSON.parse(document.getElementById("state").textContent)}catch(e){state={rev:0}}
-function norm(s){s.notes=s.notes||{};s.custom=s.custom||[];s.pins=s.pins||[];
+function norm(s){s.notes=s.notes||{};s.custom=s.custom||[];s.pins=s.pins||[];s.quiz=s.quiz||{played:0,best:0,hist:[]};s.quiz.hist=s.quiz.hist||[];
   s.pins.forEach(function(p){if(p.lat==null&&p.x!=null){var ll=GEO.albersUsa().scale(1300).translate([487.5,305]).invert([p.x,p.y]);if(ll){p.lon=Math.round(ll[0]*1e4)/1e4;p.lat=Math.round(ll[1]*1e4)/1e4;}delete p.x;delete p.y;}});return s}
 norm(state);
 try{var ls=JSON.parse(localStorage.getItem("uap-tree-local")||"null");if(ls&&ls.rev>state.rev)state=norm(ls);}catch(e){}
@@ -4939,15 +4953,16 @@ var pWide=null,pWideSync=function(){};
 /* entry links: every open panel puts its own address in the URL (#/person/pp-grusch, #/map/m-roswell, #/timeline/tl-mj12,
    #/claim/cl-roswell), so an entry can be shared or bookmarked, and opening that address goes straight to it */
 var HVIEW={tree:"org",map:"map",timeline:"timeline"},HMODE={org:"tree",map:"map",timeline:"timeline"},DOCT=document.title;
-function setHash(h,t){try{var u=h||location.pathname+location.search;if((location.hash||"")!==(h||""))history.replaceState(null,"",u)}catch(e){}document.title=t?t+" \u00b7 UAP Watcher":DOCT;}
+var LASTRX=/^#\/(person|org|map|timeline|claim)\/[A-Za-z0-9_-]+$/;
+function setHash(h,t){if(h&&t&&LASTRX.test(h)&&!(state.last&&state.last.h===h)){state.last={h:h,t:t,at:Date.now()};keep();}try{var u=h||location.pathname+location.search;if((location.hash||"")!==(h||""))history.replaceState(null,"",u)}catch(e){}document.title=t?t+" \u00b7 UAP Watcher":DOCT;}
 function entryHash(v){return v.k==="person"?"#/person/"+v.id:"#/"+(HVIEW[v.m]||"org")+"/"+v.id}
-function parseHash(h){var m=/^#\/(person|org|map|timeline|claim|claims|about|connections)(?:\/([A-Za-z0-9_-]+))?$/.exec(h||"");return m?{v:m[1],id:m[2]||""}:null}
-function routeOK(r){return !!r&&(r.v==="person"?!!PBy[r.id]:r.v==="claims"||r.v==="about"||r.v==="connections"?true:r.v==="claim"?CLAIMS.some(function(c){return c.id===r.id}):!!r.id&&!!(TLById[r.id]||findItem(r.id)))}
+function parseHash(h){var m=/^#\/(person|org|map|timeline|claim|claims|about|connections|mine)(?:\/([A-Za-z0-9_-]+))?$/.exec(h||"");return m?{v:m[1],id:m[2]||""}:null}
+function routeOK(r){return !!r&&(r.v==="person"?!!PBy[r.id]:r.v==="claims"||r.v==="about"||r.v==="connections"||r.v==="mine"?true:r.v==="claim"?CLAIMS.some(function(c){return c.id===r.id}):!!r.id&&!!(TLById[r.id]||findItem(r.id)))}
 function routeTo(r){if(!routeOK(r))return false;
   if(r.v==="person"){if(!PBy[r.id])return false;openPerson(r.id);return true;}
   if(r.v==="claims"){openLedger();return true;}
   if(r.v==="connections"){openConnections(r.id);return true;}
-  if(r.v==="about"){openAbout();return true;}
+  if(r.v==="about"){openAbout();return true;}if(r.v==="mine"){openMine();return true;}
   if(r.v==="claim"){if(!CLAIMS.some(function(c){return c.id===r.id}))return false;openLedger(r.id);return true;}
   if(!r.id||!(TLById[r.id]||findItem(r.id)))return false;goTo(HMODE[r.v],r.id);return true;}
 window.addEventListener("hashchange",function(){routeTo(parseHash(location.hash))});
@@ -4969,7 +4984,7 @@ function reportHref(title,h){var u="https://uapwatcher.net/"+(h||location.hash||
   if(/^mailto:/.test(REPORT_TO))return REPORT_TO+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
   return REPORT_TO+"?title="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);}
 function reportLine(title,h){return '<p class="prep">Spot a mistake or a missing source? <a href="#" data-report="'+esc(title)+'"'+(h?' data-report-h="'+h+'"':'')+'>Report it</a>. Corrections are checked against the sources.</p>'}
-document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("[data-report]");if(!a)return;e.preventDefault();
+document.addEventListener("click",function(e){var m=e.target.closest&&e.target.closest("[data-mine]");if(m){e.preventDefault();openMine();return;}var a=e.target.closest&&e.target.closest("[data-report]");if(!a)return;e.preventDefault();
   window.open(reportHref(a.getAttribute("data-report"),a.getAttribute("data-report-h")),"_blank","noopener");});
 function linkBtn(){return '<button class="sq plink" id="plink" aria-label="Copy a link to this entry" title="Copy link"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.5 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1"/><path d="M8.5 11.5l-1 1a2.5 2.5 0 0 1-3.5-3.5l1-1"/></svg></button>'}
 /* tapping a photo in the panel shows it large; tapping anywhere (or Escape) puts it back */
@@ -5029,7 +5044,7 @@ function open(id,editName){
   var branch=!isTree(n.id)||n.custom==="pin"||n.c?'':'<h3>Add a branch under this box</h3><input id="cn" placeholder="Name, such as Senate Intelligence Committee" maxlength="60"><input id="cs" placeholder="Short description (optional)" maxlength="60" style="margin-top:8px"><div class="err" id="ce"></div><div class="row"><button id="ca">Add branch</button></div>';
   panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+linkBtn()+wideBtn()+minBtn(n.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+banHtml(tl&&IMG[tl.id]?tl.id:cid,n.t)+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+routeHtml(cid)+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
-  '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
+  '<h3>Your notes <a class="mylink" href="#/mine" data-mine>All your notes</a></h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+(n.custom?'':reportLine(n.t))+
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
   linkNames(panel.querySelector(".facts"),[cid,tl&&tl.id]);
@@ -5502,7 +5517,7 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
   panel.innerHTML='<div class="ph">'+(ph?'<img class="pphoto" tabindex="0" role="button" title="Enlarge" src="img/people/'+id+'.'+ph[0]+'" alt="'+esc(p.t)+'" width="64" height="64" decoding="async" onerror="this.remove()">':'')+'<div style="flex:1"><p class="eb">'+(p.kind?"Reported being":"Person")+'</p><h2>'+esc(p.t)+'</h2><p>'+esc(p.s)+'</p></div>'+backBtn()+linkBtn()+wideBtn()+minBtn(p.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+(ph?'<p class="pcred">Photo: '+esc(ph[1])+', <a href="'+esc(ph[3])+'" target="_blank" rel="noopener">'+esc(ph[2])+'</a>, via Wikimedia Commons</p>':'')+cb.chip+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+
   (conn?'<h3>'+(p.kind?"Where they come up":"Where to find them")+'</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
-  '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
+  '<h3>Your notes <a class="mylink" href="#/mine" data-mine>All your notes</a></h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
   '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+reportLine(p.t)+'</div>';
   linkNames(panel.querySelector(".facts"),[id]);
   panel.classList.add("open");var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
@@ -5511,6 +5526,8 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
   document.getElementById("pc").onclick=function(){closePanel()};
   document.getElementById("ns").onclick=function(){var v=document.getElementById("nt").value.trim();if(v)state.notes[id]=v;else delete state.notes[id];save("Notes saved");};}
 function msg(t){var m=document.getElementById("sm");if(m)m.textContent=t;}
+/* saves quietly, for things recorded in the background (quiz results, where you left off) */
+function keep(){state.rev=(state.rev||0)+1;try{localStorage.setItem("uap-tree-local",JSON.stringify(state))}catch(e){}}
 function save(okText){
   state.rev=(state.rev||0)+1;
   try{localStorage.setItem("uap-tree-local",JSON.stringify(state))}catch(e){}
@@ -5611,7 +5628,7 @@ function openAbout(){var A=document.getElementById("about");
     '<h3>What we leave out</h3><p>Private individuals aren’t made the subjects of conspiracy theories, and deaths aren’t tied to theories that no evidence supports. Living people’s claims are reported as their claims, alongside the strongest response to them.</p>'+
     '<h3>Images and credits</h3><p>Photos of people and places come from Wikimedia Commons and are public domain or under free licenses; each is credited where it appears, and all are listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>. Book covers are shown only when they are in the public domain. Agency seals and program emblems on the org chart are used only to identify each organization and do not imply endorsement by any government agency; the icons for programs such as MKUltra, Mogul, Stargate, AATIP and the UAP Task Force are simple illustrations, not official insignia. Satellite imagery and place labels © Esri, Maxar, Earthstar Geographics and the GIS User Community. Street map © OpenFreeMap, OpenMapTiles and OpenStreetMap contributors. Terrain: Mapzen / AWS Terrain Tiles. Clouds and night lights: NASA GIBS.</p>'+
     '<h3>License</h3><p>Watcher\'s own text and research are shared under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>: you may reuse and adapt them, even commercially, if you credit Watcher and link to the license. The site\'s code is under the <a href="https://github.com/zsquiers/Watcher/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>. Quotations, images and map data keep their own licenses, listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>.</p>'+
-    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking cookies. Notes and pins you add, and settings such as the map style, are saved only in your own browser (its local storage) and are never sent anywhere; clearing your browser’s site data removes them. The tip link opens Venmo, whose own privacy policy applies there.</p>'+
+    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking cookies. Notes and pins you add, your quiz scores, the last entry you read, and settings such as the map style are saved only in your own browser (its local storage) and are never sent anywhere; clearing your browser’s site data removes them. <a href="#/mine" data-mine>See, export or clear what\u2019s saved</a>. The tip link opens Venmo, whose own privacy policy applies there.</p>'+
     '<p>Like any website, Watcher is fetched from outside services, and each one receives your IP address and basic browser details when it is used:</p><ul>'+
     '<li>GitHub Pages, which hosts the site (<a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>)</li>'+
     '<li>Google Fonts, for the typefaces, on every visit (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google privacy policy</a>)</li>'+
@@ -5622,6 +5639,59 @@ function openAbout(){var A=document.getElementById("about");
     '<h3>Disclaimer</h3><p>This site is for information and research. It may contain errors and is not a substitute for the sources it cites; check them before relying on anything here.</p></div>';
   A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;
   document.getElementById("abx").onclick=closeAbout;document.getElementById("abx").focus();setHash("#/about","About");}
+/* ---- Your saved data: notes, quiz scores, where you left off, and pins or boxes you added. Everything lives in this
+   browser's local storage (the same "uap-tree-local" record the notes have always used); export and import move it
+   between devices as a small JSON file, and nothing is ever sent anywhere ---- */
+function myAgo(t){var d=Math.floor((Date.now()-t)/864e5);if(d<1)return "today";if(d<2)return "yesterday";if(d<14)return d+" days ago";
+  return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});}
+function myNoteTarget(id){if(PBy[id])return {t:PBy[id].t,h:"#/person/"+id,k:"Person"};if(TLById[id])return {t:TLById[id].t,h:"#/timeline/"+id,k:"Timeline"};
+  var it=findItem(id);if(it)return {t:it.t,h:(isPin(id)?"#/map/":"#/org/")+id,k:isPin(id)?"Map":"Org chart"};return null;}
+function openMine(){var A=document.getElementById("mine");
+  if(!A){document.body.insertAdjacentHTML("beforeend",'<div id="mine" role="dialog" aria-modal="true" aria-labelledby="myt" hidden></div>');A=document.getElementById("mine");
+    A.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();closeMine()}});}
+  var ab=document.getElementById("about");if(ab&&!ab.hidden)ab.hidden=true;
+  var Q=state.quiz,notes=Object.keys(state.notes).map(function(id){return [id,myNoteTarget(id),state.notes[id]]}).filter(function(x){return x[1]}),
+    nCust=state.custom.length,nPins=state.pins.length,L=state.last;
+  A.innerHTML='<div class="lg ab my"><div class="lgh"><div style="flex:1"><p class="eb">Saved on this device</p><h2 id="myt">Your notes and scores</h2></div><button class="sq" id="myx" aria-label="Close">&times;</button></div>'+
+    '<p class="mysub">Everything here is kept only in this browser. There are no accounts and nothing is sent anywhere. To use it on another device, export it here and import it there.</p>'+
+    '<h3>Continue reading</h3>'+(L?'<button class="myrow" data-h="'+esc(L.h)+'"><b>'+esc(L.t)+'</b><span>Last opened '+myAgo(L.at)+'</span></button>':'<p class="myempty">Entries you open will show up here.</p>')+
+    '<h3>Quiz</h3>'+(Q.played?'<p class="myq"><span><b>'+Q.best+' / 10</b> best score</span><span><b>'+Q.played+'</b> '+(Q.played===1?'quiz':'quizzes')+' played</span></p><ul class="myh">'+
+      Q.hist.slice(0,8).map(function(h){return '<li><b>'+h.sc+' / '+h.n+'</b> <span>'+myAgo(h.d)+'</span></li>'}).join("")+'</ul>':'<p class="myempty">No quizzes yet.</p>')+
+      '<p><button id="myquiz">'+(Q.played?'Play again':'Take the quiz')+'</button></p>'+
+    '<h3>Your notes <span class="myc">'+notes.length+'</span></h3>'+(notes.length?notes.map(function(x){return '<button class="myrow" data-h="'+esc(x[1].h)+'"><small>'+x[1].k+'</small><b>'+esc(x[1].t)+'</b><span>'+esc(x[2].length>160?x[2].slice(0,159)+"…":x[2])+'</span></button>'}).join(""):
+      '<p class="myempty">Open any entry and use the “Your notes” box at the bottom to keep your own notes on it.</p>')+
+    (nCust||nPins?'<h3>Added by you</h3><p>'+(nPins?nPins+(nPins===1?' map pin':' map pins'):'')+(nPins&&nCust?' and ':'')+(nCust?nCust+(nCust===1?' org chart box':' org chart boxes'):'')+'.</p>':'')+
+    '<h3>Move to another device</h3><p>Export saves a small file with your notes, scores and anything you added. Import it on another device, or in another browser, to bring it all across. Importing adds to what is already there; it never deletes anything.</p>'+
+    '<div class="myact"><button class="primary" id="myexp">Export my data</button><button id="myimp">Import a file</button><input type="file" id="myfile" accept="application/json,.json" hidden></div><p class="status" id="mymsg" aria-live="polite"></p>'+
+    '<h3>Clear</h3><p><button class="danger" id="myclr">Clear everything saved on this device</button></p></div>';
+  A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;setHash("#/mine","Your notes and scores");
+  var x=document.getElementById("myx");x.onclick=closeMine;x.focus();
+  A.querySelectorAll(".myrow").forEach(function(b){b.onclick=function(){var h=b.dataset.h;closeMine(true);routeTo(parseHash(h));}});
+  document.getElementById("myquiz").onclick=function(){closeMine(true);openQuiz();};
+  document.getElementById("myexp").onclick=function(){var d={app:"watcher",v:1,exported:new Date().toISOString(),notes:state.notes,custom:state.custom,pins:state.pins,quiz:state.quiz,last:state.last||null};
+    var b=new Blob([JSON.stringify(d,null,1)],{type:"application/json"}),u=URL.createObjectURL(b),a=document.createElement("a");
+    a.href=u;a.download="watcher-data-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},1000);
+    document.getElementById("mymsg").textContent="Exported.";};
+  var fi=document.getElementById("myfile");document.getElementById("myimp").onclick=function(){fi.click()};
+  fi.onchange=function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var m=document.getElementById("mymsg"),n;
+      try{n=myImport(JSON.parse(r.result))}catch(e){n=-1}
+      if(n<0){m.textContent="That file isn’t a Watcher export.";return;}keep();render();openMine();document.getElementById("mymsg").textContent="Imported: "+n+(n===1?" item":" items")+" added or merged.";};r.readAsText(f);};
+  document.getElementById("myclr").onclick=function(){if(!confirm("Clear all your notes, quiz scores, added pins and boxes on this device? This can’t be undone. Export first if you want a copy."))return;
+    state.notes={};state.custom=[];state.pins=[];state.quiz={played:0,best:0,hist:[]};delete state.last;keep();render();openMine();toast("Cleared");};}
+/* merge an export into what is saved here: notes on the same entry are kept side by side, added boxes and pins are added
+   if missing, and quiz history is combined */
+function myImport(d){if(!d||d.app!=="watcher"||typeof d.notes!=="object")return -1;var n=0,str=function(v){return typeof v==="string"};
+  Object.keys(d.notes||{}).forEach(function(id){var v=d.notes[id];if(!str(v)||!/^[A-Za-z0-9_-]+$/.test(id))return;var cur=state.notes[id];
+    if(!cur){state.notes[id]=v;n++;}else if(cur!==v&&cur.indexOf(v)<0){state.notes[id]=cur+"\n\n"+v;n++;}});
+  [["custom",d.custom],["pins",d.pins]].forEach(function(p){(Array.isArray(p[1])?p[1]:[]).forEach(function(x){if(x&&str(x.id)&&str(x.t)&&!state[p[0]].some(function(y){return y.id===x.id})){state[p[0]].push(x);n++;}})});
+  var q=d.quiz;if(q&&Array.isArray(q.hist)){var Q=state.quiz,seen={};Q.hist.forEach(function(h){seen[h.d]=1});
+    var add=0;q.hist.forEach(function(h){if(h&&typeof h.sc==="number"&&!seen[h.d]){seen[h.d]=1;Q.hist.push({d:+h.d||0,sc:h.sc,n:h.n||10});n++;add++;}});
+    /* count only quizzes not already here, so importing the same file twice doesn't inflate the total */
+    Q.hist.sort(function(a,b){return b.d-a.d});Q.hist=Q.hist.slice(0,20);Q.best=Math.max(Q.best,+q.best||0);Q.played=Math.max(Q.played+add,+q.played||0);}
+  if(d.last&&str(d.last.h)&&LASTRX.test(d.last.h)&&(!state.last||d.last.at>state.last.at))state.last={h:d.last.h,t:String(d.last.t||""),at:+d.last.at||Date.now()};
+  return n;}
+function closeMine(quiet){var A=document.getElementById("mine");if(A)A.hidden=true;document.body.style.overflow="";
+  if(!quiet){if(panel.classList.contains("open")&&pcur)setHash(entryHash(pcur),pcur.t);else setHash("");}}
 function closeAbout(){var A=document.getElementById("about");if(A)A.hidden=true;
   if(document.body.classList.contains("lgopen"))setHash("#/claims","Claims ledger");else{document.body.style.overflow="";if(panel.classList.contains("open")&&pcur)setHash(entryHash(pcur),pcur.t);else setHash("");}}
 /* ---- Connections: every entry as a dot, every cross-link between entries as a line. Built from the same links the
@@ -5874,13 +5944,16 @@ function openQuiz(){var Z=document.getElementById("quiz");
 function closeQuiz(){var Z=document.getElementById("quiz");if(Z){Z.hidden=true;document.body.style.overflow="";}var b=document.getElementById("ledgerBtn");if(b)b.focus();}
 function qzRender(){var Z=document.getElementById("quiz"),n=QZ.qs.length,head='<div class="qz"><div class="lgh"><div style="flex:1"><p class="eb">Watcher quiz</p><h2 id="qzt">How well do you know the record?</h2></div><button class="sq" id="qzx" aria-label="Close quiz">&times;</button></div>';
   var sc=qzScore();
-  if(QZ.i>=n){var r=qzRank(sc);Z.innerHTML=head+'<div class="qzcard qzend"><p class="qzk">Your score</p><div class="big">'+sc+' / '+n+'</div><p class="rank">'+r[1]+'</p><p>'+r[2]+'</p><div class="qzact"><button id="qzrev">Review answers</button><button id="qzshare">Share result</button><button class="nx" id="qzagain">Play again</button></div></div></div>';
+  if(QZ.i>=n){var r=qzRank(sc),Q=state.quiz,nb=false;
+    if(!QZ.saved){QZ.saved=1;nb=Q.played>0&&sc>Q.best;Q.played++;Q.best=Math.max(Q.best,sc);Q.hist.unshift({d:Date.now(),sc:sc,n:n});Q.hist=Q.hist.slice(0,20);keep();QZ.nb=nb;}
+    Z.innerHTML=head+'<div class="qzcard qzend"><p class="qzk">Your score</p><div class="big">'+sc+' / '+n+'</div><p class="rank">'+r[1]+'</p><p>'+r[2]+'</p>'+
+    '<p class="qzhist">'+(QZ.nb?'<b>New personal best!</b> ':'')+'Your best: '+Q.best+' / '+n+' \u00b7 '+Q.played+(Q.played===1?' quiz':' quizzes')+' played. <a href="#/mine" id="qzmine">Your scores</a></p><div class="qzact"><button id="qzrev">Review answers</button><button id="qzshare">Share result</button><button class="nx" id="qzagain">Play again</button></div></div></div>';
     document.getElementById("qzrev").onclick=function(){QZ.i=0;qzRender();Z.scrollTop=0;};
     document.getElementById("qzagain").onclick=openQuiz;
     document.getElementById("qzshare").onclick=function(){var b=this,t="I scored "+sc+"/"+n+" on the Watcher UAP quiz: "+r[1]+".";
       if(navigator.share)navigator.share({title:"Watcher quiz",text:t,url:location.href}).catch(function(){});
       else if(navigator.clipboard)navigator.clipboard.writeText(t+" "+location.href).then(function(){b.textContent="Copied"},function(){});};
-    document.getElementById("qzx").onclick=closeQuiz;document.getElementById("qzagain").focus();return;}
+    document.getElementById("qzx").onclick=closeQuiz;document.getElementById("qzmine").onclick=function(e){e.preventDefault();closeQuiz();openMine();};document.getElementById("qzagain").focus();return;}
   var q=QZ.qs[QZ.i],pk=QZ.picks[QZ.i],done=pk!==undefined,right=done&&String(pk)===String(q.ans);
   Z.innerHTML=head+'<div class="qzbar"><span>Question '+(QZ.i+1)+' of '+n+'</span><span class="qzprog"><i style="width:'+(100*QZ.i/n)+'%"></i></span><span>Score '+sc+'</span></div>'+
     '<div class="qzcard"><p class="qzk">'+q.k+'</p><h3 class="qzq">'+esc(q.q)+'</h3><p class="qzsub">'+esc(q.sub)+'</p><div class="qzo" role="group" aria-label="Answers">'+
@@ -5915,12 +5988,13 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     '<h2 id="wtl" style="margin:0"><span class="brand" role="img" aria-label="Watcher"><i class="lgm" aria-hidden="true"></i></span></h2>'+
     '<p class="wlede">A research guide to UFOs and UAP: who in the U.S. government has handled them, where the cases happened, and when.</p>'+
     '<p class="wnote">Sourced facts sit next to disputed claims, and anything unconfirmed is labeled.</p>'+
-    '<div class="went">'+doors.map(function(d){return '<button data-door="'+d[0]+'">'+ico[d[0]]+'<b>'+d[1]+'</b><span>'+d[2]+'</span><em>'+d[3]+'</em></button>'}).join("")+'</div>'+
+    '<div id="wcontw"></div><div class="went">'+doors.map(function(d){return '<button data-door="'+d[0]+'">'+ico[d[0]]+'<b>'+d[1]+'</b><span>'+d[2]+'</span><em>'+d[3]+'</em></button>'}).join("")+'</div>'+
     '<button class="wled" id="wled"><b>Claims ledger</b><span>'+CLAIMS.length+' major claims set side by side with the official record, with sources for both.</span><em>Open the ledger \u2192</em></button>'+
     '<button class="wled wconn" id="wconn"><b>Connections</b><span>Every person, program, place, book and claim as one web. Pick any dot to see what it links to.</span><em>Explore the connections \u2192</em></button>'+
-    '<button class="wled wquiz" id="wquiz"><b>Quiz</b><span>Ten questions drawn from the site: which claims hold up, when things happened, and where.</span><em>Take the quiz \u2192</em></button>'+
+    '<button class="wled wquiz" id="wquiz"><b>Quiz</b><span>Ten questions drawn from the site: which claims hold up, when things happened, and where.<i id="wqbest"></i></span><em>Take the quiz \u2192</em></button>'+
     '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
     '<p class="wabout"><button id="wabout">About Watcher: how it\u2019s sourced, claim statuses, credits and privacy</button></p>'+
+    '<p class="wabout"><button id="wmine">Your notes and quiz scores</button></p>'+
     (siteUpdated()?'<p class="wupd">Last updated '+siteUpdated()+'</p>':'')+
     '<p class="wtip">Find Watcher useful? <a href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Leave a tip on Venmo</a></p>'+
     '</div></div>');
@@ -5928,12 +6002,17 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   function shut(then){try{sessionStorage.setItem("watcher-welcomed","1")}catch(e){}
     if(RM){W.hidden=true;if(then)then();return;}W.classList.add("out");setTimeout(function(){W.hidden=true;W.classList.remove("out");if(then)then();},220);
     if(last&&!then)try{last.focus()}catch(e){}}
-  function show(){last=document.activeElement;W.hidden=false;W.classList.remove("out");var b=W.querySelector(".went button");if(b)b.focus();}
+  function wfresh(){var L=state.last,c=document.getElementById("wcontw"),q=document.getElementById("wqbest");
+    c.innerHTML=L?'<button class="wcont" id="wcont"><small>Continue where you left off</small><b>'+esc(L.t)+'</b><span>Last opened '+myAgo(L.at)+'</span></button>':'';
+    if(L)document.getElementById("wcont").onclick=function(){shut(function(){routeTo(parseHash(L.h))})};
+    q.textContent=state.quiz.played?" Your best so far: "+state.quiz.best+" / 10.":"";}
+  wfresh();
+  function show(){wfresh();last=document.activeElement;W.hidden=false;W.classList.remove("out");var b=W.querySelector(".went button");if(b)b.focus();}
   W.querySelectorAll("[data-door]").forEach(function(b){b.onclick=function(){var m=b.dataset.door;shut(function(){switchTo(m)})}});
   W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
     goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
   document.getElementById("wx").onclick=function(){shut()};
-  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wabout").onclick=function(){shut(openAbout)};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};document.getElementById("wconn").onclick=function(){shut(function(){openConnections()})};
+  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wabout").onclick=function(){shut(openAbout)};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};document.getElementById("wmine").onclick=function(){shut(openMine)};document.getElementById("wconn").onclick=function(){shut(function(){openConnections()})};
   W.addEventListener("click",function(e){if(e.target===W)shut()});
   W.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();shut();return;}
     if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button,a[href]")),a=f.indexOf(document.activeElement);
