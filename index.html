@@ -12,8 +12,11 @@
 <meta property="og:title" content="UAP Watcher">
 <meta property="og:description" content="An interactive, sourced guide to UFO and UAP history: who in the U.S. government handles it, where reported incidents happened, and when, from 1639 to today.">
 <meta property="og:url" content="https://uapwatcher.net/">
-<meta property="og:image" content="https://uapwatcher.net/brand/watcher-icon-180.png">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://uapwatcher.net/brand/social-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Watcher: who handled UFOs, where, and when. A map of North America covered in UAP case and base pins.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" sizes="any" href="brand/watcher-icon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="brand/watcher-icon-180.png">
@@ -571,7 +574,7 @@ body.lgopen #panel{position:fixed;z-index:45}
 .cll{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
 .cll button{font-size:12.5px;min-height:28px;padding:2px 9px}
 .cll button .cv{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin-right:5px}
-.cl details{margin-top:6px}.cl summary{cursor:pointer;font-size:13px;color:var(--ink2)}
+.cl details{margin-top:6px}.cl summary{cursor:pointer;font-size:13px;color:var(--ink2)}.cl .prep{margin:10px 0 0;font-size:12.5px}
 .cl .srcs{margin-top:6px}
 .clx{display:flex;flex-direction:column;gap:6px;margin:0 0 6px}
 .clx button{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;text-align:left;padding:8px 10px;min-height:0;border-left:4px solid var(--sc)}
@@ -614,7 +617,9 @@ body.lgopen #panel{position:fixed;z-index:45}
 .qzend .rank{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:26px;color:var(--amber);margin:0 0 6px}
 .qzend p{color:var(--ink2);max-width:520px;margin:6px auto 18px}
 .qzend .qzact{justify-content:center}
-.wquiz{border-left-color:var(--st-confirmed)}
+.wquiz{border-left-color:var(--st-confirmed)}.wconn{border-left-color:var(--focus)}
+.wupd{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--ink2)}
+.prep{margin:22px 0 4px;font-size:13.5px;color:var(--ink2)}.prep a{color:inherit}.prep a:hover{color:var(--ink)}
 .lgquiz{align-self:center;border-color:var(--amber);color:var(--amber);font-weight:600}
 @media (max-width:640px){.qz{padding:16px 16px 50px}.qzo{grid-template-columns:1fr}.qzq{font-size:23px}.qzcard{padding:16px 14px}}
 
@@ -4952,6 +4957,20 @@ function copyLink(h){var u=location.href.split("#")[0]+h,ok=function(){toast("Li
     var a=document.createElement("textarea");a.value=u;a.setAttribute("readonly","");a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();
     var d=false;try{d=document.execCommand("copy")}catch(e){}a.remove();if(d)ok();else window.prompt("Copy this link:",u);};
   try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(ok,no);else no();}catch(e){no()}}
+/* "Last updated": GitHub Pages sends the deploy time as Last-Modified, which the browser exposes as document.lastModified.
+   With no such header the browser reports the current time instead, so anything within a minute of now is treated as unknown. */
+function siteUpdated(){try{var d=new Date(document.lastModified);if(isNaN(d)||Math.abs(Date.now()-d)<60000)return "";
+  return d.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});}catch(e){return ""}}
+/* "Report a mistake": opens a pre-filled correction on GitHub naming the entry and its link. To take reports by email
+   instead, point REPORT_TO at a mailto: address; reportHref builds either kind. */
+var REPORT_TO="https://github.com/zsquiers/Watcher/issues/new";
+function reportHref(title,h){var u="https://uapwatcher.net/"+(h||location.hash||""),sub="Correction: "+title,
+    body="Entry: "+title+"\nLink: "+u+"\n\nWhat is wrong or missing:\n\n\nA source that shows it (link, book and page, or document):\n";
+  if(/^mailto:/.test(REPORT_TO))return REPORT_TO+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
+  return REPORT_TO+"?title="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);}
+function reportLine(title,h){return '<p class="prep">Spot a mistake or a missing source? <a href="#" data-report="'+esc(title)+'"'+(h?' data-report-h="'+h+'"':'')+'>Report it</a>. Corrections are checked against the sources.</p>'}
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("[data-report]");if(!a)return;e.preventDefault();
+  window.open(reportHref(a.getAttribute("data-report"),a.getAttribute("data-report-h")),"_blank","noopener");});
 function linkBtn(){return '<button class="sq plink" id="plink" aria-label="Copy a link to this entry" title="Copy link"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.5 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1"/><path d="M8.5 11.5l-1 1a2.5 2.5 0 0 1-3.5-3.5l1-1"/></svg></button>'}
 /* tapping a photo in the panel shows it large; tapping anywhere (or Escape) puts it back */
 var lbLast=null;
@@ -5011,7 +5030,7 @@ function open(id,editName){
   panel.innerHTML='<div class="ph">'+logoImg(n.own?n:(tl&&tl.tid?{id:tl.tid}:n),"plg")+'<div style="flex:1">'+(eb?'<p class="eb">'+esc(eb)+'</p>':'')+'<h2>'+esc(n.t)+'</h2>'+(n.s&&!isPin(cid)&&!(tl&&n.s===String(tl.yr))?'<p>'+esc(n.s)+'</p>':'')+'</div>'+backBtn()+linkBtn()+wideBtn()+minBtn(n.t)+'<button class="sq" id="pc" aria-label="Close details">&times;</button></div>'+
   '<div class="pb">'+banHtml(tl&&IMG[tl.id]?tl.id:cid,n.t)+pill+(n.custom?'':cb.chip)+links+kf+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+rel+routeHtml(cid)+claimsHtml(cid)+(n.custom?'':cb.src+linksHtml(n,(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).join(" "),cb.urls))+edit+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
-  '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+
+  '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+branch+(n.custom?'':reportLine(n.t))+
   (n.custom?'<div class="row" style="margin-top:18px"><button class="danger" id="cd">'+(n.custom==="pin"?"Remove this pin":"Remove this box")+'</button></div>':'')+'</div>';
   linkNames(panel.querySelector(".facts"),[cid,tl&&tl.id]);
   panel.classList.add("open");panel.scrollTop=0;var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
@@ -5484,7 +5503,7 @@ function openPerson(id){var p=PBy[id];if(!p)return;var hsc=histNote({k:"person",
   '<div class="pb">'+(ph?'<p class="pcred">Photo: '+esc(ph[1])+', <a href="'+esc(ph[3])+'" target="_blank" rel="noopener">'+esc(ph[2])+'</a>, via Wikimedia Commons</p>':'')+cb.chip+'<div class="facts" style="margin-top:6px">'+cb.html+'</div>'+
   (conn?'<h3>'+(p.kind?"Where they come up":"Where to find them")+'</h3><div class="conns">'+conn+'</div>':'')+claimsHtml(id)+cb.src+linksHtml(p,"",cb.urls)+
   '<h3>Your notes</h3><textarea id="nt" placeholder="Add sources, names, dates, or your own research">'+esc(state.notes[id]||"")+'</textarea>'+
-  '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div></div>';
+  '<div class="row"><button class="primary" id="ns">Save notes</button><span class="status" id="sm" aria-live="polite"></span></div>'+reportLine(p.t)+'</div>';
   linkNames(panel.querySelector(".facts"),[id]);
   panel.classList.add("open");var pbx=panel.querySelector(".pb");if(pbx)pbx.scrollTop=0;histWire(hsc);pMinWire();wireCites();wireClaimLinks(panel);pMin(false);
   panel.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(e){e.preventDefault();if(b.closest(".golinks"))closeLedger();goTo(b.dataset.go,b.dataset.id)}});
@@ -5598,7 +5617,7 @@ function openAbout(){var A=document.getElementById("about");
     '<li>Google Fonts, for the typefaces, on every visit (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google privacy policy</a>)</li>'+
     '<li>Only when you open the map: OpenFreeMap for street maps (<a href="https://openfreemap.org/privacy/" target="_blank" rel="noopener">OpenFreeMap privacy</a>), Esri for satellite imagery (<a href="https://www.esri.com/en-us/privacy/overview" target="_blank" rel="noopener">Esri privacy</a>), Amazon Web Services for terrain (<a href="https://aws.amazon.com/privacy/" target="_blank" rel="noopener">AWS privacy</a>) and NASA for clouds and night lights (<a href="https://www.nasa.gov/privacy/" target="_blank" rel="noopener">NASA privacy</a>)</li></ul>'+
     '<p>Links to sources open the source’s own site, which has its own privacy terms.</p>'+
-    '<h3>Corrections</h3><p>If something is wrong, out of date or missing a source, please <a href="https://github.com/zsquiers/Watcher/issues" target="_blank" rel="noopener">report it on GitHub</a>, naming the entry (its link, from the link button in its panel, is ideal). Corrections are checked against the sources before they’re made.</p>'+
+    '<h3>Corrections</h3><p>If something is wrong, out of date or missing a source, use the <b>Report it</b> link at the foot of any entry or claim. It opens a correction already filled in with the entry\u2019s name and link; add what\u2019s wrong and, ideally, a source. You can also <a href="https://github.com/zsquiers/Watcher/issues" target="_blank" rel="noopener">report it on GitHub</a> directly. Corrections are checked against the sources before they’re made.</p>'+
     '<h3>Support Watcher</h3><p>Watcher is free to use, with no ads or paywall. If you find it useful, you can leave a tip to help cover running costs such as the domain and map services.</p><p><a class="tipbtn" href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Tip with Venmo <span>@uapwatcher</span></a></p>'+
     '<h3>Disclaimer</h3><p>This site is for information and research. It may contain errors and is not a substitute for the sources it cites; check them before relying on anything here.</p></div>';
   A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;
@@ -5786,7 +5805,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
       return '<article class="cl" id="'+c.id+'" style="--sc:var(--st-'+c.st+')"><div class="clt"><h3>'+esc(c.t)+'</h3><span class="stb" title="'+esc(CLST[c.st][1])+'"><span class="std"></span>'+CLST[c.st][0]+'</span><button class="clk" data-clink="'+c.id+'" aria-label="Copy a link to this claim" title="Copy link">Link</button></div>'+
         '<p class="clm">Claimed by '+who+' \u00b7 '+c.yr+' \u00b7 '+esc(c.venue)+(c.ev!=null&&c.ev!==c.yr?' \u00b7 <span class="clev">About events of '+evLabel(c)+'</span>':'')+'</p>'+
         '<div class="clg"><div><h4>The claim</h4>'+cb.paras[0]+'</div><div><h4>The official record</h4>'+cb.paras[1]+'</div></div>'+
-        (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+'</article>'}).join("")+'</div>'+
+        (links?'<div class="cll">'+links+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+reportLine(c.t,"#/claim/"+c.id)+'</article>'}).join("")+'</div>'+
     '<div class="lgfab" id="lgfab"><button id="lgtop" aria-label="Back to the top of the claims ledger">&uarr; Top</button><button id="lgx2" aria-label="Close claims ledger">Close &times;</button></div>';
   L.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("lgopen");lgFab();
   document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgab").onclick=openAbout;document.getElementById("lgx2").onclick=closeLedger;
@@ -5886,7 +5905,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     timeline:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 22h28"/><circle cx="8" cy="22" r="2.6" fill="currentColor"/><circle cx="18" cy="22" r="2.6" fill="currentColor"/><circle cx="27" cy="22" r="2.6" fill="currentColor"/><path d="M8 19V9h9M18 19v-6h8"/></svg>'},
   doors=[["tree","Org chart","Who runs UAP work: the offices, programs, and secret projects, and how they connect.",nTree+" offices and programs"],
     ["map","Map","Where it happened: bases, sightings, crash sites, and ancient places around the world.",nPins+" places"],
-    ["timeline","Timeline","When it happened: programs, hearings, books, and events from 1900 to today.",nTL+" events and books"]],
+    ["timeline","Timeline","When it happened: programs, hearings, books, and events from the 1890s to today.",nTL+" events and books"]],
   feat=[["tree","aaro","Org chart","From Blue Book to AARO","Seventy years of official UAP offices, and how each one led to the next."],
     ["map","m-tictac","Map","The Nimitz Tic Tac","In 2004 Navy pilots chased a white, wingless object off San Diego."],
     ["timeline","tl-moore89","Timeline","The Aviary","How Air Force agents fed false UFO stories to researchers in the 1980s."],
@@ -5898,9 +5917,11 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     '<p class="wnote">Sourced facts sit next to disputed claims, and anything unconfirmed is labeled.</p>'+
     '<div class="went">'+doors.map(function(d){return '<button data-door="'+d[0]+'">'+ico[d[0]]+'<b>'+d[1]+'</b><span>'+d[2]+'</span><em>'+d[3]+'</em></button>'}).join("")+'</div>'+
     '<button class="wled" id="wled"><b>Claims ledger</b><span>'+CLAIMS.length+' major claims set side by side with the official record, with sources for both.</span><em>Open the ledger \u2192</em></button>'+
+    '<button class="wled wconn" id="wconn"><b>Connections</b><span>Every person, program, place, book and claim as one web. Pick any dot to see what it links to.</span><em>Explore the connections \u2192</em></button>'+
     '<button class="wled wquiz" id="wquiz"><b>Quiz</b><span>Ten questions drawn from the site: which claims hold up, when things happened, and where.</span><em>Take the quiz \u2192</em></button>'+
     '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
     '<p class="wabout"><button id="wabout">About Watcher: how it\u2019s sourced, claim statuses, credits and privacy</button></p>'+
+    (siteUpdated()?'<p class="wupd">Last updated '+siteUpdated()+'</p>':'')+
     '<p class="wtip">Find Watcher useful? <a href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Leave a tip on Venmo</a></p>'+
     '</div></div>');
   var W=document.getElementById("welcome"),last=null;
@@ -5912,7 +5933,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
     goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
   document.getElementById("wx").onclick=function(){shut()};
-  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wabout").onclick=function(){shut(openAbout)};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};
+  document.getElementById("wled").onclick=function(){shut(function(){openLedger()})};document.getElementById("wabout").onclick=function(){shut(openAbout)};document.getElementById("wquiz").onclick=function(){shut(function(){openQuiz()})};document.getElementById("wconn").onclick=function(){shut(function(){openConnections()})};
   W.addEventListener("click",function(e){if(e.target===W)shut()});
   W.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();shut();return;}
     if(e.key==="Tab"){var f=[].slice.call(W.querySelectorAll("button,a[href]")),a=f.indexOf(document.activeElement);
