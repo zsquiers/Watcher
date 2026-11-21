@@ -50,6 +50,8 @@ const PINS = (JSON.parse(scriptById("mapdata", true)).pins) || [];
 const canon = (html.match(/<link rel="canonical" href="([^"]+)"/) || [])[1];
 if (!canon) throw new Error('index.html has no <link rel="canonical" href="..."> to take the site address from');
 const SITE = canon.endsWith("/") ? canon : canon + "/";
+/* the shared 1200x630 preview card, used by pages that have no picture of their own */
+const SOCIAL = "brand/social-card.jpg";
 
 /* ---- helpers ---- */
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
@@ -192,9 +194,9 @@ function jsonld(e, url, img) {
       {"@type": "ListItem", position: 3, name: e.title, item: url}]}};
   return JSON.stringify(page, (k, v) => v === undefined ? undefined : v).replace(/</g, "\\u003c");
 }
-function shell({title, desc, url, depth, image, ld, body}) {
+function shell({title, desc, url, depth, image, ld, body, abs, noindex, script}) {
   body = body.replace(/\n[ \t]*(?=\n)/g, "");
-  const up = "../".repeat(depth);
+  const up = abs ? "/" : "../".repeat(depth);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -202,18 +204,19 @@ function shell({title, desc, url, depth, image, ld, body}) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
-<link rel="canonical" href="${esc(url)}">
+${noindex ? `<meta name="robots" content="noindex">` : `<link rel="canonical" href="${esc(url)}">`}
 <meta property="og:site_name" content="UAP Watcher">
 <meta property="og:type" content="article">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(url)}">
-${image ? `<meta property="og:image" content="${esc(SITE + image)}">\n<meta name="twitter:card" content="summary_large_image">` : `<meta name="twitter:card" content="summary">`}
+<meta property="og:image" content="${esc(SITE + (image || SOCIAL))}">${image ? "" : `\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">`}
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="${up}favicon.ico" sizes="48x48">
 <link rel="icon" href="${up}brand/watcher-icon.svg" type="image/svg+xml" sizes="any">
 <link rel="apple-touch-icon" href="${up}brand/watcher-icon-180.png">
 <link rel="stylesheet" href="${up}pages.css">
-${ld ? `<script type="application/ld+json">${ld}</script>` : ""}
+${ld ? `<script type="application/ld+json">${ld}</script>` : ""}${script ? `\n<script>${script}</script>` : ""}
 </head>
 <body>
 <header class="top"><a class="brand" href="${up}"><img src="${up}brand/watcher-icon.svg" alt="" width="28" height="28">Watcher</a><nav><a href="${up}browse/">Browse</a><a href="${up}">Open the interactive site</a></nav></header>
@@ -282,6 +285,22 @@ ${Object.keys(SECTIONS).map(k => `<li><a href="../${k}/"><strong>${esc(SECTIONS[
 </ul>`;
   return shell({title: "Browse · UAP Watcher", desc: "Every entry in Watcher, the sourced guide to UFO and UAP history, as a plain page: people, places, programs, claims, milestones and books.", url: SITE + "browse/", depth: 1, body});
 }
+/* GitHub Pages serves 404.html for any address that doesn't exist, at whatever depth, so its links are root-relative.
+   Its script looks the last part of the address up in the sitemap, so an old or mistyped link to a real entry
+   (say /person/jack-parsons) still finds /people/jack-parsons/. */
+function notFoundPage() {
+  const body = `<h1>Nothing is here</h1>
+<p class="sub">That address doesn't match any page on Watcher. It may have been mistyped, or the entry may have moved.</p>
+<p id="nf-guess" hidden></p>
+<ul class="hub">
+<li><a href="/"><strong>Open the interactive site</strong></a><p>The org chart, map, timeline, claims ledger and connections.</p></li>
+<li><a href="/browse/"><strong>Browse every entry</strong></a><p>People, places, programs, claims, milestones and books as plain pages.</p></li>
+</ul>`;
+  const script = `(function(){var seg=location.pathname.replace(/\\/+$/,"").split("/").pop();if(!seg||!/^[a-z0-9-]+$/i.test(seg))return;
+fetch("/sitemap.xml").then(function(r){return r.text()}).then(function(x){var m=x.match(new RegExp("<loc>([^<]*/"+seg.toLowerCase()+"/)</loc>"));if(!m)return;
+var u=new URL(m[1]),p=document.getElementById("nf-guess");p.hidden=false;p.innerHTML='Were you looking for <a href="'+u.pathname+'">'+u.pathname+'</a>?';}).catch(function(){});})();`;
+  return shell({title: "Page not found · UAP Watcher", desc: "This page doesn't exist on Watcher.", url: SITE + "404.html", depth: 0, abs: true, noindex: true, script, body});
+}
 const CSS = `:root{--bg:#F4F1EA;--card:#FFFFFF;--ink:#14263D;--ink2:#4A5566;--hair:rgba(20,38,61,.14);--link:#1F5C8C;--amber:#94580A}
 @media (prefers-color-scheme:dark){:root{--bg:#0B1220;--card:#121B2C;--ink:#ECE6D8;--ink2:#A7B0BE;--hair:rgba(236,230,216,.14);--link:#8CC0EA;--amber:#E0A040}}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
@@ -311,6 +330,7 @@ const out = new Map();
 for (const e of entries) out.set(e.path + "index.html", entryPage(e));
 for (const k of Object.keys(SECTIONS)) out.set(k + "/index.html", sectionPage(k));
 out.set("browse/index.html", browsePage());
+out.set("404.html", notFoundPage());
 out.set("pages.css", CSS);
 const urls = [SITE, SITE + "browse/", ...Object.keys(SECTIONS).map(k => SITE + k + "/"), ...entries.map(e => SITE + e.path)];
 out.set("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${esc(u)}</loc></url>`).join("\n")}\n</urlset>\n`);
