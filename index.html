@@ -24,10 +24,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500&family=Cormorant+Garamond:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 <style id="css">
-:root{--wglow:0 0 0 2px rgba(255,255,255,.95),0 0 16px 4px rgba(255,255,255,.85);--bg:#E8ECEF;--vpbg:#DCE1E6;--glow:rgba(47,111,179,.22);--glow-act:rgba(184,110,14,.32);--glow-sec:rgba(106,75,166,.30);--lift:rgba(10,20,35,.16);--grid:rgba(20,38,61,.07);--ink:#14263D;--ink2:#4A5D73;--card:#FBFCFD;--line:#8395AA;--amber:#94580A;--amber-bg:#FCF1DF;--closed:#8A96A4;--panel:#FFFFFF;--hair:rgba(20,38,61,.16);--focus:#2F6FB3;--land:#F7F8F9;--mil:#56704F;--civ:#0E7C74;--co:#6B7A8F;--book:#2F6F9F;--sec:#6A4BA6;--sec-bg:#F1ECFA;
+:root{--wglow:0 0 0 2px rgba(255,255,255,.95),0 0 16px 4px rgba(255,255,255,.85);--bg:#E8ECEF;--vpbg:#DCE1E6;--glow:rgba(47,111,179,.22);--glow-act:rgba(184,110,14,.32);--glow-sec:rgba(106,75,166,.30);--lift:rgba(10,20,35,.16);--grid:rgba(20,38,61,.07);--ink:#14263D;--ink2:#4A5D73;--card:#FBFCFD;--line:#8395AA;--amber:#94580A;--amber-bg:#FCF1DF;--closed:#8A96A4;--panel:#FFFFFF;--hair:rgba(20,38,61,.16);--focus:#2F6FB3;--land:#F7F8F9;--mil:#56704F;--civ:#0E7C74;--co:#6B7A8F;--book:#2F6F9F;--film:#A8336E;--sec:#6A4BA6;--sec-bg:#F1ECFA;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1620;--vpbg:#0A121A;--glow:rgba(127,176,230,.30);--glow-act:rgba(233,164,67,.38);--glow-sec:rgba(180,155,227,.36);--lift:rgba(0,0,0,.45);--grid:rgba(220,229,239,.05);--ink:#DDE6EF;--ink2:#9AABBE;--card:#15212E;--line:#50647A;--amber:#E9A443;--amber-bg:#2A2010;--closed:#6D7B8A;--panel:#132030;--hair:rgba(220,229,239,.14);--focus:#7FB0E6;--land:#16222F;--mil:#8BA883;--civ:#4CC3B5;--co:#A3B1C4;--book:#7FB5E0;--sec:#B49BE3;--sec-bg:#231B35}}
-:root[data-theme="dark"]{--bg:#0D1620;--vpbg:#0A121A;--glow:rgba(127,176,230,.30);--glow-act:rgba(233,164,67,.38);--glow-sec:rgba(180,155,227,.36);--lift:rgba(0,0,0,.45);--grid:rgba(220,229,239,.05);--ink:#DDE6EF;--ink2:#9AABBE;--card:#15212E;--line:#50647A;--amber:#E9A443;--amber-bg:#2A2010;--closed:#6D7B8A;--panel:#132030;--hair:rgba(220,229,239,.14);--focus:#7FB0E6;--land:#16222F;--mil:#8BA883;--civ:#4CC3B5;--co:#A3B1C4;--book:#7FB5E0;--sec:#B49BE3;--sec-bg:#231B35}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1620;--vpbg:#0A121A;--glow:rgba(127,176,230,.30);--glow-act:rgba(233,164,67,.38);--glow-sec:rgba(180,155,227,.36);--lift:rgba(0,0,0,.45);--grid:rgba(220,229,239,.05);--ink:#DDE6EF;--ink2:#9AABBE;--card:#15212E;--line:#50647A;--amber:#E9A443;--amber-bg:#2A2010;--closed:#6D7B8A;--panel:#132030;--hair:rgba(220,229,239,.14);--focus:#7FB0E6;--land:#16222F;--mil:#8BA883;--civ:#4CC3B5;--co:#A3B1C4;--book:#7FB5E0;--film:#EE8BBE;--sec:#B49BE3;--sec-bg:#231B35}}
+:root[data-theme="dark"]{--bg:#0D1620;--vpbg:#0A121A;--glow:rgba(127,176,230,.30);--glow-act:rgba(233,164,67,.38);--glow-sec:rgba(180,155,227,.36);--lift:rgba(0,0,0,.45);--grid:rgba(220,229,239,.05);--ink:#DDE6EF;--ink2:#9AABBE;--card:#15212E;--line:#50647A;--amber:#E9A443;--amber-bg:#2A2010;--closed:#6D7B8A;--panel:#132030;--hair:rgba(220,229,239,.14);--focus:#7FB0E6;--land:#16222F;--mil:#8BA883;--civ:#4CC3B5;--co:#A3B1C4;--book:#7FB5E0;--film:#EE8BBE;--sec:#B49BE3;--sec-bg:#231B35}
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.5;display:flex;flex-direction:column;overflow:hidden}
@@ -325,6 +325,7 @@ body.sat.mode-map .hint,body.mode-map .hint{bottom:62px}
 .tle.mil .tm{background:var(--mil);border-radius:50%;transform:none;box-shadow:0 0 0 2px var(--amber)}
 .tle.gov .tm{background:var(--ink);transform:none;border-radius:2px}
 .tle.book .tm,.lg-book{width:10px;height:12px;background:var(--book);transform:none;border-radius:1px 2px 2px 1px;box-shadow:inset 3px 0 0 rgba(0,0,0,.28)}
+.tle.film .tm,.lg-film{background:var(--film);transform:none;width:12px;height:9px;border-radius:2px;box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(255,255,255,.4)}
 .tle.tech .tm,.lg-tech{background:transparent;transform:none;width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 2.5px var(--closed)}
 .tle.tech{color:var(--ink2);border-style:dashed}
 .tle.civ .tm{background:var(--civ);transform:none;width:13px;height:12px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
@@ -397,7 +398,7 @@ header>.tb{min-height:36px}
 .qt{display:flex;align-items:baseline;gap:8px;color:var(--ink)}
 .qt b{font-weight:600}
 .qk{flex:none;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);border:1px solid var(--hair);border-radius:9px;padding:0 6px;line-height:16px}
-.qk.person{color:var(--amber);border-color:var(--amber)}.qk.claim{color:var(--sec);border-color:var(--sec)}
+.qk.person{color:var(--amber);border-color:var(--amber)}.qk.claim{color:var(--sec);border-color:var(--sec)}.qk.film{color:var(--film);border-color:var(--film)}
 .qs{font-size:13px;color:var(--ink2);margin-top:1px}
 .qsn{font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.4}
 .qv{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
@@ -709,7 +710,7 @@ body.mode-tree .srch{flex-basis:110px}
 <script id="app">
 (function(){
 /* the timeline key doubles as a filter: each row turns its kind of item on or off */
-var TLKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["uap","lg-uap","Sighting or incident"],["sec","lg-sec","Secret project event"],["mil","lg-milu","Incident at a base"],["gov","lg-gov","Milestone"],["civ","lg-civ","Civilian or media milestone"],["book","lg-book","Book"],["tech","lg-tech","Tech and media context"]];
+var TLKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["uap","lg-uap","Sighting or incident"],["sec","lg-sec","Secret project event"],["mil","lg-milu","Incident at a base"],["gov","lg-gov","Milestone"],["civ","lg-civ","Civilian or media milestone"],["book","lg-book","Book"],["film","lg-film","Film or TV"],["tech","lg-tech","Tech and media context"]];
 var MAPKEYS=[["gov","lg-gov","Government building"],["mil","lg-mil","Military base"],["milu","lg-milu","Base with UAP history"],["uap","lg-uap","UAP or anomaly site"],["sec","lg-sec","Secret project site"],["civ","lg-civ","Civilian research group"],["co","lg-co","Company"],["anc","lg-anc","Ancient site"],["msn","lg-msn","Spacecraft landing site"],["mine","lg-mine","Your pin"]];
 function pinKey(p){return p.c==="mil"?(p.u?"milu":"mil"):p.c}
 function keySync(sel,keys,on){document.querySelectorAll(sel+" [data-k]").forEach(function(b){b.setAttribute("aria-pressed",on[b.dataset.k]!==false)});
@@ -3651,7 +3652,7 @@ function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*
      book they wrote), where it can only mean them: "Fort" in Charles Fort's books, "Colby" in a CIA director's entry */
   PREL={};PEOPLE.forEach(function(q){q.L.forEach(function(l){(PREL[l[1]]=PREL[l[1]]||{})[q.id]=1})});
   Object.keys(sn).forEach(function(k){if(k.length>=4&&(SURSKIP[k]||sn[k].length>1)&&!LNK[k])LNK[k]={amb:1,people:sn[k]}});
-  TL.forEach(function(e){var t=e.t.replace(/\s*\([^)]*\)\s*$/,"");if(e.kind==="book"&&(/\s/.test(t)||t.length>=9))add(t,{go:"timeline",id:e.id})});
+  TL.forEach(function(e){var t=e.t.replace(/\s*\([^)]*\)\s*$/,"");if(e.kind==="book"&&(/\s/.test(t)||t.length>=9))add(t,{go:"timeline",id:e.id});else if(e.kind==="film"&&/\s/.test(t)&&t.length>=10&&!LNK[t])add(t,{go:"timeline",id:e.id})});
   var ks=Object.keys(LNK).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")});
   LNKRE=new RegExp("(^|[^\\w-])("+ks.join("|")+")(?![\\w-])","g");}
 var LNKGEN={"Air Force":1,"Navy":1,"Army":1};
@@ -4518,6 +4519,9 @@ gInit();
 var TL_START=1940,TL_END=2027,YW=58,TX0=90,NOWY=2026.7,TL_SEGS=[[1940,2027]],TL_GAPW=2*58;
 var TLP=[["manhattan",1942,1946,"m-losalamos"],["oss",1942,1945,"m-bsc"],["paperclip",1945,1959,"m-paperclip"],["mogul",1947,1949,"m-mogul"],["sign",1948,1949,"m-wpafb"],["grudge",1949,1952,"m-wpafb"],["bluebook",1952,1969,"m-wpafb"],["twinkle",1949,1951,"m-holloman"],["robertson",1953,1953,"m-cia"],["mkultra",1953,1973,"m-detrick"],["northwoods",1962,1962,null],["mockingbird",1963,1963,null],["stargate",1972,1995,"m-meade"],["azorian",1974,1974,"m-glomar"],["aatip",2007,2012,null],["aawsap",2008,2010,"m-skinwalker"],["uaptf",2020,2021,"m-oni"],["aoimsg",2021,2022,null],["aaro",2022,NOWY,"m-pentagon"],["nasastudy",2022,2023,"m-nasahq"]];
 var TLE=[["w-todmorden",1980],["w-berwyn",1974],["m-comanche",1994],["m-rias",1955],["m-grf",1948],["m-uncgravity",1955],["w-rael",1973],["w-aetherius",1955],["m-unarius",1954],["m-heavensgate",1997],["m-seekers",1954],["m-shasta",1930],["m-bigsur",1964],["w-tully",1966],["w-zeitoun",1968],["w-juliaset",1996],["w-milkhill",2001],["w-chilbolton",2001],["w-nuremberg",1561],["w-victoria1845",1845],["w-vulture1879",1879],["w-patna1880",1880],["w-caroline1893",1893],["m-haynesville",1966],["w-amarante",1982],["w-quarouble",1954],["m-langenburg",1974],["w-dechmont",1979],["w-imjarvi",1970],["m-kinross",1953],["w-lajoya",1980],["w-chilenavy",2014],["w-ladakh",2012],["w-cangzhou",1998],["m-councilbluffs",1971],["m-mtclemens",1998],["m-claymont",2014],["w-florence1954",1954],["w-ghostflyers",1934],["m-piedmont",1973],["w-basel",1566],["w-fatima",1917],["m-labattle",1942],["m-greatfalls",1950,"grudge"],["m-mcminnville",1950],["m-tremonton",1952,"bluebook"],["w-boianai",1959],["w-cussac",1967],["w-coyame",1974],["m-loring",1975],["w-canary",1976],["m-wow",1977],["m-valjohnson",1979],["w-ilkley",1987],["w-autopsy",1995],["m-monolith",2020],["w-mexcongress",2023],["m-vegas2023",2023],["m-giantrock",1953],["w-leary",1969],["w-ashburnham",1967],["w-newswabia",1939],["m-southaven",1992],["w-magenta",1933],["m-dexter",1966,"bluebook"],["m-rb47",1957,"bluebook"],["m-eagleriver",1961,"bluebook"],["w-ghostrockets",1946],["m-aurora",1897],["m-fargo",1948,"sign"],["m-flatwoods",1952],["w-valensole",1965],["w-trans",1981],["m-delphos",1971],["w-ubatuba",1957],["m-gulfbreeze",1987],["m-stclair",2000],["m-integratron",1954],["w-utsurobune",1803],["w-senganmori",1992],["w-everell",1639],["w-camden",1808],["m-northconcord",1961],["w-woonsocket",1967],["w-newtown",1987],["m-chicagopile",1942],["m-trinity",1945,"manhattan"],["m-arnold",1947],["m-roswell",1947,"mogul"],["m-mantell",1948],["m-chiles",1948,"sign"],["m-aztec",1948],["m-berkshire",1969],["m-hall",1965],["m-coyne",1973],["m-baltic",2011],["m-strieber",1985],["m-bledsoe",2007],["m-aguadilla",2013],["m-omaha",2019],["m-farmington",1950],["m-lubbock",1951,"grudge"],["m-dc1952",1952,"bluebook"],["m-kelly",1955],["m-levelland",1957,"bluebook"],["m-hills",1961],["m-socorro",1964,"bluebook"],["m-exeter",1965],["m-kecksburg",1965],["m-pointpleasant",1966],["m-malmstrom",1967],["m-pascagoula",1973],["m-walton",1975],["m-allagash",1976],["m-kirtland",1980],["m-cashlandrum",1980],["m-hudson",1983],["m-jal1628",1986],["m-phoenix",1997],["m-tictac",2004,"navy"],["m-tinley",2004],["m-ohare",2006],["m-stephenville",2008],["m-gimbal",2015,"navy"],["m-langley",2023],["m-deadhorse",2023],["m-huron",2023],["m-njdrones",2024],["w-vilasboas",1957],["w-valdes",1977],["w-lyndajones",1979],["w-rylance",2001],["w-malmgren",1962],["m-wartena",1940],["w-lakenheath",1956],["w-trindade",1958],["w-westall",1966],["w-shag",1967],["w-falcon",1967],["w-tehran",1976],["w-colares",1977],["w-petrozavodsk",1977],["w-geipan",1977],["w-kaikoura",1978],["w-valentich",1978],["w-manises",1979],["w-rendlesham",1980],["w-hessdalen",1981],["w-brazil1986",1986],["w-dalnegorsk",1986],["w-belgium",1989],["w-voronezh",1989],["w-calvine",1990],["w-cosford",1993],["w-ariel",1994],["w-bariloche",1995],["w-varginha",1996],["w-campeche",2004],["w-alderney",2007],["w-xiaoshan",2010]];
+/* films and TV: each is a timeline milestone with kind "film"; FILMX adds its format, who made it, and the people in
+   the Connections view it links to */
+var FILMX={};
 var TLM=[["tl-yankeeblue",2025,"Yankee Blue hazing revealed","aaro",null,"In June 2025, The Wall Street Journal reported that AARO had found that for decades some officers joining classified Air Force units were shown fake UFO material and told they would help reverse-engineer alien craft, under a fictitious program sometimes called Yankee Blue. The ritual was most likely a cover for real secret aircraft, and a Defense Secretary memo stopped it in 2023. The Pentagon acknowledged the pranks and promised a second volume of its historical report."],
 ["tl-pursue8",2026,"Eighth PURSUE release","pursue",null,"On November 20, 2026, the Pentagon posted its eighth batch of UAP files: 40 documents and three videos. They include a 1952 CIA briefing on about 1,500 flying saucer reports, three CENTCOM infrared clips from 2020, 2023 and 2026, Lockheed engineer Kelly Johnson's 1953 sighting, and a 2009 plan for an underground vault for exotic material that there is no record was ever built."],
 ["tl-condon",1968,"Condon Report","bluebook",null,"The University of Colorado's Air Force-funded UFO study concluded further research was unlikely to be productive. Project Blue Book closed the next year."],
@@ -4646,7 +4650,7 @@ function buildTL(){
   var bid={};BASE.forEach(function(n){bid[n.id]=n});var pid={};MAP.pins.forEach(function(p){pid[p.id]=p});
   TLP.forEach(function(r){var n=bid[r[0]];if(!n)return;TL.push({id:"tl-p-"+r[0],type:"bar",y1:r[1],y2:r[2],tid:r[0],pid:r[3],t:n.t,kind:n.k||"closed",ongoing:r[2]===NOWY})});
   TLE.forEach(function(r){var p=pid[r[0]];if(!p)return;TL.push({id:"tl-e-"+r[0],type:"ev",yr:r[1],pid:r[0],tid:r[2]||null,t:p.t,kind:p.c})});
-  TLM.forEach(function(r){TL.push({id:r[0],type:"ev",yr:r[1],t:r[2],tid:r[3],pid:r[4],kind:r[6]||"gov",own:true,s:String(r[1]),st:r[6]==="civ"?"Civilian or media milestone":r[6]==="tech"?"Tech and media context":undefined,d:[r[5]]})});
+  TLM.forEach(function(r){var fx=r[6]==="film"&&FILMX[r[0]];TL.push({id:r[0],type:"ev",yr:r[1],t:r[2],tid:r[3],pid:r[4],kind:r[6]||"gov",own:true,s:fx?(fx.fmt||"Film")+", "+r[1]+(fx.by?" \u00b7 "+fx.by:""):String(r[1]),st:r[6]==="civ"?"Civilian or media milestone":r[6]==="tech"?"Tech and media context":r[6]==="film"?(fx&&fx.fmt||"Film or TV"):undefined,d:[r[5]]})});
   TLBK.forEach(function(r){var by=r[3].map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(" and ");TL.push({id:"tl-b-"+r[0],type:"ev",yr:r[1],t:r[2],au:r[3],tid:r[6]||null,pid:r[5]||null,kind:"book",own:true,st:"Book",s:"By "+by+", "+r[1],d:[r[4]]})});
   TL.forEach(function(e){TLById[e.id]=e;if(e.tid&&!TLByTid[e.tid]&&!e.own)TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid]&&!e.own)TLByPid[e.pid]=e.id;});
   TL.forEach(function(e){if(e.tid&&!TLByTid[e.tid])TLByTid[e.tid]=e.id;if(e.pid&&!TLByPid[e.pid])TLByPid[e.pid]=e.id;});
@@ -4688,7 +4692,7 @@ var pos={},bounds={w:0,h:0},showLin=false,selId=null,mode="tree",placing=false;
 var views={tree:null,map:null},tx=0,ty=0,k=1;
 var filt={};MAPKEYS.forEach(function(r){filt[r[0]]=true});
 try{var mf0=JSON.parse(localStorage.getItem("watcher-mapkeys")||"{}");Object.keys(mf0).forEach(function(k){if(k in filt)filt[k]=!!mf0[k]})}catch(e){}
-var SUBS={tree:"Who runs UAP work in the U.S. and other governments",map:"Bases, sightings, and secret sites around the world",timeline:"Programs, incidents, and books since 1900"};
+var SUBS={tree:"Who runs UAP work in the U.S. and other governments",map:"Bases, sightings, and secret sites around the world",timeline:"Programs, incidents, books, and films since the 1890s"};
 var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details and notes.",map:"Drag to spin the globe, scroll or pinch to zoom in to street level. Switch to Satellite for real imagery, and try 3D terrain (right-drag or two-finger drag to tilt). Pins mark major sites and notable cases, not every one.",timeline:"Drag sideways to travel through time. Tap any bar or event for details and links to the org chart and map."};
 
 /* org chart countries: the U.S. alone by default, or every country side by side; remembered on this device */
@@ -5213,7 +5217,7 @@ function open(id,editName){
   if(n.custom==="tree")pill+='<span class="pill">Added by you</span>';
   if(isTree(cid)){var rt=rootOf(cid);if(rt&&rt.cn)pill='<span class="pill ctry">'+(FLAGS[rt.id]?'<img class="pflag" src="'+FLAGS[rt.id]+'" alt="" aria-hidden="true">':'')+esc(rt.cn)+'</span> '+pill;}
   var d=(Array.isArray(n.d)?n.d:[n.d]).filter(Boolean),cb=citeBlock(cid,d);
-  var eb=isPin(cid)?"Place":isTree(cid)?(n.k==="secret"?"Secret program":n.k==="closed"?"Closed program":n.k==="active"?"Active office":"Organization"):tl?(tl.kind==="book"?"Book":tl.own?"Milestone":"Event")+" \u00b7 "+(tl.yr||""):"";
+  var eb=isPin(cid)?"Place":isTree(cid)?(n.k==="secret"?"Secret program":n.k==="closed"?"Closed program":n.k==="active"?"Active office":"Organization"):tl?(tl.kind==="book"?"Book":tl.kind==="film"?(FILMX[tl.id]&&FILMX[tl.id].fmt||"Film or TV"):tl.own?"Milestone":"Event")+" \u00b7 "+(tl.yr||""):"";
   var par=isTree(cid)&&n.p?findItem(n.p):null,kf=isTree(cid)?kfHtml([["Part of",par&&par.t],["Status",n.st],["Assessment",n.v]]):isPin(cid)?kfHtml([["Where",n.s],["Coordinates",fmtLL(n.lat,n.lon)],["Type",CATS[n.c]]]):
     kfHtml([["Year",tl&&tl.yr?String(tl.yr):""],["Office",tl&&tl.tid&&findItem(tl.tid)?findItem(tl.tid).t:""],["Place",tl&&tl.pid&&findItem(tl.pid)?findItem(tl.pid).t:""],["By",(n.au||[]).map(function(a){return PBy[a]?PBy[a].t:/^pp-/.test(a)?"":a}).filter(Boolean).join(", ")]]);
   var edit=n.custom?'<h3>Name and description</h3><input id="en" maxlength="60" value="'+esc(n.t)+'" aria-label="Name"><input id="es" maxlength="60" style="margin-top:8px" value="'+esc(n.s||"")+'" placeholder="Short description (optional)" aria-label="Description"><div class="err" id="ee"></div><div class="row"><button id="eb">Save name</button></div>':'';
@@ -5638,7 +5642,7 @@ function sIndex(){var out=[],tp=TPmap(),pt={};for(var q in tp)if(!pt[tp[q]])pt[t
   PEOPLE.forEach(function(p){var v={};p.L.forEach(function(l){if(!v[l[0]])v[l[0]]=l[1]});out.push({k:"person",id:p.id,t:p.t,s:p.s,a:p.a,d:dtext(p.d),v:v})});
   treeAll().forEach(function(n){out.push({k:"tree",id:n.id,t:n.t,s:n.s,d:dtext(n.d)+" "+(n.st||""),v:{tree:n.id,map:tp[n.id]||null,timeline:TLByTid[n.id]||null}})});
   pinAll().forEach(function(p){out.push({k:"map",id:p.id,t:p.t,s:p.s,d:dtext(p.d),c:p.c,v:{map:p.id,timeline:TLByPid[p.id]||null,tree:pt[p.id]||null}})});
-  TL.forEach(function(e){if(e.own)out.push({k:e.kind==="book"?"book":"timeline",id:e.id,t:e.t,s:e.s||String(e.yr),d:dtext(e.d),v:{timeline:e.id,map:e.pid||null,tree:e.tid||null}})});
+  TL.forEach(function(e){if(e.own)out.push({k:e.kind==="book"?"book":e.kind==="film"?"film":"timeline",id:e.id,t:e.t,s:e.s||String(e.yr),d:dtext(e.d),v:{timeline:e.id,map:e.pid||null,tree:e.tid||null}})});
   /* claims are searchable too (they open in the claims ledger), ranked a little below entries with the same match */
   CLAIMS.forEach(function(c){out.push({k:"claim",id:c.id,t:c.t,s:(c.by&&PBy[c.by]?PBy[c.by].t:c.byt||"")+" \u00b7 "+c.yr+" \u00b7 "+CLST[c.st][0],d:c.c+" "+c.r,v:{},low:1})});
   return out}
@@ -5659,7 +5663,7 @@ function sMark(text,q){var toks=qnorm(q).split(" ").filter(Boolean),h=esc(text);
   toks.forEach(function(k){if(k.length<2)return;h=h.replace(new RegExp("("+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![^<]*>)","ig"),"<mark>$1</mark>")});return h}
 function sSnip(e,q){if(e.inTitle||!e.d)return "";var tok=qnorm(q).split(" ")[0],lo=e.d.toLowerCase(),i=lo.indexOf(tok);if(i<0)return "";
   var a=Math.max(0,i-50),b=Math.min(e.d.length,i+tok.length+70);return (a>0?"…":"")+e.d.slice(a,b)+(b<e.d.length?"…":"")}
-var KLAB={person:"Person",tree:"Organization",map:"Place",timeline:"Milestone",book:"Book",claim:"Claim"};
+var KLAB={person:"Person",tree:"Organization",map:"Place",timeline:"Milestone",book:"Book",film:"Film or TV",claim:"Claim"};
 var qEl=null,qrEl=null,qHits=[],qAct=-1;
 function sRender(){var q=qEl.value;qHits=sRun(q);qAct=qHits.length?0:-1;
   if(!q.trim()){qrEl.hidden=true;qEl.setAttribute("aria-expanded","false");return;}
@@ -5667,7 +5671,7 @@ function sRender(){var q=qEl.value;qHits=sRun(q);qAct=qHits.length?0:-1;
   qHits.forEach(function(e,i){var sn=sSnip(e,q),vb="";
     ["tree","map","timeline"].forEach(function(m){if(e.v[m])vb+='<button type="button" data-i="'+i+'" data-v="'+m+'" tabindex="-1">'+VNAME[m]+'</button>'});
     h+='<div class="qrow'+(i===qAct?' act':'')+'" role="option" id="qo'+i+'" data-i="'+i+'" aria-selected="'+(i===qAct)+'">'+
-      '<div class="qt"><span class="qk '+e.k+'">'+(e.k==="person"&&PBy[e.id]&&PBy[e.id].kind?"Being":KLAB[e.k])+'</span>'+logoImg({id:e.id,tid:e.k==="timeline"||e.k==="book"?(TLById[e.id]||{}).tid:null},"qlg")+'<b>'+sMark(e.t,q)+'</b></div>'+
+      '<div class="qt"><span class="qk '+e.k+'">'+(e.k==="person"&&PBy[e.id]&&PBy[e.id].kind?"Being":KLAB[e.k])+'</span>'+logoImg({id:e.id,tid:e.k==="timeline"||e.k==="book"||e.k==="film"?(TLById[e.id]||{}).tid:null},"qlg")+'<b>'+sMark(e.t,q)+'</b></div>'+
       (e.s?'<div class="qs">'+sMark(e.s,q)+'</div>':'')+(sn?'<div class="qsn">'+sMark(sn,q)+'</div>':'')+
       (vb?'<div class="qv">'+vb+'</div>':'')+'</div>';});
   qrEl.innerHTML=h;qrEl.style.setProperty("--qrt",Math.round(qEl.getBoundingClientRect().bottom+6)+"px");qrEl.hidden=false;qEl.setAttribute("aria-expanded","true");sAct(qAct);}
@@ -5676,7 +5680,7 @@ function sAct(i){qAct=i;qrEl.querySelectorAll(".qrow").forEach(function(r){var o
 function sClose(){qrEl.hidden=true;qEl.setAttribute("aria-expanded","false");}
 function sGo(e,v){sClose();qEl.blur();
   if(!v){if(e.k==="person"){openPerson(e.id);return;}if(e.k==="claim"){openLedger(e.id);return;}/* a result opens its own entry, in its own view: a timeline event or book on the timeline, a pin on the map */
-    v=e.k==="book"?"timeline":e.k;}
+    v=e.k==="book"||e.k==="film"?"timeline":e.k;}
   if(v&&e.v[v])goTo(v,e.v[v]);}
 function sInit(){qEl=document.getElementById("q");qrEl=document.getElementById("qr");
   qEl.addEventListener("input",sRender);
@@ -5888,8 +5892,8 @@ function closeAbout(){var A=document.getElementById("about");if(A)A.hidden=true;
    panels use (people's "Where to find them", book authors, claims, milestones' office and place, the org chart's
    parent boxes), laid out with a small force simulation and drawn on one canvas ---- */
 var CG=null,CGV={k:1,x:0,y:0},CGSEL=null,CGHOV=null,CGG=0,CGFIN=1,CGFOC=null,CGT0=0,CGHT=0,CGHWANT=null,CGOFF={},CGRAF=0,CGRUN=0;
-var CGONE={person:"Person",org:"Office or program",place:"Place",event:"Milestone",book:"Book",claim:"Claim"};
-var CGT={person:["People","--amber"],org:["Offices and programs","--focus"],place:["Places","--mil"],event:["Milestones","--civ"],book:["Books","--book"],claim:["Claims","--sec"]};
+var CGONE={person:"Person",org:"Office or program",place:"Place",event:"Milestone",book:"Book",film:"Film or TV",claim:"Claim"};
+var CGT={person:["People","--amber"],org:["Offices and programs","--focus"],place:["Places","--mil"],event:["Milestones","--civ"],book:["Books","--book"],film:["Films and TV","--film"],claim:["Claims","--sec"]};
 function cgBuild(){var N={},E=[],ek={};
   var node=function(id,type,t,s){if(!N[id])N[id]={id:id,type:type,t:t,s:s||"",deg:0,nb:[]};};
   var edge=function(a,b){if(!a||!b||a===b||!N[a]||!N[b])return;var key=a<b?a+"|"+b:b+"|"+a;if(ek[key])return;ek[key]=1;E.push([N[a],N[b]]);N[a].deg++;N[b].deg++;N[a].nb.push(N[b]);N[b].nb.push(N[a]);};
@@ -5897,12 +5901,14 @@ function cgBuild(){var N={},E=[],ek={};
   PEOPLE.forEach(function(q){node(q.id,"person",q.t,q.s)});
   treeAll().forEach(function(n){if(!n.custom)node(n.id,"org",n.t,n.s)});
   pinAll().forEach(function(p){if(!p.custom)node(p.id,"place",p.t,p.s)});
-  TLM.forEach(function(r){node(r[0],"event",r[2],String(r[1]))});
+  TLM.forEach(function(r){node(r[0],r[6]==="film"?"film":"event",r[2],String(r[1]))});
   TLBK.forEach(function(r){node("tl-b-"+r[0],"book",r[2],String(r[1]))});
   CLAIMS.forEach(function(c){node(c.id,"claim",c.t,"Claim, "+(CLST[c.st]?CLST[c.st][0].toLowerCase():c.st))});
   PEOPLE.forEach(function(q){(q.L||[]).forEach(function(l){edge(q.id,res(l[0],l[1]))})});
   TLBK.forEach(function(r){(r[3]||[]).forEach(function(a){edge(a,"tl-b-"+r[0])})});
   TLM.forEach(function(r){if(r[3])edge(r[0],r[3]);if(r[4])edge(r[0],r[4])});
+  /* films and series link to the people who made them or appear in them */
+  Object.keys(FILMX).forEach(function(f){(FILMX[f].ppl||[]).forEach(function(q){edge(f,q)})});
   CLAIMS.forEach(function(c){if(c.by)edge(c.id,c.by);(c.L||[]).forEach(function(l){edge(c.id,res(l[0],l[1]))})});
   treeAll().forEach(function(n){if(!n.custom&&n.p)edge(n.id,n.p)});
   /* a person named in full (or by a longer alias) anywhere in another entry's text is linked to that entry too */
@@ -5968,7 +5974,7 @@ function cgHit(px,py){var V=CGV,best=null,bd=1e9;cgVis().forEach(function(n){var
 function cgCenter(n,zoom){var c=document.getElementById("cgc");if(!c)return;var k=Math.max(CGV.k,zoom||1.4),w=c.clientWidth,h=c.clientHeight,card=document.getElementById("cgcard");
   var cx=w/2-(card&&!card.hidden&&w>760?150:0),cy=h/2-(card&&!card.hidden&&w<=760?90:0),from={k:CGV.k,x:CGV.x,y:CGV.y},to={k:k,x:cx-n.x*k,y:cy-n.y*k};CGV.set=true;
   if(RM){CGV={k:to.k,x:to.x,y:to.y,set:true};cgDraw();return;}tween(500,function(t){var e=t*t*(3-2*t);CGV={k:from.k+(to.k-from.k)*e,x:from.x+(to.x-from.x)*e,y:from.y+(to.y-from.y)*e,set:true};cgDraw();});}
-var CGGO={person:function(id){openPerson(id)},org:function(id){goTo("tree",id)},place:function(id){goTo("map",id)},event:function(id){goTo("timeline",id)},book:function(id){goTo("timeline",id)},claim:function(id){openLedger(id)}};
+var CGGO={person:function(id){openPerson(id)},org:function(id){goTo("tree",id)},place:function(id){goTo("map",id)},event:function(id){goTo("timeline",id)},book:function(id){goTo("timeline",id)},film:function(id){goTo("timeline",id)},claim:function(id){openLedger(id)}};
 function cgSelect(n,center){CGSEL=n;var card=document.getElementById("cgcard");
   if(!n){card.hidden=true;setHash("#/connections","Connections");cgDraw();return;}
   var groups={};n.nb.forEach(function(m){(groups[m.type]=groups[m.type]||[]).push(m)});
@@ -6124,7 +6130,7 @@ function qzClaims(n){return qzShuffle(CLAIMS.slice()).slice(0,n).map(function(c)
   var who=c.by&&PBy[c.by]?PBy[c.by].t:(c.byt||"");
   return {k:"Claim or record?",q:c.t,sub:"Claimed by "+who+", "+c.yr+". What does the public record say?",opts:opts.map(function(k){return {v:k,l:CLST[k][0],st:k}}),ans:c.st,
     why:"<b>"+esc(CLST[c.st][0])+"</b> \u2014 "+esc(CLST[c.st][1])+"<p>"+esc(qzFirst(c.r))+"</p>",go:["claim",c.id],gol:"Read the full entry"}})}
-function qzWhen(n){var now=new Date().getFullYear(),pool=TL.filter(function(e){return e.type==="ev"&&e.kind!=="book"&&e.kind!=="tech"&&e.yr>=1900&&e.yr<=now&&e.t});
+function qzWhen(n){var now=new Date().getFullYear(),pool=TL.filter(function(e){return e.type==="ev"&&e.kind!=="book"&&e.kind!=="tech"&&e.kind!=="film"&&e.yr>=1900&&e.yr<=now&&e.t});
   return qzShuffle(pool).slice(0,n).map(function(e){var d=Math.floor(e.yr/10)*10,cands=[];for(var x=d-30;x<=d+30;x+=10)if(x!==d&&x>=1900&&x<=Math.floor(now/10)*10)cands.push(x);
     var opts=qzShuffle([d].concat(qzShuffle(cands).slice(0,3))).sort(function(a,b){return a-b});
     var desc=e.d?e.d[0]:(e.pid&&MAP.pins.find(function(p){return p.id===e.pid})||{}).d;
@@ -6189,7 +6195,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     timeline:'<svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 22h28"/><circle cx="8" cy="22" r="2.6" fill="currentColor"/><circle cx="18" cy="22" r="2.6" fill="currentColor"/><circle cx="27" cy="22" r="2.6" fill="currentColor"/><path d="M8 19V9h9M18 19v-6h8"/></svg>'},
   doors=[["tree","Org chart","Who runs UAP work: the offices, programs, and secret projects, and how they connect.",nTree+" offices and programs"],
     ["map","Map","Where it happened: bases, sightings, crash sites, and ancient places around the world.",nPins+" places"],
-    ["timeline","Timeline","When it happened: programs, hearings, books, and events from the 1890s to today.",nTL+" events and books"]],
+    ["timeline","Timeline","When it happened: programs, hearings, books, films, and events from the 1890s to today.",nTL+" events and books"]],
   feat=[["tree","aaro","Org chart","From Blue Book to AARO","Seventy years of official UAP offices, and how each one led to the next."],
     ["map","m-tictac","Map","The Nimitz Tic Tac","In 2004 Navy pilots chased a white, wingless object off San Diego."],
     ["timeline","tl-moore89","Timeline","The Aviary","How Air Force agents fed false UFO stories to researchers in the 1980s."],
