@@ -573,8 +573,10 @@ h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-
 .std{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sc)}
 .cl{border:1px solid var(--hair);border-left:5px solid var(--sc);border-radius:10px;background:var(--card);padding:16px 18px 12px;margin:0 0 14px;scroll-margin-top:16px}
 .cl.flash{box-shadow:0 0 0 3px var(--focus)}
-#ledger .cl.rv{opacity:0;transform:translateY(22px) scale(.985)}
-#ledger .cl.rv.in{opacity:1;transform:none;transition:opacity .38s ease-out,transform .6s cubic-bezier(.2,1.25,.35,1)}
+#ledger.snap{scroll-snap-type:y proximity}
+#ledger.snap .cl{scroll-snap-align:center;transform:scale(.94);opacity:.42;transition:transform .55s cubic-bezier(.2,1.35,.35,1),opacity .35s ease,box-shadow .35s ease}
+#ledger.snap .cl.tall{scroll-snap-align:none}
+#ledger.snap .cl.cur{transform:none;opacity:1;box-shadow:0 16px 44px rgba(0,0,0,.2)}
 .clt{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
 .clk{margin-left:auto;font:inherit;font-size:12.5px;color:var(--ink2);background:none;border:1px solid var(--line);border-radius:14px;padding:1px 10px;cursor:pointer}
 .clk:hover{color:var(--ink);border-color:var(--ink2)}
@@ -6030,21 +6032,25 @@ function openLedger(focus){var L=document.getElementById("ledger");
   var fc=focus&&CLAIMS.find(function(c){return c.id===focus});setHash(fc?"#/claim/"+fc.id:"#/claims",fc?fc.t:"Claims ledger");
   L.querySelectorAll("sup.cn a").forEach(function(a){a.onclick=function(e){e.preventDefault();var li=document.getElementById(a.dataset.ref);if(!li)return;var d=li.closest("details");if(d)d.open=true;
     li.scrollIntoView({block:"center",behavior:RM?"auto":"smooth"});li.classList.add("flash");setTimeout(function(){li.classList.remove("flash")},900);}});
-  if(focus){var el=document.getElementById(focus);if(el){el.scrollIntoView({block:"start"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1400);el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}}
+  if(focus){var el=document.getElementById(focus);if(el){el.scrollIntoView({block:RM?"start":"center"});el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1400);el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}}
   else{L.scrollTop=0;document.getElementById("lgx").focus();}
-  lgReveal(L,focus);}
-/* Spring-in on scroll: each claim card rises and fades in, with a slight overshoot, the first time it scrolls into
-   view. Cards already on screen cascade in. Only added when the browser can watch scrolling and the reader hasn't asked
-   for reduced motion, and only by script, so without it every card is simply visible. The card being linked to is
-   never hidden. */
-var LGIO=null;
-function lgReveal(L,focus){if(LGIO){LGIO.disconnect();LGIO=null;}if(RM||!window.IntersectionObserver)return;
-  var batch=0,bt=0;
-  LGIO=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var c=e.target;LGIO.unobserve(c);
-      var now=performance.now();if(now-bt>120){batch=0;bt=now;}c.style.transitionDelay=Math.min(batch++,6)*55+"ms";c.classList.add("in");
-      c.addEventListener("transitionend",function done(ev){if(ev.propertyName!=="transform")return;c.removeEventListener("transitionend",done);c.classList.remove("rv","in");c.style.transitionDelay="";});});},
-    {root:L,rootMargin:"0px 0px -4% 0px",threshold:0});
-  L.querySelectorAll("article.cl").forEach(function(c){if(c.id===focus)return;c.classList.add("rv");LGIO.observe(c);});}
+  lgFocus(L);}
+/* Spotlight scrolling: as you scroll the ledger, each claim card snaps to the middle of the screen, and the card in the
+   middle springs up to full size while the ones above and below shrink back and dim. The browser does the snapping
+   (CSS scroll snap, "proximity", so it only settles when you stop near a card); a card taller than the screen is left
+   free so its whole text can be read. Off for readers who ask for reduced motion, and only switched on by script. */
+var LGRAF=0;
+function lgFocus(L){L.classList.remove("snap");if(RM)return;L.classList.add("snap");
+  var cs=[].slice.call(L.querySelectorAll("article.cl")),cur=null;
+  cs.forEach(function(c){c.classList.toggle("tall",c.offsetHeight>L.clientHeight*.86)});
+  function upd(){LGRAF=0;var r=L.getBoundingClientRect(),mid=r.top+L.clientHeight/2,best=null,bd=1e9;
+    for(var k=0;k<cs.length;k++){var b=cs[k].getBoundingClientRect();if(b.bottom<r.top-400)continue;if(b.top>r.bottom+400)break;
+      var d=Math.abs((b.top+b.bottom)/2-mid);if(d<bd){bd=d;best=cs[k];}}
+    if(best!==cur){if(cur)cur.classList.remove("cur");cur=best;if(cur)cur.classList.add("cur");}}
+  L.lgUpd=function(){if(!LGRAF)LGRAF=requestAnimationFrame(upd)};
+  if(!L.lgWired){L.lgWired=1;L.addEventListener("scroll",function(){if(L.lgUpd)L.lgUpd()},{passive:true});
+    window.addEventListener("resize",function(){if(!L.hidden&&L.classList.contains("snap"))lgFocus(L)});}
+  upd();}
 /* once the ledger's own header has scrolled away, a floating Top and Close pair appears in the corner */
 function lgFab(){var L=document.getElementById("ledger"),f=document.getElementById("lgfab");if(L&&f)f.classList.toggle("on",L.scrollTop>320)}
 function closeLedger(){var L=document.getElementById("ledger");if(L){L.hidden=true;document.body.style.overflow="";document.body.classList.remove("lgopen");}if(panel.classList.contains("open")&&pcur)setHash(entryHash(pcur),pcur.t);else setHash("");var b=document.getElementById("ledgerBtn");if(b)b.focus();}
