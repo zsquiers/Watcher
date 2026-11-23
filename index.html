@@ -593,7 +593,7 @@ h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-
 .clg p{margin:0;font-size:15px;line-height:1.55}
 .cll{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
 .cll button{font-size:12.5px;min-height:28px;padding:2px 9px}
-.cll .cgl{border-style:dashed}.cll .cgl .cv{color:var(--sec)}
+.cll .cgl{border:1.5px solid var(--sec);background:color-mix(in srgb,var(--sec) 12%,var(--card));color:var(--ink);font-weight:600;display:inline-flex;align-items:center;gap:6px}.cll .cgl:hover{background:color-mix(in srgb,var(--sec) 22%,var(--card))}.cll .cgl svg{width:15px;height:15px;color:var(--sec);flex:none}
 .cll button .cv{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin-right:5px}
 .cl details{margin-top:6px}.cl summary{cursor:pointer;font-size:13px;color:var(--ink2)}.cl .prep{margin:10px 0 0;font-size:12.5px}
 .cl .srcs{margin-top:6px}
@@ -6058,7 +6058,7 @@ function openLedger(focus){var L=document.getElementById("ledger");
       return '<article class="cl" id="'+c.id+'" style="--sc:var(--st-'+c.st+')"><div class="clt"><h3>'+clIcon(c.id)+esc(c.t)+'</h3><span class="stb" title="'+esc(CLST[c.st][1])+'"><span class="std"></span>'+CLST[c.st][0]+'</span><button class="clk" data-clink="'+c.id+'" aria-label="Copy a link to this claim" title="Copy link">Link</button></div>'+
         '<p class="clm">Claimed by '+who+' \u00b7 '+c.yr+' \u00b7 '+esc(c.venue)+(c.ev!=null&&c.ev!==c.yr?' \u00b7 <span class="clev">About events of '+evLabel(c)+'</span>':'')+'</p>'+
         '<div class="clg"><div><h4>The claim</h4>'+cb.paras[0]+'</div><div><h4>The official record</h4>'+cb.paras[1]+'</div></div>'+
-        (c.x?'<p class="clxl"><a href="'+c.x[1]+'" target="_blank" rel="noopener">'+esc(c.x[0])+' \u2197</a></p>':'')+(links||cgHas(c.id)?'<div class="cll">'+links+(cgHas(c.id)?'<button class="cgl" data-cgopen="'+c.id+'" title="See everything this claim links to in the Connections view"><span class="cv">Connections</span>How it links</button>':'')+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+reportLine(c.t,"#/claim/"+c.id)+'</article>'}).join("")+'</div>'+
+        (c.x?'<p class="clxl"><a href="'+c.x[1]+'" target="_blank" rel="noopener">'+esc(c.x[0])+' \u2197</a></p>':'')+(links||cgHas(c.id)?'<div class="cll">'+links+(cgHas(c.id)?'<button class="cgl" data-cgopen="'+c.id+'" title="See everything this claim links to in the Connections view"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="3.5" cy="8" r="2"/><circle cx="12.5" cy="3.5" r="2"/><circle cx="12.5" cy="12.5" r="2"/><path d="M5.3 7.1 10.7 4.4M5.3 8.9l5.4 2.7"/></svg>See its connections</button>':'')+'</div>':'')+(cb.n?'<details><summary>'+cb.n+(cb.n===1?' source':' sources')+'</summary>'+cb.src.replace('<h3>Sources</h3>','')+'</details>':'')+reportLine(c.t,"#/claim/"+c.id)+'</article>'}).join("")+'</div>'+
     '<div class="lgfab" id="lgfab"><button id="lgtop" aria-label="Back to the top of the claims ledger">&uarr; Top</button><button id="lgx2" aria-label="Close claims ledger">Close &times;</button></div>';
   L.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("lgopen");lgFab();
   document.getElementById("lgx").onclick=closeLedger;document.getElementById("lgab").onclick=openAbout;document.getElementById("lgx2").onclick=closeLedger;
