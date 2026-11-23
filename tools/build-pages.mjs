@@ -52,6 +52,8 @@ if (!canon) throw new Error('index.html has no <link rel="canonical" href="...">
 const SITE = canon.endsWith("/") ? canon : canon + "/";
 /* the shared 1200x630 preview card, used by pages that have no picture of their own */
 const SOCIAL = "brand/social-card.jpg";
+/* where corrections and feedback go; the interactive site uses the same address (CONTACT in index.html) */
+const CONTACT = "uapwatcher@proton.me";
 
 /* ---- helpers ---- */
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
@@ -223,7 +225,8 @@ ${ld ? `<script type="application/ld+json">${ld}</script>` : ""}${script ? `\n<s
 <main>
 ${body}
 </main>
-<footer><p>Watcher is an interactive, sourced guide to UFO and UAP history. Text is shared under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; image credits are listed on each page and in the site's credits.</p></footer>
+<footer><p>Watcher is an interactive, sourced guide to UFO and UAP history. Text is shared under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; image credits are listed on each page and in the site's credits.</p>
+<p>Spot a mistake or a missing source? Email <a href="mailto:${CONTACT}?subject=${encodeURIComponent("Correction: " + title.replace(/ · UAP Watcher$/, ""))}&amp;body=${encodeURIComponent("Page: " + url + "\n\nWhat is wrong or missing:\n\n\nA source that shows it:\n")}">${CONTACT}</a>. Feedback is welcome too.</p></footer>
 </body>
 </html>
 `;

@@ -595,6 +595,7 @@ h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-
 .clx .stb{font-size:11px;padding:0 7px}
 svg.cli{width:1.5em;height:1.5em;vertical-align:-.35em;margin-right:.4em;color:var(--sec)}
 .clxl{margin:8px 0 0;font-size:14px}
+.cpy{font:inherit;font-size:12px;min-height:0;padding:1px 8px;margin-left:4px;border-radius:6px;vertical-align:1px}
 .swg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 6px}
 .swg button{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 10px 10px 12px;min-height:0;background:var(--card);border:1px solid var(--hair);border-radius:10px;color:var(--ink);cursor:pointer;text-align:left}
 .swg button:hover{border-color:var(--focus)}
@@ -5097,16 +5098,19 @@ function copyLink(h){var u=location.href.split("#")[0]+h,ok=function(){toast("Li
    With no such header the browser reports the current time instead, so anything within a minute of now is treated as unknown. */
 function siteUpdated(){try{var d=new Date(document.lastModified);if(isNaN(d)||Math.abs(Date.now()-d)<60000)return "";
   return d.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});}catch(e){return ""}}
-/* "Report a mistake": opens a pre-filled correction on GitHub naming the entry and its link. To take reports by email
-   instead, point REPORT_TO at a mailto: address; reportHref builds either kind. */
-var REPORT_TO="https://github.com/zsquiers/Watcher/issues/new";
+/* "Report a mistake": opens a pre-filled email to Watcher naming the entry and its link. Point REPORT_TO at a GitHub
+   "issues/new" address instead to take reports there; reportHref builds either kind. */
+var CONTACT="uapwatcher@proton.me",REPORT_TO="mailto:"+CONTACT;
+function feedbackHref(){return "mailto:"+CONTACT+"?subject="+encodeURIComponent("Watcher feedback")}
+/* the address as a link plus a copy button, for people with no email app set up */
+function contactLine(){return '<a href="'+feedbackHref()+'">'+CONTACT+'</a> <button class="cpy" data-copy="'+CONTACT+'" aria-label="Copy the email address">Copy</button>'}
 function reportHref(title,h){var u="https://uapwatcher.net/"+(h||location.hash||""),sub="Correction: "+title,
     body="Entry: "+title+"\nLink: "+u+"\n\nWhat is wrong or missing:\n\n\nA source that shows it (link, book and page, or document):\n";
   if(/^mailto:/.test(REPORT_TO))return REPORT_TO+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
   return REPORT_TO+"?title="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);}
-function reportLine(title,h){return '<p class="prep">Spot a mistake or a missing source? <a href="#" data-report="'+esc(title)+'"'+(h?' data-report-h="'+h+'"':'')+'>Report it</a>. Corrections are checked against the sources.</p>'}
-document.addEventListener("click",function(e){var m=e.target.closest&&e.target.closest("[data-mine]");if(m){e.preventDefault();openMine();return;}var a=e.target.closest&&e.target.closest("[data-report]");if(!a)return;e.preventDefault();
-  window.open(reportHref(a.getAttribute("data-report"),a.getAttribute("data-report-h")),"_blank","noopener");});
+function reportLine(title,h){return '<p class="prep">Spot a mistake or a missing source? <a href="#" data-report="'+esc(title)+'"'+(h?' data-report-h="'+h+'"':'')+'>Report it</a> (opens an email to '+CONTACT+'). Corrections are checked against the sources.</p>'}
+document.addEventListener("click",function(e){var cp=e.target.closest&&e.target.closest("[data-copy]");if(cp){e.preventDefault();var t=cp.getAttribute("data-copy"),ok=function(){toast("Address copied")};try{navigator.clipboard.writeText(t).then(ok,function(){window.prompt("Copy this address:",t)})}catch(x){window.prompt("Copy this address:",t)}return;}var m=e.target.closest&&e.target.closest("[data-mine]");if(m){e.preventDefault();openMine();return;}var a=e.target.closest&&e.target.closest("[data-report]");if(!a)return;e.preventDefault();
+  var u=reportHref(a.getAttribute("data-report"),a.getAttribute("data-report-h"));if(/^mailto:/.test(u))location.href=u;else window.open(u,"_blank","noopener");});
 function linkBtn(){return '<button class="sq plink" id="plink" aria-label="Copy a link to this entry" title="Copy link"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.5 4.5l1-1a2.5 2.5 0 0 1 3.5 3.5l-1 1"/><path d="M8.5 11.5l-1 1a2.5 2.5 0 0 1-3.5-3.5l1-1"/></svg></button>'}
 /* tapping a photo in the panel shows it large; tapping anywhere (or Escape) puts it back */
 var lbLast=null;
@@ -5761,13 +5765,14 @@ function openAbout(){var A=document.getElementById("about");
     '<h3>What we leave out</h3><p>Private individuals aren’t made the subjects of conspiracy theories, and deaths aren’t tied to theories that no evidence supports. Living people’s claims are reported as their claims, alongside the strongest response to them.</p>'+
     '<h3>Images and credits</h3><p>Photos of people and places come from Wikimedia Commons and are public domain or under free licenses; each is credited where it appears, and all are listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>. Book covers are shown only when they are in the public domain. Agency seals and program emblems on the org chart are used only to identify each organization and do not imply endorsement by any government agency; the icons for programs such as MKUltra, Mogul, Stargate, AATIP and the UAP Task Force are simple illustrations, not official insignia. Satellite imagery and place labels © Esri, Maxar, Earthstar Geographics and the GIS User Community. Street map © OpenFreeMap, OpenMapTiles and OpenStreetMap contributors. Terrain: Mapzen / AWS Terrain Tiles. Clouds and night lights: NASA GIBS.</p>'+
     '<h3>License</h3><p>Watcher\'s own text and research are shared under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>: you may reuse and adapt them, even commercially, if you credit Watcher and link to the license. The site\'s code is under the <a href="https://github.com/zsquiers/Watcher/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>. Quotations, images and map data keep their own licenses, listed in <a href="https://github.com/zsquiers/Watcher/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md</a>.</p>'+
-    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking cookies. Notes and pins you add, your quiz scores, the last entry you read, and settings such as the map style are saved only in your own browser (its local storage) and are never sent anywhere; clearing your browser’s site data removes them. <a href="#/mine" data-mine>See, export or clear what\u2019s saved</a>. The tip link opens Venmo, whose own privacy policy applies there.</p>'+
+    '<h3>Privacy</h3><p>Watcher has no accounts, ads, analytics or tracking cookies. Notes and pins you add, your quiz scores, the last entry you read, and settings such as the map style are saved only in your own browser (its local storage) and are never sent anywhere; clearing your browser’s site data removes them. <a href="#/mine" data-mine>See, export or clear what\u2019s saved</a>. The tip link opens Venmo, whose own privacy policy applies there. If you email Watcher, your message and address are held by Proton Mail, which hosts the inbox, and are used only to reply and to make corrections.</p>'+
     '<p>Like any website, Watcher is fetched from outside services, and each one receives your IP address and basic browser details when it is used:</p><ul>'+
     '<li>GitHub Pages, which hosts the site (<a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>)</li>'+
     '<li>Google Fonts, for the typefaces, on every visit (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google privacy policy</a>)</li>'+
     '<li>Only when you open the map: OpenFreeMap for street maps (<a href="https://openfreemap.org/privacy/" target="_blank" rel="noopener">OpenFreeMap privacy</a>), Esri for satellite imagery (<a href="https://www.esri.com/en-us/privacy/overview" target="_blank" rel="noopener">Esri privacy</a>), Amazon Web Services for terrain (<a href="https://aws.amazon.com/privacy/" target="_blank" rel="noopener">AWS privacy</a>) and NASA for clouds and night lights (<a href="https://www.nasa.gov/privacy/" target="_blank" rel="noopener">NASA privacy</a>)</li></ul>'+
     '<p>Links to sources open the source’s own site, which has its own privacy terms.</p>'+
-    '<h3>Corrections</h3><p>If something is wrong, out of date or missing a source, use the <b>Report it</b> link at the foot of any entry or claim. It opens a correction already filled in with the entry\u2019s name and link; add what\u2019s wrong and, ideally, a source. You can also <a href="https://github.com/zsquiers/Watcher/issues" target="_blank" rel="noopener">report it on GitHub</a> directly. Corrections are checked against the sources before they’re made.</p>'+
+    '<h3>Corrections</h3><p>If something is wrong, out of date or missing a source, use the <b>Report it</b> link at the foot of any entry or claim. It opens an email already filled in with the entry\u2019s name and link; add what\u2019s wrong and, ideally, a source. You can also write to '+contactLine()+', or <a href="https://github.com/zsquiers/Watcher/issues" target="_blank" rel="noopener">report it on GitHub</a>. Corrections are checked against the sources before they’re made.</p>'+
+    '<h3>Contact and feedback</h3><p>Ideas, cases we\u2019ve missed, sources, or anything else: '+contactLine()+'. Watcher is run by one person, so replies can take a few days.</p>'+
     '<h3>Support Watcher</h3><p>Watcher is free to use, with no ads or paywall. If you find it useful, you can leave a tip to help cover running costs such as the domain and map services.</p><p><a class="tipbtn" href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Tip with Venmo <span>@uapwatcher</span></a></p>'+
     '<h3>Disclaimer</h3><p>This site is for information and research. It may contain errors and is not a substitute for the sources it cites; check them before relying on anything here.</p></div>';
   A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;
@@ -6128,6 +6133,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     '<h3 class="wh">Featured investigations</h3><ul class="wfeat">'+feat.map(function(f,i){return '<li><button data-feat="'+i+'"><small>'+f[2]+'</small><b>'+f[3]+'</b><span>'+f[4]+'</span></button></li>'}).join("")+'</ul>'+
     '<p class="wabout"><button id="wabout">About Watcher: how it\u2019s sourced, claim statuses, credits and privacy</button></p>'+
     '<p class="wabout"><button id="wmine">Your notes and quiz scores</button></p>'+
+    '<p class="wtip">Feedback or a case we\u2019ve missed? <a href="'+feedbackHref()+'">'+CONTACT+'</a></p>'+
     (siteUpdated()?'<p class="wupd">Last updated '+siteUpdated()+'</p>':'')+
     '<p class="wtip">Find Watcher useful? <a href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Leave a tip on Venmo</a></p>'+
     '</div></div>');
