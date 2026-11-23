@@ -166,7 +166,7 @@ function metaLine(e) {
     const root = n && n.cn ? n.cn : "";
     return [root, r.s, r.st].filter(Boolean).join(" · ");
   }
-  if (e.sec === "claims") { const who = r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt; return `Claimed by ${who} · ${r.yr} · ${r.venue}`; }
+  if (e.sec === "claims") { const who = r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt; return `Claimed by ${who} · ${r.ya || r.yr} · ${r.venue}`; }
   if (e.sec === "timeline") return `${r[1]}`;
   if (e.sec === "books") return String(r[1]);
   if (e.sec === "authors") return `${r.books.length} book${r.books.length > 1 ? "s" : ""} in Watcher`;
@@ -182,7 +182,7 @@ function jsonld(e, url, img) {
     containedInPlace: r.body === "moon" ? {"@type": "Place", name: "Moon"} : r.body === "mars" ? {"@type": "Place", name: "Mars"} : undefined};
   else if (e.sec === "programs") o = {"@type": r.p ? "GovernmentOrganization" : "GovernmentOrganization", name: r.t, alternateName: r.s || undefined, description: d};
   else if (e.sec === "claims") o = {"@type": "ClaimReview", claimReviewed: r.t, url,
-    itemReviewed: {"@type": "Claim", author: {"@type": r.by ? "Person" : "Organization", name: r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt}, datePublished: String(r.yr)},
+    itemReviewed: {"@type": "Claim", author: {"@type": r.by ? "Person" : "Organization", name: r.by && byId.get(r.by) ? byId.get(r.by).title : r.byt}, ...(r.ya ? {} : {datePublished: String(r.yr)})},
     reviewRating: {"@type": "Rating", alternateName: (CLST[r.st] || [r.st])[0]}, author: {"@type": "Organization", name: "UAP Watcher", url: SITE}};
   else if (e.sec === "books") o = {"@type": "Book", name: r[2], datePublished: String(r[1]), description: d, image,
     author: (r[3] || []).map(a => { const t = authorPage(a); return {"@type": "Person", name: t ? t.title : a, url: t ? SITE + t.path : undefined}; }).filter(a => a.name)};
