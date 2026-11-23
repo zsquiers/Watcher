@@ -3938,33 +3938,64 @@ function cloudFeather(d,W,H,src,z){var R=Math.max(8,Math.min(64,4.3*Math.pow(2,z
 var cloudSrcs=[];
 function cloudFetch(u,abort){return fetch(u,{signal:abort&&abort.signal}).then(function(r){if(!r.ok)throw new Error("tile "+r.status);return r.blob()})
   .then(function(b){return createImageBitmap(b)})}
-function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)\/(\d+)/),path=m[1]+"/"+m[2]+"/"+m[3]+".jpg",cv=document.createElement("canvas"),cx,img,i=0;
+/* finished cloud tiles are kept in the browser's cache for a few hours, so a return visit draws the clouds at once
+   instead of rebuilding every tile from NASA; the cache bucket changes every 6 hours and when NASA posts a new day */
+var CLOUDKEY="";
+function cloudCacheKey(path){return "https://uapwatcher.net/__clouds/"+CLOUDKEY+"/"+path.replace(/\.jpg$/,".png")}
+function cloudTile(params,abort){var m=params.url.match(/clouds:\/\/(\d+)\/(\d+)\/(\d+)/),path=m[1]+"/"+m[2]+"/"+m[3]+".jpg",cv=document.createElement("canvas"),cx,img,i=0,cache=null;
   function gaps(d){var n=0;for(var k=0;k<d.length;k+=4)if(d[k]+d[k+1]+d[k+2]<=12)n++;return n/(d.length/4)}
-  function next(){if(i>=cloudSrcs.length)return Promise.resolve();
-    return cloudFetch(cloudSrcs[i++]+path,abort).then(function(im){
-      if(!cx){cv.width=im.width;cv.height=im.height;cx=cv.getContext("2d",{willReadFrequently:true});cx.drawImage(im,0,0);img=cx.getImageData(0,0,cv.width,cv.height);}
-      else{var t=document.createElement("canvas");t.width=cv.width;t.height=cv.height;var tc=t.getContext("2d");tc.drawImage(im,0,0,t.width,t.height);
-        /* the gap mask is widened by 2px so the blurry edge of a satellite pass doesn't leave a dark seam */
-        var o=tc.getImageData(0,0,t.width,t.height).data,d=img.data,W=cv.width,H=cv.height,g=new Uint8Array(W*H),x,y,dx,dy;
-        for(var k=0;k<W*H;k++)if(d[k*4]+d[k*4+1]+d[k*4+2]<=12)g[k]=1;
-        for(y=0;y<H;y++)for(x=0;x<W;x++){var hit=g[y*W+x];for(dy=-2;dy<=2&&!hit;dy++)for(dx=-2;dx<=2&&!hit;dx++){var yy=y+dy,xx=x+dx;if(yy>=0&&yy<H&&xx>=0&&xx<W&&g[yy*W+xx])hit=1;}
-          var q=(y*W+x)*4;if(hit&&o[q]+o[q+1]+o[q+2]>12){d[q]=o[q];d[q+1]=o[q+1];d[q+2]=o[q+2];}}}
-      if(gaps(img.data)>0.01)return next();},function(e){if(e&&e.name==="AbortError")throw e;return next();});}
-  return next().then(function(){if(!cx)throw new Error("no cloud imagery");var raw=img.data.slice(0);cloudPixels(img.data);cloudFeather(img.data,cv.width,cv.height,raw,+m[1]);cx.putImageData(img,0,0);
-    return new Promise(function(res){cv.toBlob(function(bl){bl.arrayBuffer().then(function(ab){res({data:ab})})},"image/png")})})}
+  /* the first image becomes the tile; later ones only fill its black gaps (the gap mask is widened by 2px so the
+     blurry edge of a satellite pass doesn't leave a dark seam) */
+  function merge(im){
+    if(!cx){cv.width=im.width;cv.height=im.height;cx=cv.getContext("2d",{willReadFrequently:true});cx.drawImage(im,0,0);img=cx.getImageData(0,0,cv.width,cv.height);return;}
+    var t=document.createElement("canvas");t.width=cv.width;t.height=cv.height;var tc=t.getContext("2d");tc.drawImage(im,0,0,t.width,t.height);
+    var o=tc.getImageData(0,0,t.width,t.height).data,d=img.data,W=cv.width,H=cv.height,g=new Uint8Array(W*H),x,y,dx,dy;
+    for(var k=0;k<W*H;k++)if(d[k*4]+d[k*4+1]+d[k*4+2]<=12)g[k]=1;
+    for(y=0;y<H;y++)for(x=0;x<W;x++){var hit=g[y*W+x];for(dy=-2;dy<=2&&!hit;dy++)for(dx=-2;dx<=2&&!hit;dx++){var yy=y+dy,xx=x+dx;if(yy>=0&&yy<H&&xx>=0&&xx<W&&g[yy*W+xx])hit=1;}
+      var q=(y*W+x)*4;if(hit&&o[q]+o[q+1]+o[q+2]>12){d[q]=o[q];d[q+1]=o[q+1];d[q+2]=o[q+2];}}}
+  /* sources are fetched three at a time, all in parallel, and merged newest first; the next three are only asked
+     for if gaps remain. This used to be one source at a time, up to nine round trips per tile */
+  /* stop when the tile is full, or when a whole wave filled almost nothing (polar night has no imagery on any day, so
+     asking older days there only wastes downloads) */
+  var srcs=cloudSrcs.slice(),before=1;
+  function wave(){if(i>=srcs.length)return Promise.resolve();var grp=srcs.slice(i,i+3);i+=3;
+    return Promise.all(grp.map(function(u){return cloudFetch(u+path,abort).catch(function(e){if(e&&e.name==="AbortError")throw e;return null})}))
+      .then(function(ims){ims.forEach(function(im){if(im&&(!cx||gaps(img.data)>0.01))merge(im)});if(!cx)return wave();
+        var g=gaps(img.data),gain=before-g;before=g;if(g>0.01&&gain>0.02)return wave();});}
+  function build(){return wave().then(function(){if(!cx)throw new Error("no cloud imagery");var raw=img.data.slice(0);cloudPixels(img.data);cloudFeather(img.data,cv.width,cv.height,raw,+m[1]);cx.putImageData(img,0,0);
+    return new Promise(function(res){cv.toBlob(function(bl){if(cache&&bl)try{cache.put(cloudCacheKey(path),new Response(bl,{headers:{"Content-Type":"image/png"}})).catch(function(){})}catch(e){}
+      bl.arrayBuffer().then(function(ab){res({data:ab})})},"image/png")})})}
+  if(!window.caches||!CLOUDKEY)return build();
+  return caches.open("watcher-clouds").then(function(c){cache=c;return c.match(cloudCacheKey(path))},function(){return null})
+    .then(function(hit){return hit?hit.arrayBuffer().then(function(ab){return {data:ab}}):build()},function(){return build()});}
+/* which NASA sources exist today: probed once (nine tiny requests in parallel) and remembered for two hours, and
+   started as soon as the satellite map is created rather than after it finishes loading */
+var CLOUDP=null;
+function cloudCands(){var G="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/",dy=function(k){return new Date(Date.now()-k*864e5).toISOString().slice(0,10)},cand=[];
+  /* order matters: tiles are fetched three at a time, so the first three are today's two newest satellites plus
+     yesterday's complete pass, which together fill most tiles in one round; older days only fill what is left */
+  [[0,"VIIRS_NOAA20"],[0,"VIIRS_NOAA21"],[1,"VIIRS_NOAA20"],[0,"VIIRS_SNPP"],[1,"VIIRS_NOAA21"],[1,"VIIRS_SNPP"],[2,"VIIRS_NOAA20"],[2,"VIIRS_NOAA21"],[3,"VIIRS_NOAA20"]]
+    .forEach(function(e){cand.push(G+e[1]+"_CorrectedReflectance_TrueColor/default/"+dy(e[0])+"/GoogleMapsCompatible_Level9/")});return cand}
+/* the remembered list if there is one; otherwise every candidate straight away (a day NASA hasn't posted yet just
+   fails fast), while the probe runs in the background and is remembered for next time */
+function cloudSources(){try{var c=JSON.parse(localStorage.getItem("watcher-cloudsrc")||"null");if(c&&c.s&&c.s.length&&Date.now()-c.t<72e5)return Promise.resolve(c.s);}catch(e){}
+  cloudProbe();return Promise.resolve(cloudCands());}
+function cloudProbe(){if(CLOUDP)return CLOUDP;var cand=cloudCands();
+  return CLOUDP=Promise.all(cand.map(function(u){return fetch(u+"0/0/0.jpg").then(function(r){return r.ok&&/image/.test(r.headers.get("content-type")||"")},function(){return false})}))
+    .then(function(ok){var s=cand.filter(function(u,k){return ok[k]});if(s.length)try{localStorage.setItem("watcher-cloudsrc",JSON.stringify({t:Date.now(),s:s}))}catch(e){}else CLOUDP=null;return s});}
 function cloudsLoad(){if(cloudBusy)return;cloudBusy=true;
-  /* newest first: today's passes once NASA has posted them, then yesterday's, then older days to fill what's left;
-     one test tile per source skips days not published yet. Only the three VIIRS satellites are used: the older MODIS
-     ones post sooner but their sun glare on the ocean shows up as fake gray cloud stripes */
-  var G="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/",dy=function(k){return new Date(Date.now()-k*864e5).toISOString().slice(0,10)},cand=[];
-  [[0,["VIIRS_NOAA20","VIIRS_NOAA21","VIIRS_SNPP"]],[1,["VIIRS_NOAA20","VIIRS_NOAA21","VIIRS_SNPP"]],[2,["VIIRS_NOAA20","VIIRS_NOAA21"]],[3,["VIIRS_NOAA20"]]]
-    .forEach(function(e){e[1].forEach(function(l){cand.push(G+l+"_CorrectedReflectance_TrueColor/default/"+dy(e[0])+"/GoogleMapsCompatible_Level9/")})});
-  Promise.all(cand.map(function(u){return fetch(u+"0/0/0.jpg").then(function(r){return r.ok&&/image/.test(r.headers.get("content-type")||"")},function(){return false})}))
-  .then(function(ok){cloudSrcs=cand.filter(function(u,k){return ok[k]});cloudBusy=false;
+  /* newest first: today's passes once NASA has posted them, then yesterday's, then older days to fill what's left.
+     Only the three VIIRS satellites are used: the older MODIS ones post sooner but their sun glare on the ocean shows
+     up as fake gray cloud stripes */
+  cloudSources().then(function(srcs){cloudSrcs=srcs;cloudBusy=false;
+    if(cloudSrcs.length){var nw=new Date();CLOUDKEY=nw.toISOString().slice(0,10)+"-"+Math.floor(nw.getUTCHours()/6);
+      if(window.caches)caches.open("watcher-clouds").then(function(c){return c.keys().then(function(ks){ks.forEach(function(r){if(r.url.indexOf("/"+CLOUDKEY+"/")<0)c.delete(r)})})}).catch(function(){});}
     if(!cloudSrcs.length){hint.textContent="Couldn't load cloud imagery from NASA right now.";return;}
     if(!satMap)return;
     if(!window.__cloudProto){maplibregl.addProtocol("clouds",cloudTile);window.__cloudProto=true;}
-    if(!satMap.getSource("clouds")){satMap.addSource("clouds",{type:"raster",tiles:["clouds://{z}/{y}/{x}"],tileSize:256,maxzoom:7});
+    if(!satMap.getSource("clouds")){/* tileSize 512: each 256px NASA tile covers twice the width on screen, so a view needs about a quarter as many; the
+         clouds are soft and fade out as you zoom in, so the lower detail does not show */
+      satMap.addSource("clouds",{type:"raster",tiles:["clouds://{z}/{y}/{x}"],tileSize:512,maxzoom:7});
       satMap.addLayer({id:"clouds",type:"raster",source:"clouds",layout:{visibility:CLOUDS?"visible":"none"},
         paint:{"raster-fade-duration":250,"raster-resampling":"linear","raster-opacity":["interpolate",["linear"],["zoom"],4.5,0.85,7.5,0]}},satMap.getLayer("night")?"night":"ref");polarInit();}
     var nd=cloudSrcs[0].match(/\d{4}-\d\d-\d\d/)[0];
@@ -4014,7 +4045,10 @@ function satStyleWith(st){if(LIB){st.glyphs=LIB.glyphs;st.sprite=LIB.sprite;Obje
   st.layers.forEach(function(l){var v=layerVis(l.id);if(v){l.layout=l.layout||{};l.layout.visibility=v;}});return st}
 /* layers added later (clouds, night lights, the polar cap, town lines) follow the current look as they arrive */
 function satWatchLayers(){var add=satMap.addLayer.bind(satMap);satMap.addLayer=function(l,before){var v=layerVis(l.id);if(v){l.layout=l.layout||{};l.layout.visibility=v;}return add(l,before)}}
-function satInit(){
+function satInit(){if(cloudsWanted())cloudSources();
+  /* MapLibre allows 16 image downloads at once by default, and the satellite photos fill that queue before the cloud
+     tiles get a turn. Photos, labels and clouds come from different servers, so more can safely run side by side */
+  try{if(maplibregl.setMaxParallelImageRequests)maplibregl.setMaxParallelImageRequests(36);}catch(e){}
   function esri(path,att){return {type:"raster",tiles:[ESRI+path+"/MapServer/tile/{z}/{y}/{x}"],tileSize:256,maxzoom:19,attribution:att}}
   satMap=new maplibregl.Map({container:"sat",center:[gLon,gLat],zoom:kToZ(k),maxPitch:85,attributionControl:{compact:true},
     style:satStyleWith({version:8,projection:{type:"globe"},
@@ -4024,6 +4058,8 @@ function satInit(){
         ref:esri("Reference/World_Boundaries_and_Places","Places &copy; Esri")},
       layers:[{id:"img",type:"raster",source:"img",paint:{"raster-saturation":["interpolate",["linear"],["zoom"],2,0.3,6,0.12,9,0],"raster-contrast":["interpolate",["linear"],["zoom"],2,0.14,6,0.06,9,0],"raster-brightness-min":["interpolate",["linear"],["zoom"],2,0.03,6,0]}},{id:"ref",type:"raster",source:"ref"}]})});
   satWatchLayers();satMatch();
+  /* clouds go on as soon as the satellite style is ready, without waiting for every map tile to finish */
+  satMap.once("style.load",function(){if(CLOUDS&&!STREET&&!satMap.getLayer("clouds"))cloudsLoad()});
   satMap.on("rotate",compassUpdate);satMap.on("move",gQueue);satMap.on("sourcedata",satAttribCollapse);satMap.on("load",function(){satReady=true;satAttribCollapse();satZones();gQueue();satLines();if(!STREET)nightInit();polarInit();if(TERR)setTerrain(true);if(CLOUDS&&!STREET)setClouds(true);});satMap.on("zoomend",satLines);satMap.on("zoom",satLightSync);
   satMap.on("click",function(e){if(placing)placePin(e.lngLat.lng,e.lngLat.lat);});}
 /* our own town and township lines on top of the photos (Esri's overlay only has state and county borders);
