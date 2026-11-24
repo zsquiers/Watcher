@@ -3775,14 +3775,35 @@ function lnkBuild(){LNK={};var add=function(name,v){name=(name||"").replace(/\s*
   var sn={};PEOPLE.forEach(function(q){if(q.kind)return;var t=q.t.replace(/\s*\([^)]*\)\s*$/,"").replace(/,?\s+Jr\.?$/,"");if(/ and /.test(t))return;
     var w=t.split(" ");if(w.length<2)return;var k=w[w.length-1];if(w.length>2&&/^(von|van|Van|de|De|da|di|du|le|la)$/.test(w[w.length-2]))k=w[w.length-2]+" "+k;
     (sn[k]=sn[k]||[]).push(q.id)});
-  Object.keys(sn).forEach(function(k){if(sn[k].length===1&&k.length>=4&&!SURSKIP[k])add(k,{person:sn[k][0]})});
+  /* every surname links: one person's surname always means them, and an everyday word that is also a surname ("Pope",
+     "Wood") is marked so that "the Pope" or "a wood" stays plain text */
+  Object.keys(sn).forEach(function(k){if(sn[k].length===1&&!LNK[k]&&!LNKSKIP[k])LNK[k]=SURCTX[k]?{amb:1,people:sn[k]}:SURSKIP[k]?{person:sn[k][0],common:1}:{person:sn[k][0]}});
   /* a surname on the skip list still links inside entries connected to that person (their own profile's links, or a
      book they wrote), where it can only mean them: "Fort" in Charles Fort's books, "Colby" in a CIA director's entry */
   PREL={};PEOPLE.forEach(function(q){q.L.forEach(function(l){(PREL[l[1]]=PREL[l[1]]||{})[q.id]=1})});
-  Object.keys(sn).forEach(function(k){if(k.length>=4&&(SURSKIP[k]||sn[k].length>1)&&!LNK[k])LNK[k]={amb:1,people:sn[k]}});
+  Object.keys(sn).forEach(function(k){if(sn[k].length>1&&!LNK[k])LNK[k]={amb:1,people:sn[k]}});
   TL.forEach(function(e){var t=e.t.replace(/\s*\([^)]*\)\s*$/,"");if(e.kind==="book"&&(/\s/.test(t)||t.length>=9))add(t,{go:"timeline",id:e.id});else if(e.kind==="film"&&/\s/.test(t)&&t.length>=10&&!LNK[t])add(t,{go:"timeline",id:e.id})});
   var ks=Object.keys(LNK).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")});
   LNKRE=new RegExp("(^|[^\\w-])("+ks.join("|")+")(?![\\w-])","g");}
+/* whether a bare surname in running text can stand for someone. Not when another capitalized word comes right before it
+   (a different first name, as in "Chris Carter" or "Harrison Schmitt") unless that word is a title or starts the sentence,
+   and not when one comes right after it ("Fort Meade", "Hynek Center") */
+/* surnames that more often name a company or network on this site ("Fox broadcast it"): these link only where the entry
+   otherwise points to the person */
+var SURCTX={Fox:1};
+var SURTITLE=/(^|\s)(President|Presidents|General|Gen\.|Admiral|Adm\.|Dr\.|Mr\.|Mrs\.|Ms\.|Senator|Sen\.|Rep\.|Representative|Colonel|Col\.|Lt\.|Lieutenant|Maj\.|Major|Captain|Capt\.|Professor|Prof\.|Governor|Gov\.|Sgt\.|Sergeant|Agent|Director|Secretary|Commander|Cmdr\.|Chairman|Judge|Sir|Lord|Astronaut|Physicist|Senators|Representatives)\s$/;
+function surOK(pre,post,common){if(/^\s[A-Z]/.test(post))return false;if(/(^|\s)(the|a|an|The|A|An)\s$/.test(pre))return false;
+  if(/[A-Z][\w.'’-]*\s$/.test(pre)&&!SURTITLE.test(pre)&&!SUROPEN.test(pre))return false;return true}
+/* ordinary words that can start a sentence just before a surname ("Later Hynek said"); a first name there ("Chris Carter")
+   still blocks it */
+var SUROPEN=/(^|[.!?:;"“(]\s*)(The|A|An|In|On|At|By|For|From|When|While|After|Before|Later|Then|But|And|Both|Only|Even|Like|As|Since|Under|With|To|Of|Unlike|If|So|Yet|Although|Though|Because|Here|There|Today|Now|Instead|Meanwhile|Afterward|Afterwards|Earlier|Also|Still|Once|Neither|Each)\s$/;
+/* surnames that, in this text, belong to someone else: "John Ford" in a claim means a lone "Ford" there is him, not the
+   president. Found as a capitalized word right before the surname that is not a title, not a sentence opener and not
+   part of the site person's own name */
+function surOthers(txt){var o={};if(!txt)return o;LNKRE.lastIndex=0;var m;while((m=LNKRE.exec(txt))){var nm=m[2],v=LNK[nm];if(/\s/.test(nm)||!(v.amb||v.person))continue;
+    var pre=txt.slice(0,m.index+m[1].length),w=pre.match(/([A-Z][\w.'’-]*)\s$/);if(!w||SURTITLE.test(pre)||SUROPEN.test(pre))continue;
+    var own=(v.amb?v.people:[v.person]).some(function(id){var q=PEOPLE.find(function(x){return x.id===id});return q&&(q.t+","+(q.a||"")).split(/[\s,]+/).indexOf(w[1])>=0});
+    if(!own)o[nm]=1;}return o}
 var LNKGEN={"Air Force":1,"Navy":1,"Army":1};
 function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={},near={};
   /* people named in full in a piece of text (the entry itself, or a claim's byline) give a bare surname its context */
@@ -3790,14 +3811,13 @@ function linkNames(root,self){if(!root)return;if(!LNK)lnkBuild();var done={},nea
   (self||[]).forEach(function(x){if(!x)return;done[x]=1;
     var r=PREL[x];if(r)for(var q in r)near[q]=1;var e=TLById[x];if(e&&e.au)e.au.forEach(function(a){near[a]=1});
     var c=CLAIMS.find(function(y){return y.id===x});if(c){if(c.by)near[c.by]=1;scan(c.byt);scan(c.venue)}});
-  scan(root.textContent);
+  scan(root.textContent);var others=surOthers(root.textContent);(self||[]).forEach(function(x){var c=x&&CLAIMS.find(function(y){return y.id===x});if(c){var o=surOthers(c.byt);for(var k in o)others[k]=1}});
   root.querySelectorAll("p").forEach(function(pe){var w=document.createTreeWalker(pe,NodeFilter.SHOW_TEXT,null),nodes=[],t;while((t=w.nextNode()))if(!t.parentNode.closest("a,button,sup"))nodes.push(t);
     nodes.forEach(function(tn){var s=tn.nodeValue,m,last=0,frag=null;LNKRE.lastIndex=0;
       while((m=LNKRE.exec(s))){var name=m[2],v=LNK[name],key=v.person||v.id,st=m.index+m[1].length;
+        /* a lone surname, not part of another name or place: "Timothy Cooper", "Caxton Hall", "Fort Meade" */
+        if((v.amb||v.person&&!/\s/.test(name))&&(others[name]||!surOK(s.slice(0,st),s.slice(st+name.length),v.common)))continue;
         if(v.amb){var cs=v.people.filter(function(q){return near[q]&&!done[q]});if(cs.length!==1)continue;
-          /* not when it is part of another name or place: "Timothy Cooper", "Caxton Hall", "Fort Meade" */
-          if(/[A-Z][\w.'’-]*\s$/.test(s.slice(0,st))&&!/(^|[.!?:;"“(]\s*)[A-Z][\w'’-]*\s$/.test(s.slice(0,st)))continue;
-          if(/^\s[A-Z]/.test(s.slice(st+name.length)))continue;
           v={person:cs[0]};key=v.person;}
         if(done[key])continue;
         if(LNKGEN[name]){var before=s.slice(0,st);if(/[A-Z][a-z]+\s$/.test(before)&&!/U\.S\.\s$/.test(before))continue;if(name==="Army"&&/^ Air/.test(s.slice(st+name.length)))continue;}
@@ -6106,7 +6126,18 @@ function cgBuild(){var N={},E=[],ek={};
   /* a person named in full (or by a longer alias) anywhere in another entry's text is linked to that entry too */
   var nm={};PEOPLE.forEach(function(q){if(q.kind)return;[q.t].concat((q.a||"").split(",")).forEach(function(a){a=(a||"").replace(/\s*\([^)]*\)\s*$/,"").trim();if(/\s/.test(a)&&a.length>=6&&!nm[a])nm[a]=q.id})});
   var nre=new RegExp("(^|[^\\w-])("+Object.keys(nm).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}).join("|")+")(?![\\w-])","g");
-  var scan=function(id,txt){if(!txt)return;nre.lastIndex=0;var m;while((m=nre.exec(txt)))edge(id,nm[m[2]]);};
+  var scan=function(id,txt){if(!txt)return;nre.lastIndex=0;var m;while((m=nre.exec(txt)))edge(id,nm[m[2]]);
+    /* a surname on its own counts too, by the same rules as the links in the text: a surname only one person has always
+       means them; a shared or common one ("Pope", "Hicks", "Thomas") means whoever the entry otherwise points to, such as
+       someone it names in full or a person whose profile links to it, and nobody if that is unclear */
+    if(!LNK)lnkBuild();var near={},v,c=CLAIMS.find(function(y){return y.id===id}),r=PREL[id],e=TLById[id],q,others=surOthers(txt);
+    LNKRE.lastIndex=0;while((m=LNKRE.exec(txt))){v=LNK[m[2]];if(v.person&&!v.amb)near[v.person]=1}
+    if(r)for(q in r)near[q]=1;if(e&&e.au)e.au.forEach(function(a){near[a]=1});if(c&&c.by)near[c.by]=1;
+    LNKRE.lastIndex=0;while((m=LNKRE.exec(txt))){v=LNK[m[2]];if(!v.person&&!v.amb)continue;var st=m.index+m[1].length;
+      if(/\s/.test(m[2])&&!v.amb){edge(id,v.person);continue}
+      if(others[m[2]]||!surOK(txt.slice(0,st),txt.slice(st+m[2].length),v.common))continue;
+      if(!v.amb){edge(id,v.person);continue}
+      var cs=v.people.filter(function(x){return near[x]&&x!==id});if(cs.length===1)edge(id,cs[0]);}};
   PEOPLE.forEach(function(q){scan(q.id,(q.d||[]).join(" "))});
   CLAIMS.forEach(function(c){scan(c.id,c.c+" "+c.r+" "+(c.byt||""))});
   TLM.forEach(function(r){scan(r[0],r[5])});TLBK.forEach(function(r){scan("tl-b-"+r[0],r[4])});
