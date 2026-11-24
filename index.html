@@ -498,6 +498,7 @@ body.lgopen #panel{position:fixed;z-index:45}
 .cgtl{flex:1 1 220px;min-width:0}.cgtl .eb{margin:0}.cgtl h2{margin:0;font-size:22px}
 .cgsearch{position:relative;flex:1 1 260px;max-width:380px}
 #cgq{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:20px;min-height:36px;padding:4px 14px}
+@media (pointer:coarse){textarea,input,#q,#cgq{font-size:16px}}
 #cgqr{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:3;background:var(--panel);border:1px solid var(--hair);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.28);padding:4px;max-height:60vh;overflow:auto}
 #cgqr button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;padding:7px 8px;border-radius:7px;font:inherit;color:var(--ink);cursor:pointer;min-height:0}
 #cgqr button b{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#cgqr button small{color:var(--ink2);font-size:12px}
@@ -6103,6 +6104,8 @@ function cgSelect(n,center){CGSEL=n;var card=document.getElementById("cgcard");
 function cgChips(){var box=document.getElementById("cgf"),cnt={};CG.nodes.forEach(function(n){cnt[n.type]=(cnt[n.type]||0)+1});
   box.innerHTML=Object.keys(CGT).map(function(t){return '<button data-t="'+t+'" aria-pressed="'+!CGOFF[t]+'"><span class="cgdot" style="background:var('+CGT[t][1]+')"></span>'+CGT[t][0]+' <span class="n">'+(cnt[t]||0)+'</span></button>'}).join("");
   box.querySelectorAll("button").forEach(function(b){b.onclick=function(){var t=b.dataset.t;CGOFF[t]=!CGOFF[t];if(CGSEL&&CGOFF[CGSEL.type])cgSelect(null);cgChips();cgDraw();}});}
+function cgVV(){var O=document.getElementById("conn"),v=window.visualViewport;if(!O||!v)return;if(O.hidden||v.height>=window.innerHeight-1){O.style.top=O.style.height=O.style.bottom="";return;}O.style.top=v.offsetTop+"px";O.style.height=v.height+"px";O.style.bottom="auto";}
+if(window.visualViewport){visualViewport.addEventListener("resize",cgVV);visualViewport.addEventListener("scroll",cgVV);}
 function openConnections(focus){var O=document.getElementById("conn");
   if(!O){document.body.insertAdjacentHTML("beforeend",'<div id="conn" role="dialog" aria-modal="true" aria-labelledby="cgt" hidden>'+
       '<div class="cgbar"><div class="cgtl"><p class="eb">Connections</p><h2 id="cgt">How it all links together</h2></div>'+
