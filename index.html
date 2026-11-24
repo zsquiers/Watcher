@@ -6035,7 +6035,7 @@ function cgBuild(){var N={},E=[],ek={};
   var nodes=Object.keys(N).map(function(k){return N[k]}).filter(function(n){return n.deg>0}),byId={};
   /* a fixed starting spiral, so the layout comes out the same every time */
   nodes.sort(function(a,b){return b.deg-a.deg||(a.id<b.id?-1:1)});
-  nodes.forEach(function(n,i){var a=i*2.39996,r=14*Math.sqrt(i+1);n.x=Math.cos(a)*r;n.y=Math.sin(a)*r;n.vx=0;n.vy=0;n.r=Math.min(15,3.2+Math.sqrt(n.deg)*1.7);byId[n.id]=n;});
+  nodes.forEach(function(n,i){var a=i*2.39996,r=14*Math.sqrt(i+1);n.x=Math.cos(a)*r;n.y=Math.sin(a)*r;n.vx=0;n.vy=0;var sq=Math.sqrt(n.deg);n.r=Math.min(24,3.2+sq*1.7+Math.max(0,sq-3)*1.3);byId[n.id]=n;});
   nodes.slice(0,24).forEach(function(n){n.hub=true});
   CG={nodes:nodes,edges:E.filter(function(e){return byId[e[0].id]&&byId[e[1].id]}),byId:byId,alpha:1};}
 function cgTick(){var ns=CG.nodes,es=CG.edges,a=CG.alpha,C=90,grid={},i,j,n,m,dx,dy,d2,f,key;
@@ -6048,7 +6048,15 @@ function cgTick(){var ns=CG.nodes,es=CG.edges,a=CG.alpha,C=90,grid={},i,j,n,m,dx
   for(i=0;i<es.length;i++){n=es[i][0];m=es[i][1];dx=m.x-n.x;dy=m.y-n.y;var d=Math.sqrt(dx*dx+dy*dy)||0.01,L=18+n.r+m.r;
     f=(d-L)/d*0.09*(0.35+0.65*a)/Math.sqrt(Math.min(n.deg,m.deg));var wn=m.deg/(n.deg+m.deg),wm=1-wn;n.vx+=dx*f*wn;n.vy+=dy*f*wn;m.vx-=dx*f*wm;m.vy-=dy*f*wm;}
   for(i=0;i<ns.length;i++){n=ns[i];if(n===CGDRAGN)continue;n.vx*=0.6;n.vy*=0.6;n.x+=Math.max(-30,Math.min(30,n.vx));n.y+=Math.max(-30,Math.min(30,n.vy));}
+  cgCollide(ns);
   CG.alpha=Math.max(0.02,a*0.992);}
+/* Push apart any two dots closer than their radii plus a small gap. */
+function cgCollide(ns){var C=52,grid={},i,j,n,m,dx,dy,d,o,k;for(i=0;i<ns.length;i++){n=ns[i];k=Math.floor(n.x/C)+","+Math.floor(n.y/C);(grid[k]=grid[k]||[]).push(n);}
+  for(i=0;i<ns.length;i++){n=ns[i];var gx=Math.floor(n.x/C),gy=Math.floor(n.y/C);for(var ox=-1;ox<=1;ox++)for(var oy=-1;oy<=1;oy++){var cell=grid[(gx+ox)+","+(gy+oy)];if(!cell)continue;
+    for(j=0;j<cell.length;j++){m=cell[j];if(m.id<=n.id)continue;dx=m.x-n.x;dy=m.y-n.y;d=Math.sqrt(dx*dx+dy*dy);var rs=n.r+m.r+4;if(d>=rs)continue;
+      if(d<0.01){dx=1;dy=0;d=1;}o=(rs-d)/d;var wn=m===CGDRAGN?1:n===CGDRAGN?0:m.r/(n.r+m.r);n.x-=dx*o*wn;n.y-=dy*o*wn;m.x+=dx*o*(1-wn);m.y+=dy*o*(1-wn);}}}}
+/* On-screen radius: true to scale when zoomed out, so dots never overlap; grows gently when zoomed in. */
+function cgR(n,k){return n.r*(k<1?k:Math.min(1.6,Math.sqrt(k)))}
 var CGDRAGN=null;
 function cgRun(){if(CGRUN)return;var steps=0;(function go(){var per=RM?900:6;for(var s=0;s<per&&CG.alpha>0.03;s++){cgTick();steps++;}
   cgDraw();if(CG.alpha>0.03&&steps<900&&!RM)CGRUN=requestAnimationFrame(go);else{CGRUN=0;if(!CGV.set)cgFit();}})();}
@@ -6071,7 +6079,7 @@ function cgDraw(){var c=document.getElementById("cgc");if(!c||!CG)return;var dpr
   x.lineWidth=1;CG.edges.forEach(function(e){if(CGOFF[e[0].type]||CGOFF[e[1].type])return;var on=foc&&(e[0]===foc||e[1]===foc);
     x.strokeStyle=on?col[foc.type]:ink2;x.globalAlpha=on?0.9*CGFIN:0.16-0.11*CGG;x.lineWidth=on?1.8:1;var a=P(e[0]),b=P(e[1]);x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke();});
   x.globalAlpha=1;var labels=[];
-  cgVis().forEach(function(n){var p=P(n),r=Math.max(2,n.r*Math.min(1.6,Math.sqrt(V.k)));if(p[0]<-30||p[1]<-30||p[0]>w+30||p[1]>h+30)return;
+  cgVis().forEach(function(n){var p=P(n),r=Math.max(1.2,cgR(n,V.k));if(p[0]<-30||p[1]<-30||p[0]>w+30||p[1]>h+30)return;
     x.globalAlpha=0.16+0.84*n.lv;x.fillStyle=col[n.type];x.beginPath();x.arc(p[0],p[1],r,0,6.2832);x.fill();
     if(n===foc){x.lineWidth=3;x.strokeStyle=ink;x.globalAlpha=CGFIN;x.stroke();}
     var show=hi?hi[n.id]&&n.lv>0.3:n.hub||(V.k>1.2&&n.deg>=6)||(V.k>1.9&&n.deg>=3)||V.k>2.8;if(show)labels.push([n,p,r]);});
@@ -6083,7 +6091,7 @@ function cgDraw(){var c=document.getElementById("cgc");if(!c||!CG)return;var dpr
 function cgHover(n){if(n===CGHWANT)return;CGHWANT=n;clearTimeout(CGHT);
   if(n===CGHOV)return;CGHT=setTimeout(function(){CGHOV=CGHWANT;cgQueue()},n?(CGHOV?90:60):260);}
 function cgQueue(){if(CGRAF)return;CGRAF=requestAnimationFrame(function(){CGRAF=0;cgDraw()})}
-function cgHit(px,py){var V=CGV,best=null,bd=1e9;cgVis().forEach(function(n){var dx=V.x+n.x*V.k-px,dy=V.y+n.y*V.k-py,d=dx*dx+dy*dy,r=Math.max(9,n.r*Math.min(1.6,Math.sqrt(V.k))+5);if(d<r*r&&d<bd){bd=d;best=n}});return best}
+function cgHit(px,py){var V=CGV,best=null,bd=1e9;cgVis().forEach(function(n){var dx=V.x+n.x*V.k-px,dy=V.y+n.y*V.k-py,d=dx*dx+dy*dy,r=Math.max(9,cgR(n,V.k)+5);if(d<r*r&&d<bd){bd=d;best=n}});return best}
 function cgCenter(n,zoom){var c=document.getElementById("cgc");if(!c)return;var k=Math.max(CGV.k,zoom||1.4),w=c.clientWidth,h=c.clientHeight,card=document.getElementById("cgcard");
   var cx=w/2-(card&&!card.hidden&&w>760?150:0),cy=h/2-(card&&!card.hidden&&w<=760?90:0),from={k:CGV.k,x:CGV.x,y:CGV.y},to={k:k,x:cx-n.x*k,y:cy-n.y*k};CGV.set=true;
   if(RM){CGV={k:to.k,x:to.x,y:to.y,set:true};cgDraw();return;}tween(500,function(t){var e=t*t*(3-2*t);CGV={k:from.k+(to.k-from.k)*e,x:from.x+(to.x-from.x)*e,y:from.y+(to.y-from.y)*e,set:true};cgDraw();});}
