@@ -494,6 +494,11 @@ body.lgopen #panel{position:fixed;z-index:45}
 #conn.max .cgtl,#conn.max .cgsearch,#conn.max .cgf,#conn.max .cghint{display:none}
 #conn.max .cgbar{position:absolute;z-index:5;top:max(10px,env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));padding:6px;gap:6px;background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--hair);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
 #conn.max .cgwrap{border-top:0}
+#cgkey{display:flex;align-items:center;gap:7px;position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:max(10px,env(safe-area-inset-bottom,0px));z-index:3;min-height:36px;padding:4px 12px;font-size:13.5px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+#cgkey i{display:block;width:14px;height:10px;background:linear-gradient(var(--ink2) 0 2px,transparent 2px 4px,var(--ink2) 4px 6px,transparent 6px 8px,var(--ink2) 8px 10px)}
+#conn.max #cgkey,#conn.nokey .cgf{display:none}
+@media (max-width:760px){#cgcard:not([hidden])~#cgkey{display:none}}
+#conn .cghint{left:calc(max(12px,env(safe-area-inset-left,0px)) + 104px)}
 .cgbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}
 .cgtl{flex:1 1 220px;min-width:0}.cgtl .eb{margin:0}.cgtl h2{margin:0;font-size:22px}
 .cgsearch{position:relative;flex:1 1 260px;max-width:380px}
@@ -6148,8 +6153,9 @@ function openConnections(focus){var O=document.getElementById("conn");
       '<div class="cgf" id="cgf" role="group" aria-label="Show or hide kinds of entry"></div>'+
       '<div class="cgwrap"><canvas id="cgc" role="img" aria-label="Network of Watcher entries; each dot is an entry and each line a link between two entries. Use the search box to find one."></canvas>'+
       '<div id="cgtip" hidden></div><aside id="cgcard" hidden></aside>'+
+      '<button id="cgkey" aria-controls="cgf" aria-expanded="true"><i aria-hidden="true"></i><span>Hide key</span></button>'+
       '<p class="cghint">Drag to move, scroll or pinch to zoom. Tap a dot to see what it links to. Dots grow with the number of links.</p></div></div>');
-    O=document.getElementById("conn");themeSync();O.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();if(!document.getElementById("cgqr").hidden){document.getElementById("cgqr").hidden=true;return;}if(CGSEL)cgSelect(null);else if(O.classList.contains("max"))cgMax(false);else closeConnections();}});
+    O=document.getElementById("conn");themeSync();cgKey(cgKeyPref());document.getElementById("cgkey").onclick=function(){var on=O.classList.contains("nokey");cgKey(on);try{localStorage.setItem("watcher-cgkey",on?"1":"0")}catch(e){}};O.addEventListener("keydown",function(e){if(e.key==="Escape"){e.stopPropagation();if(!document.getElementById("cgqr").hidden){document.getElementById("cgqr").hidden=true;return;}if(CGSEL)cgSelect(null);else if(O.classList.contains("max"))cgMax(false);else closeConnections();}});
     document.getElementById("cgx").onclick=function(){closeConnections()};document.getElementById("cgtheme").onclick=function(){document.getElementById("themeBtn").click();cgDraw();};document.getElementById("cgfit").onclick=function(){CGV.set=false;cgFit()};document.getElementById("cgmax").onclick=function(){cgMax(!O.classList.contains("max"))};document.addEventListener("fullscreenchange",function(){if(!document.fullscreenElement&&O.classList.contains("max")&&CGFS)cgMax(false)});document.addEventListener("webkitfullscreenchange",function(){if(!document.webkitFullscreenElement&&O.classList.contains("max")&&CGFS)cgMax(false)});
     cgWire();}
   if(!CG)cgBuild();cgChips();O.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("cgopen");
@@ -6158,6 +6164,10 @@ function openConnections(focus){var O=document.getElementById("conn");
 var CGFS=false;
 /* Maximize: hide the title, search and filters so the graph fills the window, and go full screen where the browser allows it
    (iPhone Safari does not, so there it is the in-page version only). The view keeps its centre as the canvas changes size. */
+/* the row of category buttons can be tucked away, like the map's key; it starts hidden on phones */
+function cgKeyPref(){try{var v=localStorage.getItem("watcher-cgkey");if(v)return v==="1"}catch(e){}return window.innerWidth>760}
+function cgKey(on){var O=document.getElementById("conn"),b=document.getElementById("cgkey");if(!O||!b)return;O.classList.toggle("nokey",!on);
+  b.setAttribute("aria-expanded",on);b.lastChild.textContent=on?"Hide key":"Key";requestAnimationFrame(function(){if(CG)cgDraw()});}
 function cgMax(on){var O=document.getElementById("conn"),b=document.getElementById("cgmax");if(!O||!b)return;
   if(O.classList.contains("max")===!!on)return;O.classList.toggle("max",!!on);
   b.setAttribute("aria-pressed",on?"true":"false");b.setAttribute("aria-label",on?"Restore the connections view":"Maximize the connections view");b.title=on?"Restore":"Maximize";
