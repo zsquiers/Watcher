@@ -590,7 +590,7 @@ h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-
 #ledger.snap .cl.tall{scroll-snap-align:none}
 #ledger.snap .cl.cur{transform:none;opacity:1;box-shadow:0 16px 44px rgba(0,0,0,.2)}
 /* phones: each claim snaps with its top at the top of the window, long ones included (they can then be read through) */
-@media (max-width:640px){#ledger.snap{scroll-snap-type:y mandatory}#ledger.snap .cl,#ledger.snap .cl.tall{scroll-snap-align:start;scroll-margin-top:10px}}
+@media (max-width:640px){#ledger.snap{scroll-snap-type:none}#ledger.snap .cl,#ledger.snap>.lg{scroll-snap-align:none}}
 .clt{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
 .clk{margin-left:auto;font:inherit;font-size:12.5px;color:var(--ink2);background:none;border:1px solid var(--line);border-radius:14px;padding:1px 10px;cursor:pointer}
 .clk:hover{color:var(--ink);border-color:var(--ink2)}
@@ -6606,6 +6606,10 @@ function springIn(box,sel){if(RM||!window.IntersectionObserver||!box)return;if(b
     es.forEach(function(e){if(!e.isIntersecting)return;var el=e.target;el.style.setProperty("--sd",Math.min(wave++,5)*50+"ms");el.classList.add("in");io.unobserve(el);
       setTimeout(function(){el.classList.remove("spr","in");el.style.removeProperty("--sd")},1300+Math.min(wave,5)*50);});},{root:box,threshold:0.08});
   box.sprIO=io;els.forEach(function(el){el.classList.add("spr");io.observe(el)});}
+function lgSnapSoon(L){clearTimeout(L.lgSnapT);if(RM||window.innerWidth>640||!L.classList.contains("snap")||L.lgSnapping)return;
+  L.lgSnapT=setTimeout(function(){if(L.lgTouch)return;var top=L.getBoundingClientRect().top+10,best=null,bd=1e9,lim=L.clientHeight*0.34;
+    [].slice.call(L.querySelectorAll("article.cl")).forEach(function(c){var d=c.getBoundingClientRect().top-top;if(Math.abs(d)<Math.abs(bd))bd=d,best=c;});
+    if(best&&Math.abs(bd)>2&&Math.abs(bd)<lim){L.lgSnapping=1;L.scrollBy({top:bd,behavior:"smooth"});setTimeout(function(){L.lgSnapping=0},450);}},140);}
 function lgFocus(L){L.classList.remove("snap");if(RM)return;L.classList.add("snap");
   var cs=[].slice.call(L.querySelectorAll("article.cl")),cur=null;
   cs.forEach(function(c){c.classList.toggle("tall",c.offsetHeight>L.clientHeight*.86)});
@@ -6614,7 +6618,12 @@ function lgFocus(L){L.classList.remove("snap");if(RM)return;L.classList.add("sna
       var d=top?(b.top<=mid+90&&b.bottom>mid+90?0:Math.abs(b.top-mid)+1):Math.abs((b.top+b.bottom)/2-mid);if(d<bd){bd=d;best=cs[k];}}
     if(best!==cur){if(cur)cur.classList.remove("cur");cur=best;if(cur)cur.classList.add("cur");}}
   L.lgUpd=function(){if(!LGRAF)LGRAF=requestAnimationFrame(upd)};
-  if(!L.lgWired){L.lgWired=1;L.addEventListener("scroll",function(){if(L.lgUpd)L.lgUpd()},{passive:true});
+  if(!L.lgWired){L.lgWired=1;L.addEventListener("scroll",function(){if(L.lgUpd)L.lgUpd();lgSnapSoon(L)},{passive:true});
+    /* phones: most claims are taller than the screen, which stops the browser's own snapping, so once a scroll comes to
+       rest (and no finger is down) the nearest claim top within a third of the screen glides up to the top. Resting in
+       the middle of a long claim, away from any claim top, stays put so it can be read */
+    L.addEventListener("touchstart",function(){L.lgTouch=1;clearTimeout(L.lgSnapT)},{passive:true});
+    L.addEventListener("touchend",function(){L.lgTouch=0;lgSnapSoon(L)},{passive:true});
     window.addEventListener("resize",function(){if(!L.hidden&&L.classList.contains("snap"))lgFocus(L)});}
   upd();}
 /* once the ledger's own header has scrolled away, a floating Top and Close pair appears in the corner */
