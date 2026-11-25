@@ -674,6 +674,10 @@ svg.cli{width:1.5em;height:1.5em;vertical-align:-.35em;margin-right:.4em;color:v
 body.pdrag,body.pdrag *{cursor:col-resize!important;user-select:none!important}
 body.pdrag #panel{transition:none}
 @media (max-width:640px){.pgrip{display:none}}
+/* in the org chart on wider screens the key also starts folded away behind the Key button, so it doesn't cover boxes */
+@media (min-width:641px){body.mode-tree .keybtn{display:flex;align-items:center;gap:7px;position:absolute;left:12px;bottom:12px;z-index:3;min-height:36px;padding:4px 12px;font-size:13.5px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  body.mode-tree .keybtn i{display:block;width:14px;height:10px;background:linear-gradient(var(--ink2) 0 2px,transparent 2px 4px,var(--ink2) 4px 6px,transparent 6px 8px,var(--ink2) 8px 10px)}
+  body.mode-tree #vp .legend{display:none;bottom:58px}body.mode-tree.keyopen #vp .legend{display:flex}}
 /* phones: compact two-row header, and the key folds away behind a Key button */
 .keybtn{display:none}
 .sgrip{display:none}
@@ -5383,7 +5387,18 @@ function zoomAt(f,cx,cy){if(mode==="map"&&SAT&&satMap){satMap.zoomTo(satMap.getZ
 function center(){var r=vpR();return [r.width/2,r.height/2]}
 /* the org chart opens zoomed in on AARO and its Pentagon branch rather than the whole chart (Fit still shows everything) */
 function homeTree(){var p=pos.aaro,r=vpR();if(!p||!r.width){fit();return;}
-  k=Math.max(treeFitK(),r.width<640?0.75:1);tx=r.width*(r.width<640?0.5:0.36)-(p.x+W/2)*k;ty=r.height*(r.width<640?0.36:0.52)-(p.y+40)*k;apply();}
+  /* fit AARO's chain of command, from the President down to AARO and the box beneath it, and center it, so the first
+     view shows where UAP work sits today and how it connects upward */
+  var all=treeAll(),ids=[],id="aaro",guard=0;while(id&&guard++<20){var nd=all.find(function(x){return x.id===id});if(!nd||!nd.p)break;ids.push(id);id=nd.p;}
+  all.forEach(function(x){if(x.p==="aaro")ids.push(x.id)});
+  var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;ids.forEach(function(i){var q=pos[i];if(!q)return;x0=Math.min(x0,q.x);y0=Math.min(y0,q.y);x1=Math.max(x1,q.x+W);y1=Math.max(y1,q.y+92);});
+  var small=r.width<640,pad=small?14:36,bw=x1-x0+2*pad,bh=y1-y0+2*pad;
+  k=Math.min(small?0.8:1,r.width/bw,r.height/bh);k=Math.max(k,treeFitK(),small?0.5:0.6);
+  /* centered on the chain when it fits; otherwise kept on AARO with the chain running up from it */
+  if(bw*k<=r.width&&bh*k<=r.height){tx=r.width/2-(x0+x1)/2*k;ty=(r.height-(y1-y0)*k)/2-y0*k;}
+  else{/* too wide to show whole (phones): AARO and the office above it, from the left edge, with AARO a little above middle */
+    var up=pos[(all.find(function(x){return x.id==="aaro"})||{}).p]||p;tx=pad-Math.min(p.x,up.x)*k;ty=r.height*0.4-(p.y+46)*k;}
+  apply();}
 /* the timeline opens on the modern era of UAP offices, from AATIP and AAWSAP to AARO, with "Now" near the right edge */
 /* the viewport's real size */
 function vpR(){var b=vp.getBoundingClientRect();return {left:b.left,top:b.top,right:b.left+vp.clientWidth,bottom:b.top+vp.clientHeight,width:vp.clientWidth,height:vp.clientHeight}}
