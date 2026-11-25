@@ -6719,7 +6719,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     if(L)document.getElementById("wcont").onclick=function(){shut(function(){routeTo(parseHash(L.h))})};
     q.textContent=state.quiz.played?" Your best so far: "+state.quiz.best+" / 10.":"";}
   wfresh();
-  function show(){wfresh();last=document.activeElement;W.hidden=false;W.classList.remove("out");springIn(W,".went button,.wled,.wh,.wfeat li");var b=W.querySelector(".went button");if(b)b.focus();}
+  function show(){wfresh();last=document.activeElement;W.hidden=false;W.classList.remove("out");W.scrollTop=0;springIn(W,".went button,.wled,.wh,.wfeat li");var b=W.querySelector(".went button");if(b)b.focus();}
   W.querySelectorAll("[data-door]").forEach(function(b){b.onclick=function(){var m=b.dataset.door;shut(function(){switchTo(m)})}});
   W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
     goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
@@ -6734,6 +6734,11 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
   var seen=null;try{seen=sessionStorage.getItem("watcher-welcomed")||sessionStorage.getItem("uap-mode")}catch(e){}
   if(!seen&&!routeOK(parseHash(location.hash)))show();})();
 if(location.hash&&!routeTo(parseHash(location.hash)))setHash("");
+/* the home page always opens at the top: the browser doesn't put back an old scroll position, including when you return
+   with Back (where the page can come back from the browser's cache) */
+try{history.scrollRestoration="manual"}catch(e){}
+function toTop(){window.scrollTo(0,0);var w=document.getElementById("welcome");if(w)w.scrollTop=0;}
+toTop();window.addEventListener("pageshow",toTop);
 window.addEventListener("resize",function(){gSize();if(mode==="map")apply();else if(!panel.classList.contains("open"))fit();});
 /* the viewport can change size without the window resizing (on phones the header is taller in Map view), so the globe
    canvas is re-measured whenever it does, or it would be stretched into an oval */
