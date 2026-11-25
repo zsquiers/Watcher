@@ -6413,8 +6413,13 @@ var CGDRAGN=null;
 function cgRun(){if(CGRUN)return;var steps=0;(function go(){var per=RM?900:6;for(var s=0;s<per&&CG.alpha>0.03;s++){cgTick();steps++;}
   /* keep the graph centered and in view while it settles (it used to sit around the top-left corner until the end),
      unless the viewer has already moved or zoomed it */
-  if(!CGV.set)cgFit();else cgDraw();if(CG.alpha>0.03&&steps<900&&!RM)CGRUN=requestAnimationFrame(go);else{CGRUN=0;if(!CGV.set)cgFit();}})();}
-function cgFit(){var c=document.getElementById("cgc");if(!c||!CG)return;var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;cgVis().forEach(function(n){x0=Math.min(x0,n.x);y0=Math.min(y0,n.y);x1=Math.max(x1,n.x);y1=Math.max(y1,n.y)});
+  if(!CGV.set)cgFit(true);else cgDraw();if(CG.alpha>0.03&&steps<900&&!RM)CGRUN=requestAnimationFrame(go);else{CGRUN=0;if(!CGV.set)cgFit(true);}})();}
+/* home=true is the opening view: it frames the busy middle of the web (the 35% of dots nearest its center) so the main hubs
+   are readable at once; the Fit button (home=false) shows every dot */
+function cgFit(home){var c=document.getElementById("cgc");if(!c||!CG)return;var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9,vs=cgVis();
+  if(home&&vs.length>40){var mx=0,my=0;vs.forEach(function(n){mx+=n.x;my+=n.y});mx/=vs.length;my/=vs.length;
+    vs=vs.slice().sort(function(a,b){return (a.x-mx)*(a.x-mx)+(a.y-my)*(a.y-my)-((b.x-mx)*(b.x-mx)+(b.y-my)*(b.y-my))}).slice(0,Math.ceil(vs.length*0.35));}
+  vs.forEach(function(n){x0=Math.min(x0,n.x);y0=Math.min(y0,n.y);x1=Math.max(x1,n.x);y1=Math.max(y1,n.y)});
   var w=c.clientWidth,h=c.clientHeight,k=Math.min(w/(x1-x0+80),h/(y1-y0+80),2.2);CGV={k:k,x:w/2-(x0+x1)/2*k,y:h/2-(y0+y1)/2*k,set:CGV.set};cgDraw();}
 function cgVis(){return CG.nodes.filter(function(n){return !CGOFF[n.type]})}
 function cgCol(t){return getComputedStyle(document.documentElement).getPropertyValue(CGT[t][1]).trim()||"#888"}
@@ -6482,7 +6487,7 @@ function openConnections(focus){var O=document.getElementById("conn");
     document.getElementById("cgx").onclick=function(){closeConnections()};document.getElementById("cgtheme").onclick=function(){document.getElementById("themeBtn").click();cgDraw();};document.getElementById("cgfit").onclick=function(){CGV.set=false;cgFit()};document.getElementById("cgmax").onclick=function(){cgMax(!O.classList.contains("max"))};document.addEventListener("fullscreenchange",function(){if(!document.fullscreenElement&&O.classList.contains("max")&&CGFS)cgMax(false)});document.addEventListener("webkitfullscreenchange",function(){if(!document.webkitFullscreenElement&&O.classList.contains("max")&&CGFS)cgMax(false)});
     cgWire();}
   if(!CG)cgBuild();cgChips();O.hidden=false;document.body.style.overflow="hidden";document.body.classList.add("cgopen");
-  var f=focus&&CG.byId[focus];requestAnimationFrame(function(){cgDraw();if(CG.alpha>0.03)cgRun();else if(!CGV.set)cgFit();
+  var f=focus&&CG.byId[focus];requestAnimationFrame(function(){cgDraw();if(CG.alpha>0.03)cgRun();else if(!CGV.set)cgFit(true);
     if(f){if(CGOFF[f.type]){CGOFF[f.type]=false;cgChips();}setTimeout(function(){cgSelect(f,true)},CG.alpha>0.03&&!RM?900:0);}else{setHash("#/connections","Connections");document.getElementById("cgq").focus();}});}
 var CGFS=false;
 /* Maximize: hide the title, search and filters so the graph fills the window, and go full screen where the browser allows it
