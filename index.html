@@ -580,6 +580,9 @@ h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-
 .std{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sc)}
 .cl{border:1px solid var(--hair);border-left:5px solid var(--sc);border-radius:10px;background:var(--card);padding:16px 18px 12px;margin:0 0 14px;scroll-margin-top:16px}
 .cl.flash{box-shadow:0 0 0 3px var(--focus)}
+/* spring-in: blocks start a little low and faded, and spring up into place (overshooting slightly) as they scroll into view */
+.spr{opacity:0;transform:translateY(38px) scale(.96)}
+.spr.in{opacity:1;transform:none;transition:transform .8s cubic-bezier(.2,1.5,.35,1),opacity .45s ease;transition-delay:var(--sd,0ms)}
 #ledger.snap{scroll-snap-type:y proximity}
 /* the top of the ledger (title, Take the quiz, filters) is a snap point too, so opening it doesn't jump to the first claim */
 #ledger.snap>.lg{scroll-snap-align:start}
@@ -6043,7 +6046,7 @@ function openAbout(){var A=document.getElementById("about");
     '<h3>Contact and feedback</h3><p>Ideas, cases we\u2019ve missed, sources, or anything else: '+contactLine()+'. Watcher is run by one person, so replies can take a few days.</p>'+
     '<h3>Support Watcher</h3><p>Watcher is free to use, with no ads or paywall. If you find it useful, you can leave a tip to help cover running costs such as the domain and map services.</p><p><a class="tipbtn" href="https://venmo.com/u/uapwatcher" target="_blank" rel="noopener">Tip with Venmo <span>@uapwatcher</span></a></p>'+
     '<h3>Disclaimer</h3><p>This site is for information and research. It may contain errors and is not a substitute for the sources it cites; check them before relying on anything here.</p></div>';
-  A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;
+  A.hidden=false;document.body.style.overflow="hidden";A.scrollTop=0;springIn(A,".ab > :not(.lgh)");
   document.getElementById("abx").onclick=closeAbout;document.getElementById("abx").focus();setHash("#/about","About");}
 /* ---- Your saved data: notes, quiz scores, where you left off, and pins or boxes you added. Everything lives in this
    browser's local storage (the same "uap-tree-local" record the notes have always used); export and import move it
@@ -6338,6 +6341,13 @@ function openLedger(focus){var L=document.getElementById("ledger");
    (CSS scroll snap, "proximity", so it only settles when you stop near a card); a card taller than the screen is left
    free so its whole text can be read. Off for readers who ask for reduced motion, and only switched on by script. */
 var LGRAF=0;
+/* spring blocks into place as they enter the scrolling box; ones already in view come in one after another */
+function springIn(box,sel){if(RM||!window.IntersectionObserver||!box)return;if(box.sprIO)box.sprIO.disconnect();
+  var els=[].slice.call(box.querySelectorAll(sel)),wave=0,waveT=0;
+  var io=new IntersectionObserver(function(es){var now=performance.now();if(now-waveT>250){wave=0;waveT=now;}
+    es.forEach(function(e){if(!e.isIntersecting)return;var el=e.target;el.style.setProperty("--sd",Math.min(wave++,5)*50+"ms");el.classList.add("in");io.unobserve(el);
+      setTimeout(function(){el.classList.remove("spr","in");el.style.removeProperty("--sd")},1300+Math.min(wave,5)*50);});},{root:box,threshold:0.08});
+  box.sprIO=io;els.forEach(function(el){el.classList.add("spr");io.observe(el)});}
 function lgFocus(L){L.classList.remove("snap");if(RM)return;L.classList.add("snap");
   var cs=[].slice.call(L.querySelectorAll("article.cl")),cur=null;
   cs.forEach(function(c){c.classList.toggle("tall",c.offsetHeight>L.clientHeight*.86)});
@@ -6465,7 +6475,7 @@ document.getElementById("keyBtn").onclick=function(){var o=document.body.classLi
     if(L)document.getElementById("wcont").onclick=function(){shut(function(){routeTo(parseHash(L.h))})};
     q.textContent=state.quiz.played?" Your best so far: "+state.quiz.best+" / 10.":"";}
   wfresh();
-  function show(){wfresh();last=document.activeElement;W.hidden=false;W.classList.remove("out");var b=W.querySelector(".went button");if(b)b.focus();}
+  function show(){wfresh();last=document.activeElement;W.hidden=false;W.classList.remove("out");springIn(W,".went button,.wled,.wh,.wfeat li");var b=W.querySelector(".went button");if(b)b.focus();}
   W.querySelectorAll("[data-door]").forEach(function(b){b.onclick=function(){var m=b.dataset.door;shut(function(){switchTo(m)})}});
   W.querySelectorAll("[data-feat]").forEach(function(b){b.onclick=function(){var f=feat[+b.dataset.feat];shut(function(){
     goTo(f[0],f[1]);if(f[1]==="aaro"&&!showLin)document.getElementById("lin").click();})}});
