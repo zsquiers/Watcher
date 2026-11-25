@@ -738,12 +738,12 @@ function tlShown(e){return TLF[e.kind]!==false}
 function tlKeySync(){keySync(".tlkey",TLKEYS,TLF)}
 /* org chart key: each box type can be switched off. A switched-off box disappears unless boxes still shown hang
    beneath it; then it stays, faded, so the chart keeps its shape. Remembered on this device */
-var ORGKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["parent","sw","Parent body"]],ORGF={active:true,closed:true,secret:true,parent:true};
-try{var orf0=JSON.parse(localStorage.getItem("watcher-orgkeys")||"{}");Object.keys(orf0).forEach(function(k){if(k in ORGF)ORGF[k]=!!orf0[k]})}catch(e){}
+var ORGKEYS=[["active","sw a","Active UAP office"],["closed","sw c","Closed program"],["secret","sw s","Secret project"],["parent","sw","Parent body"]],ORGF={active:true,closed:false,secret:false,parent:false};
+try{var orf0=JSON.parse(localStorage.getItem("watcher-orgkeys2")||"{}");Object.keys(orf0).forEach(function(k){if(k in ORGF)ORGF[k]=!!orf0[k]})}catch(e){}
 function orgType(n){return n.k==="active"||n.k==="closed"||n.k==="secret"?n.k:"parent"}
 function orgKeySync(){keySync(".orgkey",ORGKEYS,ORGF);var all=treeCountry(),c={};all.forEach(function(n){var t=orgType(n);c[t]=(c[t]||0)+1});
   document.querySelectorAll(".orgkey [data-k]").forEach(function(b){var e=b.querySelector(".kn");if(e)e.textContent=c[b.dataset.k]||0})}
-function orgFilter(){try{localStorage.setItem("watcher-orgkeys",JSON.stringify(ORGF))}catch(e){}orgKeySync();if(mode==="tree"){renderTree();apply();}}
+function orgFilter(){try{localStorage.setItem("watcher-orgkeys2",JSON.stringify(ORGF))}catch(e){}orgKeySync();if(mode==="tree"){renderTree();apply();}}
 function tlFilter(){try{localStorage.setItem("watcher-tlkeys",JSON.stringify(TLF))}catch(e){}tlKeySync();layoutTL();if(mode==="timeline"){renderTimeline();apply();}}
 var BASE=[
 {id:"gov",p:null,t:"United States government",s:"Federal branches",k:"root",cn:"United States",d:["The two branches that matter most for UAP work: the executive branch runs the offices, and Congress creates and funds them."]},
@@ -5091,7 +5091,8 @@ var HINTS={tree:"Drag to pan, pinch or scroll to zoom. Tap any box for details a
 
 /* org chart countries: the U.S. alone by default, or every country side by side; remembered on this device */
 /* which country the org chart shows: one at a time (the U.S. by default), or "all" side by side; remembered */
-var CSEL=(function(){try{var v=localStorage.getItem("watcher-countries");return v&&v!=="us"?v:"gov"}catch(e){return "gov"}})(),CSPAN={};
+/* the org chart opens on every country's active UAP offices, fitted to the screen; a choice the viewer makes is remembered */
+var CSEL=(function(){try{var v=localStorage.getItem("watcher-countries2");return !v?"all":v!=="us"?v:"gov"}catch(e){return "all"}})(),CSPAN={};
 function rootOfIn(id){var all=treeAll(),m={},n,g=0;all.forEach(function(x){m[x.id]=x});n=m[id];while(n&&n.p&&m[n.p]&&g++<40)n=m[n.p];return n?n.id:null}
 function treeCountry(){var all=treeAll();if(CSEL==="all")return all;var m={};all.forEach(function(x){m[x.id]=x});
   if(!m[CSEL])CSEL="gov";
@@ -5102,7 +5103,7 @@ function treeShown(){var list=treeCountry(),keep={},kids0={};list.forEach(functi
   list.forEach(function(n){k(n.id)});return list.filter(function(n){return keep[n.id]})}
 /* switch the org chart to one country (its id) or "all"; then() runs after the chart is redrawn, otherwise the view
    settles on the U.S. home view, the whole of a smaller country, or everything */
-function setCountry(c,then){CSEL=c;try{localStorage.setItem("watcher-countries",c==="gov"?"us":c)}catch(e){}cbarSync();orgKeySync();
+function setCountry(c,then){CSEL=c;try{localStorage.setItem("watcher-countries2",c==="gov"?"us":c)}catch(e){}cbarSync();orgKeySync();
   if(mode!=="tree")return;renderTree();if(then){then();return;}if(c==="gov")homeTree();else if(c==="all")fit();else{fit();flashBox(c);}}
 function flashBox(id){var el=world.querySelector('.node[data-id="'+id+'"]');if(el&&!RM){el.classList.remove("flash");void el.offsetWidth;el.classList.add("flash");setTimeout(function(){el.classList.remove("flash")},1800);}}
 function cbarSync(){var b=document.getElementById("cbar");if(!b)return;var roots=treeAll().filter(function(n){return !n.p&&n.cn});
@@ -5391,15 +5392,15 @@ function dims(){return mode==="tree"?bounds:mode==="map"?{w:MW+40,h:MH+40}:tlBou
 function fitPad(){var r=vpR(),o=panel.classList.contains("open")&&!panel.classList.contains("min");if(!o)return {top:0,bottom:0,left:0,right:0};
   return r.width>640?{top:0,bottom:0,left:0,right:pw(r)}:{top:0,left:0,right:0,bottom:Math.round(Math.min(panel.getBoundingClientRect().height,r.height*0.9))}}
 function fit(){if(mode==="map"&&SAT&&satMap){var sp=fitPad();satMap.flyTo({center:satMap.getCenter(),zoom:kToZ(1),pitch:0,bearing:0,offset:[(sp.left-sp.right)/2,(sp.top-sp.bottom)/2],padding:{top:0,bottom:0,left:0,right:0},duration:RM?0:800});return;}
-  if(mode==="map"){cancelAnimationFrame(gAnim);var fp=fitPad();k=1;gox=(fp.left-fp.right)/2;goy=(fp.top-fp.bottom)/2;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
+  if(mode==="map"){cancelAnimationFrame(gAnim);var fp=fitPad();k=1;gox=(fp.left-fp.right)/2;goy=(fp.top-fp.bottom)/2;apply();return;}var r=vpR(),b=dims();if(mode==="timeline"){k=tlFitK();tx=(r.width-b.w*k)/2;ty=tlTop();apply();return;}k=Math.min(r.width/b.w,r.height/b.h,mode==="tree"?1.2:3);k=Math.max(k,mode==="tree"?0.08:0.15);tx=(r.width-b.w*k)/2+(mode==="map"?20*k:0);ty=mode==="tree"?Math.max(8,Math.min((r.height-b.h*k)/2,Math.max(24,r.height*0.12)-30*k)):Math.max(8,(r.height-b.h*k)/2)+(mode==="map"?20*k:0);apply();}
 /* the org chart can't zoom out past the whole-chart view that Fit shows */
 /* Fit on the timeline shows all of it, from the earliest entry to now */
 function tlFitK(){var r=vpR(),b=dims();return Math.max(0.05,Math.min(r.width/b.w,(r.height-20)/b.h,1))}
-function treeFitK(){var r=vpR();return Math.max(0.15,Math.min(r.width/bounds.w,r.height/bounds.h,1.2))}
+function treeFitK(){var r=vpR();return Math.max(0.08,Math.min(r.width/bounds.w,r.height/bounds.h,1.2))}
 function zoomAt(f,cx,cy){if(mode==="map"&&SAT&&satMap){satMap.zoomTo(satMap.getZoom()+Math.log2(f),{duration:RM?0:250});return;}if(mode==="map"){cancelAnimationFrame(gAnim);gZoom(f,cx,cy);return;}var nk=Math.min(mode==="map"?40:3,Math.max(mode==="tree"?treeFitK():Math.min(0.15,tlFitK()),k*f));f=nk/k;tx=cx-(cx-tx)*f;ty=cy-(cy-ty)*f;k=nk;apply();}
 function center(){var r=vpR();return [r.width/2,r.height/2]}
 /* the org chart opens zoomed in on AARO and its Pentagon branch rather than the whole chart (Fit still shows everything) */
-function homeTree(){var p=pos.aaro,r=vpR();if(!p||!r.width){fit();return;}
+function homeTree(){var p=pos.aaro,r=vpR();if(CSEL!=="gov"||!p||!r.width){fit();return;}
   /* fit AARO's chain of command, from the President down to AARO and the box beneath it, and center it, so the first
      view shows where UAP work sits today and how it connects upward */
   var all=treeAll(),ids=[],id="aaro",guard=0;while(id&&guard++<20){var nd=all.find(function(x){return x.id===id});if(!nd||!nd.p)break;ids.push(id);id=nd.p;}
