@@ -589,6 +589,8 @@ h3 .mylink{float:right;font-size:13px;font-weight:500;font-family:Barlow,system-
 #ledger.snap .cl{scroll-snap-align:center;transform:scale(.94);opacity:.42;transition:transform .55s cubic-bezier(.2,1.35,.35,1),opacity .35s ease,box-shadow .35s ease}
 #ledger.snap .cl.tall{scroll-snap-align:none}
 #ledger.snap .cl.cur{transform:none;opacity:1;box-shadow:0 16px 44px rgba(0,0,0,.2)}
+/* phones: each claim snaps with its top at the top of the window, long ones included (they can then be read through) */
+@media (max-width:640px){#ledger.snap{scroll-snap-type:y mandatory}#ledger.snap .cl,#ledger.snap .cl.tall{scroll-snap-align:start;scroll-margin-top:10px}}
 .clt{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
 .clk{margin-left:auto;font:inherit;font-size:12.5px;color:var(--ink2);background:none;border:1px solid var(--line);border-radius:14px;padding:1px 10px;cursor:pointer}
 .clk:hover{color:var(--ink);border-color:var(--ink2)}
@@ -6607,9 +6609,9 @@ function springIn(box,sel){if(RM||!window.IntersectionObserver||!box)return;if(b
 function lgFocus(L){L.classList.remove("snap");if(RM)return;L.classList.add("snap");
   var cs=[].slice.call(L.querySelectorAll("article.cl")),cur=null;
   cs.forEach(function(c){c.classList.toggle("tall",c.offsetHeight>L.clientHeight*.86)});
-  function upd(){LGRAF=0;var r=L.getBoundingClientRect(),mid=r.top+L.clientHeight/2,best=null,bd=1e9;
+  function upd(){LGRAF=0;var r=L.getBoundingClientRect(),top=window.innerWidth<=640,mid=top?r.top+10:r.top+L.clientHeight/2,best=null,bd=1e9;
     for(var k=0;k<cs.length;k++){var b=cs[k].getBoundingClientRect();if(b.bottom<r.top-400)continue;if(b.top>r.bottom+400)break;
-      var d=Math.abs((b.top+b.bottom)/2-mid);if(d<bd){bd=d;best=cs[k];}}
+      var d=top?(b.top<=mid+90&&b.bottom>mid+90?0:Math.abs(b.top-mid)+1):Math.abs((b.top+b.bottom)/2-mid);if(d<bd){bd=d;best=cs[k];}}
     if(best!==cur){if(cur)cur.classList.remove("cur");cur=best;if(cur)cur.classList.add("cur");}}
   L.lgUpd=function(){if(!LGRAF)LGRAF=requestAnimationFrame(upd)};
   if(!L.lgWired){L.lgWired=1;L.addEventListener("scroll",function(){if(L.lgUpd)L.lgUpd()},{passive:true});
