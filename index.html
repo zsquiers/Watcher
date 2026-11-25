@@ -6169,7 +6169,9 @@ function cgCollide(ns){var C=52,grid={},i,j,n,m,dx,dy,d,o,k;for(i=0;i<ns.length;
 function cgR(n,k){return n.r*(k<1?k:Math.min(1.6,Math.sqrt(k)))}
 var CGDRAGN=null;
 function cgRun(){if(CGRUN)return;var steps=0;(function go(){var per=RM?900:6;for(var s=0;s<per&&CG.alpha>0.03;s++){cgTick();steps++;}
-  cgDraw();if(CG.alpha>0.03&&steps<900&&!RM)CGRUN=requestAnimationFrame(go);else{CGRUN=0;if(!CGV.set)cgFit();}})();}
+  /* keep the graph centered and in view while it settles (it used to sit around the top-left corner until the end),
+     unless the viewer has already moved or zoomed it */
+  if(!CGV.set)cgFit();else cgDraw();if(CG.alpha>0.03&&steps<900&&!RM)CGRUN=requestAnimationFrame(go);else{CGRUN=0;if(!CGV.set)cgFit();}})();}
 function cgFit(){var c=document.getElementById("cgc");if(!c||!CG)return;var x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;cgVis().forEach(function(n){x0=Math.min(x0,n.x);y0=Math.min(y0,n.y);x1=Math.max(x1,n.x);y1=Math.max(y1,n.y)});
   var w=c.clientWidth,h=c.clientHeight,k=Math.min(w/(x1-x0+80),h/(y1-y0+80),2.2);CGV={k:k,x:w/2-(x0+x1)/2*k,y:h/2-(y0+y1)/2*k,set:CGV.set};cgDraw();}
 function cgVis(){return CG.nodes.filter(function(n){return !CGOFF[n.type]})}
