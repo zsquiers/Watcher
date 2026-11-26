@@ -5115,7 +5115,10 @@ function jumpCountry(id){setCountry(id);}
 /* the country name and flag pinned to the top of the chart while you pan around its tree */
 function cnameSync(){var el=document.getElementById("cname");if(!el)return;if(mode!=="tree"||CSEL!=="all"){el.hidden=true;return;}
   var r=vpR(),fp=fitPad(),cx=((fp.left+r.width-fp.right)/2-tx)/k,best=null;Object.keys(CSPAN).forEach(function(id){var c=CSPAN[id];if(cx>=c.x0-120&&cx<=c.x1+120&&(!best||Math.abs(cx-(c.x0+c.x1)/2)<Math.abs(cx-(CSPAN[best].x0+CSPAN[best].x1)/2)))best=id;});
-  if(!best){el.hidden=true;return;}if(el.dataset.c!==best){el.dataset.c=best;el.innerHTML=(FLAGS[best]?'<img src="'+FLAGS[best]+'" alt="">':'')+'<span>'+esc(CSPAN[best].t)+'</span>';}el.hidden=false;
+  /* only name a country when it is the one in view: with several countries on screen (as when the whole chart is fitted)
+     the name and the highlighted flag would just pick whichever happens to sit in the middle */
+  var vx0=(fp.left-tx)/k,vx1=(r.width-fp.right-tx)/k,inView=Object.keys(CSPAN).filter(function(id){var c=CSPAN[id];return c.x1>vx0&&c.x0<vx1}).length;
+  if(!best||inView>1){el.hidden=true;document.querySelectorAll("#cbar .cf").forEach(function(b){b.setAttribute("aria-current","false")});return;}if(el.dataset.c!==best){el.dataset.c=best;el.innerHTML=(FLAGS[best]?'<img src="'+FLAGS[best]+'" alt="">':'')+'<span>'+esc(CSPAN[best].t)+'</span>';}el.hidden=false;
   document.querySelectorAll("#cbar .cf").forEach(function(b){b.setAttribute("aria-current",b.dataset.c===best?"true":"false")});}
 /* overview map: the whole chart in miniature with a box for the part on screen; click or drag on it to move there */
 var MINI=null;
